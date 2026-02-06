@@ -419,7 +419,7 @@ const ProductDetails = () => {
                         {/* Info Accordion */}
                         <div
                             ref={infoRef}
-                            className={`w-full transition-all duration-300 overflow-hidden ${activeAccordion === 'info' ? 'ring-4 ring-[#02D5E0] bg-[#f8f9fa] rounded-[30px] shadow-lg' : 'bg-gray-100 hover:bg-gray-200 rounded-[20px]'}`}
+                            className={`w-full transition-all duration-300 overflow-hidden shadow-lg ${activeAccordion === 'info' ? 'ring-4 ring-[#02D5E0] bg-[#f8f9fa] rounded-[30px] shadow-lg' : 'bg-gray-200 hover:bg-gray-300 rounded-[20px]'}`}
                         >
                             <button
                                 onClick={() => toggleAccordion('info')}

@@ -11,10 +11,10 @@ const BrandPromise = () => {
                     "We believe technology should make your life easier, not harder. That's why we stand behind every product with a comprehensive warranty and a hassle-free return policy. Shop with confidence."
                 </blockquote>
 
-                <a href="#" className="inline-flex items-center gap-3 bg-cyan-400 text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-cyan-300 transition-colors shadow-lg hover:shadow-cyan-400/50">
+                <a href="#" className="inline-flex items-center gap-3 bg-cyan-400 text-black hover:text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#216e73] transition-colors shadow-lg hover:shadow-cyan-400/50">
                     Explore Our Collection
                     <div className="bg-white p-1 rounded-full">
-                        <FaArrowRight className="text-sm" />
+                        <FaArrowRight className="text-sm -rotate-45 text-black" />
                     </div>
                 </a>
             </div>
