@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import smartwatchImg from '../../assets/images/watch_cat.gif';
+import smartwatchImg from '../../../assets/images/watch_cat.gif';
 
 const CategoryDropdown = ({ data, isOpen, onClose }) => {
     if (!isOpen) return null;

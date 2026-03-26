@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaArrowRight } from 'react-icons/fa6';
-import powerbankImg from '../../assets/images/rec1.png';
-import earbudsImg from '../../assets/images/rec2.png';
+import powerbankImg from '../../../assets/images/rec1.png';
+import earbudsImg from '../../../assets/images/rec2.png';
 
 const PowerYourLife = () => {
     return (

@@ -1,8 +1,8 @@
 import { FaArrowRight } from "react-icons/fa6";
-import img1 from "../../assets/categoery/1.jpg";
-import img2 from "../../assets/categoery/2.jpg";
-import img3 from "../../assets/categoery/3.jpg";
-import img4 from "../../assets/categoery/4.jpg";
+import img1 from "../../../assets/categoery/1.jpg";
+import img2 from "../../../assets/categoery/2.jpg";
+import img3 from "../../../assets/categoery/3.jpg";
+import img4 from "../../../assets/categoery/4.jpg";
 
 const Categories = () => {
     const categories = [

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaStar } from 'react-icons/fa';
-import userAvatar from '../../assets/user_avatar.png';
+import userAvatar from '../../../assets/user_avatar.png';
 
 const reviews = [
     {

@@ -1,15 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { FiMinus, FiPlus, FiShoppingCart, FiUser, FiChevronDown } from 'react-icons/fi';
-import { useCart } from '../context/CartContext';
-import img from "../assets/productpage/product_details/1.png"
-import img2 from "../assets/productpage/product_details/2.png"
-import img3 from "../assets/productpage/product_details/3.png"
-import img4 from "../assets/productpage/product_details/4.png"
-import img5 from "../assets/productpage/product_details/5.png"
-import featureDark from "../assets/productpage/product_details/feature_dark.png"
-import featureLight from "../assets/productpage/product_details/feature_light.png"
+import { useCart } from '../../context/CartContext';
+import img from "../../assets/productpage/product_details/1.png"
+import img2 from "../../assets/productpage/product_details/2.png"
+import img3 from "../../assets/productpage/product_details/3.png"
+import img4 from "../../assets/productpage/product_details/4.png"
+import img5 from "../../assets/productpage/product_details/5.png"
+import featureDark from "../../assets/productpage/product_details/feature_dark.png"
+import featureLight from "../../assets/productpage/product_details/feature_light.png"
 import { FaShieldAlt, FaShippingFast, FaCheckCircle, FaPlus, FaTimes } from "react-icons/fa";
-import Footer from '../components/Footer/Footer';
+import Footer from '../../components/layout/Footer/Footer';
 
 const ProductDetails = () => {
     const product = {

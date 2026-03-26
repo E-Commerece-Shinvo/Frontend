@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiX, FiMinus, FiPlus, FiTrash2, FiShoppingCart, FiLock } from 'react-icons/fi';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../../context/CartContext';
 
 const CartDrawer = () => {
     const { isCartOpen, setIsCartOpen, cartItems, removeFromCart, updateQuantity, cartCount, cartSubtotal } = useCart();

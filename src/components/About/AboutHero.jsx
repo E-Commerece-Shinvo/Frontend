@@ -2,7 +2,7 @@ import React from 'react';
 import homeHeroBg from '../../assets/home_hero_bg.png';
 import homeHeroProducts from '../../assets/home_hero_product_composition.png';
 import { FaArrowRight } from 'react-icons/fa';
-import Navbar from '../Navbar/Navbar';
+import Navbar from '../layout/Navbar/Navbar';
 
 const AboutHero = () => {
     return (

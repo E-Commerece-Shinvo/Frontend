@@ -1,15 +1,15 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar/Navbar';
-import Home from './pages/Home';
-import About from './pages/About';
-import ProductPage from './pages/ProductPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Navbar from './components/layout/Navbar/Navbar';
+import Home from './pages/user/Home';
+import About from './pages/user/About';
+import ProductPage from './pages/user/ProductPage';
+import Login from './pages/user/Login';
+import Register from './pages/user/Register';
 import NotFound from "./pages/NotFound";
-import ProductDetails from './pages/ProductDetails';
+import ProductDetails from './pages/user/ProductDetails';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
-import CartDrawer from './components/Cart/CartDrawer';
+import CartDrawer from './components/ui/Cart/CartDrawer';
 
 
 function App() {

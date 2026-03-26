@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import smartwatchImg from '../../assets/smartwatch.png';
+import smartwatchImg from '../../../assets/smartwatch.png';
 
 const products = [
     {

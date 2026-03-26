@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaChevronLeft, FaChevronRight, FaLock, FaShoppingBag } from 'react-icons/fa';
-import chargerImg from '../../assets/bestsellers/charger.png';
-import caseImg from '../../assets/bestsellers/case.png';
-import holderImg from '../../assets/bestsellers/holder.png';
+import chargerImg from '../../../assets/bestsellers/charger.png';
+import caseImg from '../../../assets/bestsellers/case.png';
+import holderImg from '../../../assets/bestsellers/holder.png';
 
 const Bestsellers = () => {
     const [activeIndex, setActiveIndex] = useState(1);
