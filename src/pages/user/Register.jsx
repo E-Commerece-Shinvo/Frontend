@@ -1,9 +1,33 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiUser, FiLock, FiMail, FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
+    const { register } = useAuth();
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+
+    // Form State
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+        const result = await register(username, email, password);
+        if (result.success) {
+            navigate('/');
+        } else {
+            setError(result.message);
+        }
+        setLoading(false);
+    };
+
     return (
         <div className="h-screen bg-[#1c1c1c] text-white flex items-center justify-center 2xl:p-4 overflow-hidden relative font-sans">
 
@@ -29,7 +53,13 @@ const Register = () => {
                     <div className="max-w-sm mx-auto w-full">
                         <h2 className="text-4xl font-bold mb-12 text-center tracking-wide">Register</h2>
 
-                        <form className="space-y-6">
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm text-center">
+                                {error}
+                            </div>
+                        )}
+
+                        <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                                     <FiUser />
@@ -37,6 +67,9 @@ const Register = () => {
                                 <input
                                     type="text"
                                     placeholder="Username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    required
                                     className="w-full bg-transparent border border-gray-600 text-white text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-cyan-400 transition-colors placeholder-gray-500"
                                 />
                             </div>
@@ -48,6 +81,9 @@ const Register = () => {
                                 <input
                                     type="email"
                                     placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
                                     className="w-full bg-transparent border border-gray-600 text-white text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-cyan-400 transition-colors placeholder-gray-500"
                                 />
                             </div>
@@ -59,6 +95,9 @@ const Register = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
                                     className="w-full bg-transparent border border-gray-600 text-white text-sm rounded-lg pl-10 pr-10 py-3 focus:outline-none focus:border-cyan-400 transition-colors placeholder-gray-500"
                                 />
                                 <button
@@ -71,8 +110,12 @@ const Register = () => {
                             </div>
 
                             <div className="pt-4">
-                                <button type="submit" className="w-full bg-black hover:bg-gray-900 border border-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg">
-                                    Register
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-black hover:bg-gray-900 border border-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg disabled:opacity-50"
+                                >
+                                    {loading ? 'Registering...' : 'Register'}
                                 </button>
                             </div>
                         </form>

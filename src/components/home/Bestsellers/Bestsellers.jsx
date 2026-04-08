@@ -1,42 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaChevronLeft, FaChevronRight, FaLock, FaShoppingBag } from 'react-icons/fa';
-import chargerImg from '../../../assets/bestsellers/charger.png';
-import caseImg from '../../../assets/bestsellers/case.png';
-import holderImg from '../../../assets/bestsellers/holder.png';
+import { getBestsellers } from '../../../api/products';
+// We still need a fallback for thumbnails since the DB might not have the array yet based on the schema
+import placeholderImg from '../../../assets/bestsellers/charger.png';
 
 const Bestsellers = () => {
     const [activeIndex, setActiveIndex] = useState(1);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const products = [
-        {
-            id: 1,
-            name: 'UGREEN',
-            description: 'Nexode 45w charger',
-            image: chargerImg,
-            thumbnails: [chargerImg, chargerImg],
-        },
-        {
-            id: 2,
-            name: 'Google Pixel',
-            description: 'Transparent Magsafe case',
-            image: caseImg,
-            thumbnails: [caseImg, caseImg, caseImg],
-        },
-        {
-            id: 3,
-            name: 'Mobile holder',
-            description: 'Suction Magnetic',
-            image: holderImg,
-            thumbnails: [holderImg, holderImg, holderImg],
-        },
-    ];
+    useEffect(() => {
+        const fetchBestsellers = async () => {
+            try {
+                const data = await getBestsellers();
+                // Map API response to match UI expectations
+                const mappedProducts = data.map(item => ({
+                    id: item._id,
+                    name: item.brand || item.title.split(' ')[0],
+                    description: item.title,
+                    image: item.image || placeholderImg,
+                    thumbnails: [item.image || placeholderImg, item.image || placeholderImg],
+                }));
+                setProducts(mappedProducts);
+            } catch (error) {
+                console.error("Failed to fetch bestsellers:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBestsellers();
+    }, []);
 
     const nextSlide = () => {
+        if (products.length === 0) return;
         setActiveIndex((prev) => (prev === products.length - 1 ? 0 : prev + 1));
     };
 
     const prevSlide = () => {
+        if (products.length === 0) return;
         setActiveIndex((prev) => (prev === 0 ? products.length - 1 : prev - 1));
     };
 

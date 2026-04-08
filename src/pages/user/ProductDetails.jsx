@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { FiMinus, FiPlus, FiShoppingCart, FiUser, FiChevronDown } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
+import { getProductById } from '../../api/products';
 import img from "../../assets/productpage/product_details/1.png"
 import img2 from "../../assets/productpage/product_details/2.png"
 import img3 from "../../assets/productpage/product_details/3.png"
@@ -12,29 +14,43 @@ import { FaShieldAlt, FaShippingFast, FaCheckCircle, FaPlus, FaTimes } from "rea
 import Footer from '../../components/layout/Footer/Footer';
 
 const ProductDetails = () => {
-    const product = {
-        id: 'samsung-45w-adapter',
-        title: "Samsung 45W Travel Adapter (Super Fast Charging 2.0)",
-        price: "Rs. 6,500",
-        rating: 4.8,
-        reviews: 120,
-        features: [
-            "Support fast protocols (PD, QC)",
-            "Super Fast Charging 2.0 (45W)",
-            "Supports PD (Power Delivery) & QC Protocols",
-            "USB-C Interface",
-            "Official Samsung Product"
-        ],
-        colors: ["Black", "White"], // Represented as hex or names
-        powerOptions: ["25W", "45W", "65W"],
-        images: [
-            img, // Main placeholder
-            img3,
-            img4,
-            img5,
-            img2,
-        ]
-    };
+    const { id } = useParams();
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                // If it's a dummy mocked routing test parameter "samsung-45w-adapter", we can just fetch the first available product or handle it.
+                // Assuming `id` is a real MongoDB _id here:
+                const data = await getProductById(id);
+                setProduct({
+                    id: data._id,
+                    title: data.title,
+                    price: `$${data.price.toFixed(2)}`,
+                    numericPrice: data.price,
+                    brand: data.brand || 'Shinvo',
+                    rating: data.rating || 4.5,
+                    reviewsCount: data.reviews?.length || 0,
+                    description: data.description,
+                    features: [
+                        data.description || "High quality product",
+                        "Official Product",
+                        "Fast Shipping Guarantee"
+                    ],
+                    colors: ["Black", "White"], // Still mocked unless in DB
+                    powerOptions: ["25W", "45W"], // Still mocked
+                    images: data.image ? [data.image, img, img2] : [img, img3, img4, img5, img2]
+                });
+            } catch (err) {
+                console.error("Error fetching product details:", err);
+                setError(err.response?.data?.message || 'Product not found');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProduct();
+    }, [id]);
 
     const overviewRef = useRef(null);
     const infoRef = useRef(null);
@@ -134,10 +150,11 @@ const ProductDetails = () => {
     const { addToCart } = useCart();
 
     const handleAddToCart = () => {
+        if (!product) return;
         addToCart({
             id: product.id,
             name: product.title,
-            price: 6500, // Numeric for calculation
+            price: product.numericPrice, // Numeric for calculation
             image: product.images[0],
             variant: `Color: ${selectedColor}, Power: ${selectedPower}`
         });
@@ -170,6 +187,14 @@ const ProductDetails = () => {
         if (type === 'dec' && quantity > 1) setQuantity(quantity - 1);
         if (type === 'inc') setQuantity(quantity + 1);
     };
+
+    if (loading) return <div className="pt-[150px] text-center text-xl font-bold pb-40">Loading Product Details...</div>;
+    if (error || !product) return (
+        <div className="pt-[150px] text-center pb-40 flex flex-col items-center">
+            <h2 className="text-2xl font-bold text-red-500 mb-4">{error || "Product not found"}</h2>
+            <Link to="/shop" className="text-cyan-600 hover:underline">Return to Shop</Link>
+        </div>
+    );
 
     return (
         <div className="bg-[#f8f9fa] min-h-screen pt-[120px] lg:mt-10 font-sans text-gray-800">
@@ -208,12 +233,12 @@ const ProductDetails = () => {
                     {/* Right Column: Product Details */}
                     <div className="bg-white flex flex-col gap-6 p-8 rounded-[30px] shadow-md h-full">
                         <div>
-                            <p className="text-gray-500 text-sm mb-1">Brand: Samsung (Clickable Link)</p>
+                            <p className="text-gray-500 text-sm mb-1">Brand: {product.brand}</p>
                             <div className="flex items-center gap-2 mb-3">
                                 <div className="flex text-yellow-400 text-sm">
-                                    {'★'.repeat(5)} {/* Simplified star rendering */}
+                                    {'★'.repeat(Math.round(product.rating))}
                                 </div>
-                                <span className="text-sm text-gray-500">({product.rating}) | {product.reviews} Reviews</span>
+                                <span className="text-sm text-gray-500">({product.rating}) | {product.reviewsCount} Reviews</span>
                             </div>
 
                             <h1 className="text-3xl font-bold mb-4 leading-tight">{product.title}</h1>

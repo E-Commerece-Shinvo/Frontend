@@ -1,44 +1,72 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ShopProductCard from './ShopProductCard';
+import { getProducts } from '../../api/products';
 
-const sections = [
-    {
-        title: "Samsung Covers",
-        products: [1, 2, 3, 4, 5, 6] // Mock IDs for now to generate cards
-    },
-    {
-        title: "Vivo Covers",
-        products: [1, 2, 3, 4, 5, 6]
-    },
-    {
-        title: "Xiaomi Covers",
-        products: [1, 2, 3, 4, 5, 6]
-    },
-    {
-        title: "iPhone Covers",
-        products: [1, 2, 3, 4, 5, 6]
-    },
-    {
-        title: "Google Pixel Covers",
-        products: [1, 2, 3, 4, 5, 6]
+const ShopSections = ({ sections = null, loading: externalLoading = false }) => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Only fetch if sections are not passed externally
+        if (!sections) {
+            const fetchAllProducts = async () => {
+                try {
+                    const data = await getProducts();
+                    const productList = Array.isArray(data) ? data : (data.products || []);
+                    setProducts(productList);
+                } catch (error) {
+                    console.error("Failed to fetch products:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchAllProducts();
+        } else {
+            setLoading(externalLoading);
+        }
+    }, [sections, externalLoading]);
+
+    if (loading) {
+        return (
+            <div className="w-full flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+            </div>
+        );
     }
-];
 
-const ShopSections = () => {
+    // Determine what to map: either external sections or dynamic categorization of internal products
+    let itemsToRender = [];
+    if (sections) {
+        itemsToRender = sections;
+    } else {
+        const getCategoryName = (cat) => {
+            if (!cat) return 'Accessories';
+            if (typeof cat === 'string') return cat;
+            return cat.name || 'Accessories';
+        };
+        const uniqueCatNames = [...new Set(products.map(p => getCategoryName(p.category)))];
+        itemsToRender = uniqueCatNames.map(name => ({
+            name,
+            products: products.filter(p => getCategoryName(p.category) === name)
+        }));
+    }
+
+    if (itemsToRender.length === 0) {
+        return <div className="text-center py-20 text-xl font-bold text-gray-400 italic">No Collections Found</div>;
+    }
+
     return (
         <div className="w-full max-w-[1820px] mx-auto px-6 pb-20">
-            {sections.map((section, idx) => (
-                <div key={idx} className="mb-16">
-                    <h2 className="text-center text-2xl font-bold mb-8 capitalize text-black">
-                        {section.title}
+            {itemsToRender.map((section, idx) => (
+                <div key={idx} id={section._id} className="mb-24 scroll-mt-[120px]">
+                    <h2 className="text-center text-3xl md:text-4xl font-extrabold mb-10 capitalize text-black tracking-tight uppercase">
+                        {section.name}
                     </h2>
-                    {/* Grid Layout matching design: 3 columns on Desktop, responsive downwards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                        {section.products.map((item, pIdx) => (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-10 max-w-[1700px] mx-auto">
+                        {(section.products || []).map((product) => (
                             <ShopProductCard
-                                key={pIdx}
-                                title="PHONE CASE"
-                                subtitle="For specific model"
+                                key={product._id}
+                                product={product}
                             />
                         ))}
                     </div>

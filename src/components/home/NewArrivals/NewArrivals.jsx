@@ -1,48 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import smartwatchImg from '../../../assets/smartwatch.png';
-
-const products = [
-    {
-        id: 1,
-        name: 'Bipow 22.5w 20000mah powerbank',
-        brand: 'Baseus',
-        price: '$30.06',
-        image: smartwatchImg, // Using same image for mock
-        isNew: true,
-    },
-    {
-        id: 2,
-        name: 'Bipow 22.5w 20000mah powerbank',
-        brand: 'Baseus',
-        price: '$30.06',
-        image: smartwatchImg,
-        isNew: true,
-    },
-    {
-        id: 3,
-        name: 'Bipow 22.5w 20000mah powerbank',
-        brand: 'Baseus',
-        price: '$30.06',
-        image: smartwatchImg,
-        isNew: true,
-    },
-    {
-        id: 4,
-        name: 'Bipow 22.5w 20000mah powerbank',
-        brand: 'Baseus',
-        price: '$30.06',
-        image: smartwatchImg,
-        isNew: true,
-    },
-];
+import { getNewArrivals } from '../../../api/products';
+import smartwatchImg from '../../../assets/smartwatch.png'; // Fallback
 
 const NewArrivals = () => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchArrivals = async () => {
+            try {
+                const data = await getNewArrivals();
+                const mappedProducts = data.map(item => ({
+                    id: item._id,
+                    name: item.title,
+                    brand: item.brand || 'Shinvo',
+                    price: `$${item.price.toFixed(2)}`,
+                    image: item.image || smartwatchImg,
+                    isNew: true,
+                }));
+                setProducts(mappedProducts);
+            } catch (error) {
+                console.error("Failed to fetch new arrivals:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchArrivals();
+    }, []);
+
     return (
         <div className="w-full py-10 flex flex-col items-center gap-12 bg-white">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900">New Arrivals</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-4 max-w-[1920px] mx-auto">
+                {products.length === 0 && !loading && <p className="col-span-1 sm:col-span-2 lg:col-span-4 text-center">No new arrivals found.</p>}
+                {products.length === 0 && loading && <p className="col-span-1 sm:col-span-2 lg:col-span-4 text-center">Loading...</p>}
                 {products.map((product) => (
                     <Link
                         to={`/product/${product.id}`}

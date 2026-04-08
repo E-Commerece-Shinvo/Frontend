@@ -5,14 +5,29 @@ import { FiSearch, FiUser, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiChevron
 import { Link } from 'react-router-dom';
 import UpperNavbar from './UpperNavbar';
 import CategoryDropdown from './CategoryDropdown';
-import { categoryData } from './categoryData';
+import { getCategories } from '../../../api/categories';
 
 function Navbar() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
   const { cartCount, setIsCartOpen } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  // Fetch categories from Backend
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Toggle Dropdown
   const toggleDropdown = () => {
@@ -70,12 +85,33 @@ function Navbar() {
               <FiSearch className="text-white/70 w-[24px] h-[24px] text-lg cursor-pointer hover:text-white" />
             </div>
 
-            <div className="flex items-center gap-3 border-l border-white/20 pl-4">
+            <div className="flex items-center gap-3 border-l border-white/20 pl-4 relative">
               {isLoggedIn ? (
                 <>
-                  <button className="text-white hover:text-[#53C1CC] transition-transform hover:scale-110">
-                    <FiUser className="text-xl w-[32px] h-[32px]" />
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="flex items-center gap-2 text-white hover:text-[#53C1CC] transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-[#53C1CC] flex items-center justify-center font-bold text-sm">
+                      {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    </div>
                   </button>
+
+                  {profileDropdownOpen && (
+                    <div className="absolute top-[120%] right-0 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-50 animate-fade-in border border-gray-100">
+                      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                        <p className="text-sm font-semibold text-gray-800 truncate">{user?.username}</p>
+                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                      </div>
+                      <button
+                        onClick={() => { logout(); setProfileDropdownOpen(false); }}
+                        className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+
                   <button
                     onClick={() => setIsCartOpen(true)}
                     className="relative text-white hover:text-[#53C1CC] transition-transform hover:scale-110"
@@ -106,7 +142,7 @@ function Navbar() {
         {/* Desktop Dropdown Component */}
         <div className="hidden md:block">
           <CategoryDropdown
-            data={categoryData}
+            data={categories}
             isOpen={isDropdownOpen}
             onClose={() => setIsDropdownOpen(false)}
           />
@@ -132,19 +168,35 @@ function Navbar() {
 
                 {mobileCategoryOpen && (
                   <div className="bg-white/5 rounded-xl p-4 mt-2 flex flex-col gap-4 text-left text-base">
-                    {Object.entries(categoryData).map(([category, items]) => (
-                      <div key={category}>
-                        <h4 className="text-[#53C1CC] font-bold mb-2 uppercase text-sm">{category}</h4>
+                    {categories.map((niche) => (
+                      <div key={niche._id}>
+                        <h4 className="text-[#53C1CC] font-bold mb-2 uppercase text-sm">{niche.name}</h4>
                         <div className="flex flex-col gap-2 pl-2 border-l border-white/10">
-                          {items.map(item => (
-                            <Link
-                              key={item}
-                              to="/shop"
-                              className="text-gray-300 text-sm hover:text-white"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              {item}
-                            </Link>
+                          {niche.children && niche.children.map(cat => (
+                            <div key={cat._id} className="flex flex-col gap-1">
+                              <Link
+                                to="/shop"
+                                className="text-gray-300 text-sm font-medium hover:text-white"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {cat.name}
+                              </Link>
+                              {/* Sub-subcategories for mobile if needed */}
+                              {cat.children && cat.children.length > 0 && (
+                                <div className="flex flex-col gap-1 pl-3 border-l border-white/5 opacity-80">
+                                  {cat.children.map(sub => (
+                                    <Link
+                                      key={sub._id}
+                                      to="/shop"
+                                      className="text-gray-400 text-xs hover:text-white"
+                                      onClick={() => setIsOpen(false)}
+                                    >
+                                      {sub.name}
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           ))}
                         </div>
                       </div>

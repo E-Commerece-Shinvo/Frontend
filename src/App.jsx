@@ -6,11 +6,11 @@ import ProductPage from './pages/user/ProductPage';
 import Login from './pages/user/Login';
 import Register from './pages/user/Register';
 import NotFound from "./pages/NotFound";
+import CategoryPage from './pages/user/CategoryPage';
 import ProductDetails from './pages/user/ProductDetails';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/ui/Cart/CartDrawer';
-
 
 function App() {
   const location = useLocation();
@@ -19,7 +19,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="font-outfit">
+        <div className="font-outfit text-black bg-white min-h-screen">
           {!hideNavbar && <Navbar />}
           <CartDrawer />
           <Routes>
@@ -27,6 +27,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/shop" element={<ProductPage />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/category/:id" element={<CategoryPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
