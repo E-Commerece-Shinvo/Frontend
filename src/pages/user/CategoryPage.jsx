@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar/Navbar';
 import Footer from '../../components/layout/Footer/Footer';
-import ShopHero from '../../components/shop/ShopHero';
-import ChooseDevice from '../../components/shop/ChooseDevice';
-import ShopSections from '../../components/shop/ShopSections';
-import AccessoryPromos from '../../components/shop/AccessoryPromos';
+import ShopHero from '../../components/Shop/ShopHero';
+import ChooseDevice from '../../components/Shop/ChooseDevice';
+import ShopSections from '../../components/Shop/ShopSections';
+import AccessoryPromos from '../../components/Shop/AccessoryPromos';
 import { getCategoryById } from '../../api/categories';
 import { getProducts } from '../../api/products';
 
@@ -72,7 +72,7 @@ const CategoryPage = () => {
             <Navbar />
             <div className="mt-[100px]">
                 {/* Hero Section using Category Data */}
-                <ShopHero 
+                <ShopHero
                     title={category?.name ? `PREMIUM \n ${category.name}` : "Loading..."}
                     description={`Protect Your Style. \n Explore Our New ${category?.name || 'Category'} Collection.`}
                     bgImage={category?.image}
@@ -84,7 +84,7 @@ const CategoryPage = () => {
                 )}
 
                 {/* Product Sections */}
-                <ShopSections 
+                <ShopSections
                     sections={sections}
                     loading={loading}
                 />

@@ -20,7 +20,12 @@ const Login = () => {
         setLoading(true);
         const result = await login(email, password);
         if (result.success) {
-            navigate('/');
+            // Check for admin role
+            if (email === 'admin@shinvo.com') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/');
+            }
         } else {
             setError(result.message);
         }

@@ -8,20 +8,23 @@ import Register from './pages/user/Register';
 import NotFound from "./pages/NotFound";
 import CategoryPage from './pages/user/CategoryPage';
 import ProductDetails from './pages/user/ProductDetails';
+import Checkout from './pages/user/Checkout';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/ui/Cart/CartDrawer';
 
 function App() {
   const location = useLocation();
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register';
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || isAdminRoute;
 
   return (
     <AuthProvider>
       <CartProvider>
         <div className="font-outfit text-black bg-white min-h-screen">
           {!hideNavbar && <Navbar />}
-          <CartDrawer />
+          {!isAdminRoute && <CartDrawer />}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -30,6 +33,11 @@ function App() {
             <Route path="/category/:id" element={<CategoryPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/checkout" element={<Checkout />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
