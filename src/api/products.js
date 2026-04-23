@@ -33,3 +33,12 @@ export const getNewArrivals = async () => {
     const response = await api.get('/products/new-arrivals');
     return response.data;
 };
+
+/**
+ * Create a new product (Admin)
+ * @param {Object} productData 
+ */
+export const createProduct = async (productData) => {
+    const response = await api.post('/products', productData);
+    return response.data;
+};

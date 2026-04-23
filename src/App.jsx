@@ -10,6 +10,8 @@ import CategoryPage from './pages/user/CategoryPage';
 import ProductDetails from './pages/user/ProductDetails';
 import Checkout from './pages/user/Checkout';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminProducts from './pages/admin/AdminProducts';
+import AdminAddProduct from './pages/admin/AdminAddProduct';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/ui/Cart/CartDrawer';
@@ -22,7 +24,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="font-outfit text-black bg-white min-h-screen">
+        <div className="font-outfit text-black bg-white min-h-screen overflow-x-hidden w-full relative">
           {!hideNavbar && <Navbar />}
           {!isAdminRoute && <CartDrawer />}
           <Routes>
@@ -37,6 +39,8 @@ function App() {
 
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/products/add" element={<AdminAddProduct />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
