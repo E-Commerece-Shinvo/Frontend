@@ -206,10 +206,11 @@ const AdminProducts = () => {
                         </div>
                         <button
                             onClick={handleOpenModal}
-                            className="border-2 border-cyan-400 text-cyan-500 hover:bg-cyan-50 px-5 py-2 rounded-lg flex items-center gap-2 font-bold text-sm transition-all whitespace-nowrap"
+                            className="border-2 border-cyan-400 text-cyan-500 hover:bg-cyan-50 w-11 h-11 md:w-auto md:h-auto md:px-5 md:py-2 rounded-lg flex items-center justify-center gap-2 font-bold text-sm transition-all whitespace-nowrap shrink-0"
+                            title="Add new Product"
                         >
-                            <FiPlus className="text-lg" />
-                            Add new Product
+                            <FiPlus className="text-xl shrink-0" />
+                            <span className="hidden md:inline">Add new Product</span>
                         </button>
                     </div>
                 </div>
@@ -284,24 +285,24 @@ const AdminProducts = () => {
                         Showing {Math.min((page - 1) * limit + 1, totalProducts || 0)} to {Math.min(page * limit, totalProducts || 0)} of {totalProducts || 0} products
                     </div>
                     {totalPages > 1 && (
-                        <div className="flex flex-wrap items-center justify-center gap-1.5">
+                        <div className="flex flex-nowrap items-center justify-center gap-1 md:gap-1.5 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 custom-scrollbar">
                             <button
                                 disabled={page === 1}
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
-                                className="p-1 text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-50"
+                                className="p-1 text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-50 shrink-0"
                             >
                                 <FiChevronLeft className="text-lg" />
                             </button>
 
                             {getPageNumbers().map((num, idx) => {
                                 if (num === '...') {
-                                    return <span key={`ellipsis-${idx}`} className="text-gray-400 text-xs tracking-wider mx-1">...</span>;
+                                    return <span key={`ellipsis-${idx}`} className="text-gray-400 text-xs tracking-wider mx-0.5 md:mx-1 shrink-0">...</span>;
                                 }
                                 return (
                                     <button
                                         key={num}
                                         onClick={() => setPage(num)}
-                                        className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-xs transition-colors shrink-0 ${page === num ? 'border border-gray-300 text-gray-900 bg-white shadow-sm' : 'text-gray-500 hover:bg-gray-100'}`}
+                                        className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full font-bold text-[10px] md:text-xs transition-colors shrink-0 ${page === num ? 'border border-gray-300 text-gray-900 bg-white shadow-sm' : 'text-gray-500 hover:bg-gray-100'}`}
                                     >
                                         {num}
                                     </button>
@@ -311,7 +312,7 @@ const AdminProducts = () => {
                             <button
                                 disabled={page === totalPages}
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                className="p-1 text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-50"
+                                className="p-1 text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-50 shrink-0"
                             >
                                 <FiChevronRight className="text-lg" />
                             </button>
