@@ -87,8 +87,8 @@
 
   /* BORDER THICKNESS: Adjust this padding to make border thicker/thinner */
   padding: 1.5px;
-
   border-radius: 30px;
+  /* Must match the container */
   /* Must match the container */
 
   /* The Rotating Gradient */
@@ -119,5 +119,33 @@
 @keyframes rotate-border {
   to {
     --angle: 360deg;
+  }
+}
+
+/* Spinner for loading states */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* My Orders sidebar responsive */
+@media (max-width: 768px) {
+  .myorders-sidebar {
+    display: none !important;
+  }
+
+  .myorders-wrapper {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  .myorders-item-row {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .myorders-tabs {
+    overflow-x: auto !important;
   }
 }

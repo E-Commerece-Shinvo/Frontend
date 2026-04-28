@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiX, FiMinus, FiPlus, FiTrash2, FiShoppingCart, FiLock } from 'react-icons/fi';
 import { useCart } from '../../../context/CartContext';
 
 const CartDrawer = () => {
     const { isCartOpen, setIsCartOpen, cartItems, removeFromCart, updateQuantity, cartCount, cartSubtotal } = useCart();
+    const navigate = useNavigate();
 
     const freeShippingThreshold = 9000;
     const amountToFreeShipping = Math.max(0, freeShippingThreshold - cartSubtotal);
@@ -59,7 +61,7 @@ const CartDrawer = () => {
                             <div className="h-full flex flex-col items-center justify-center gap-6">
                                 <h3 className="text-xl font-bold">Your cart is empty.</h3>
                                 <button
-                                    onClick={() => setIsCartOpen(false)}
+                                    onClick={() => { setIsCartOpen(false); navigate('/shop'); }}
                                     className="bg-black text-white px-12 py-3 rounded-xl font-bold hover:bg-gray-900 transition-all shadow-lg text-sm"
                                 >
                                     Start Shopping
@@ -119,7 +121,10 @@ const CartDrawer = () => {
                                 <span className="text-gray-400 font-medium">Subtotal:</span>
                                 <span className="font-bold">Rs: {cartSubtotal}</span>
                             </div>
-                            <button className="w-full bg-black text-white py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-900 transition-all font-bold uppercase text-sm tracking-widest shadow-xl active:scale-[0.98]">
+                            <button
+                                onClick={() => { setIsCartOpen(false); navigate('/checkout'); }}
+                                className="w-full bg-black text-white py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-900 transition-all font-bold uppercase text-sm tracking-widest shadow-xl active:scale-[0.98]"
+                            >
                                 <FiLock />
                                 CHECKOUT . Rs: {cartSubtotal} PKR
                             </button>
