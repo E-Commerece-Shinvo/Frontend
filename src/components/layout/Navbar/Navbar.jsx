@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import { FiSearch, FiUser, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
@@ -15,6 +15,20 @@ function Navbar() {
   const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const profileDropdownRef = useRef(null);
+
+  // Close profile dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    if (profileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [profileDropdownOpen]);
 
   // Fetch categories from Backend
   React.useEffect(() => {
@@ -35,7 +49,7 @@ function Navbar() {
   };
 
   return (
-    <div className="top-0 left-0 z-50 fixed w-full px-4">
+    <div className="top-0 left-0 z-50 absolute w-full px-4">
       <UpperNavbar />
 
       {/* Main Container */}
@@ -59,9 +73,19 @@ function Navbar() {
             </div>
 
             {/* Mobile Icons */}
-            <button onClick={() => setIsCartOpen(true)} className="md:hidden">
-              <FiShoppingCart className="text-2xl" color='white' />
-            </button>
+            <div className="flex items-center gap-3 md:hidden">
+              {isLoggedIn && (
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="text-white hover:text-[#53C1CC] transition-colors"
+                >
+                  <FiUser className="text-2xl" />
+                </button>
+              )}
+              <button onClick={() => setIsCartOpen(true)}>
+                <FiShoppingCart className="text-2xl" color='white' />
+              </button>
+            </div>
           </div>
 
           {/* CENTER: Navigation (Desktop) */}
@@ -85,7 +109,7 @@ function Navbar() {
               <FiSearch className="text-white/70 w-[24px] h-[24px] text-lg cursor-pointer hover:text-white" />
             </div>
 
-            <div className="flex items-center gap-3 border-l border-white/20 pl-4 relative">
+            <div className="flex items-center gap-3 border-l border-white/20 pl-4 relative" ref={profileDropdownRef}>
               {isLoggedIn ? (
                 <>
                   <button
@@ -99,10 +123,14 @@ function Navbar() {
 
                   {profileDropdownOpen && (
                     <div className="absolute top-[120%] right-0 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-50 animate-fade-in border border-gray-100">
-                      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-                        <p className="text-sm font-semibold text-gray-800 truncate">{user?.username}</p>
-                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                      </div>
+                      <Link
+                        to="/my-orders"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100"
+                      >
+                        <FiShoppingCart className="text-[#53C1CC]" />
+                        My Orders
+                      </Link>
                       <button
                         onClick={() => { logout(); setProfileDropdownOpen(false); }}
                         className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -212,43 +240,25 @@ function Navbar() {
               <FiSearch className="text-white/70 text-lg" />
             </div>
 
-            {/* Mobile Icons */}
-            {/* Mobile Auth / Icons */}
-            <div className="flex justify-center gap-8 border-t border-white/10 pt-6">
-              {isLoggedIn ? (
-                <>
-                  <button className="text-white hover:text-[#53C1CC] transition-transform hover:scale-110">
-                    <FiUser className="text-2xl" />
-                  </button>
-                  <button
-                    onClick={() => setIsCartOpen(true)}
-                    className="relative text-white hover:text-[#53C1CC] transition-transform hover:scale-110"
-                  >
-                    <span className="absolute -top-1 -right-2 bg-[#53C1CC] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
-                      {cartCount}
-                    </span>
-                    <FiShoppingCart className="text-2xl" />
-                  </button>
-                </>
-              ) : (
-                <div className="flex flex-col w-full gap-3 px-4">
-                  <Link
-                    to="/login"
-                    className="w-full text-center text-white border border-white/20 py-2 rounded-full hover:border-[#53C1CC] hover:text-[#53C1CC] transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="w-full text-center bg-[#53C1CC] text-white py-2 rounded-full hover:bg-[#43aab5] transition-colors font-medium"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              )}
-            </div>
+            {/* Mobile Auth — only show login/signup if not logged in */}
+            {!isLoggedIn && (
+              <div className="flex flex-col w-full gap-3 px-4 border-t border-white/10 pt-6">
+                <Link
+                  to="/login"
+                  className="w-full text-center text-white border border-white/20 py-2 rounded-full hover:border-[#53C1CC] hover:text-[#53C1CC] transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="w-full text-center bg-[#53C1CC] text-white py-2 rounded-full hover:bg-[#43aab5] transition-colors font-medium"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
 
           </div>
         )}

@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div className="w-full max-h-[1380px] h-[600px] sm:h-[750px] lg:h-[970px] bg-img-custom bg-[url('../assets/images/bg.jpg')] bg-cover bg-center mx-auto flex flex-col relative overflow-hidden">
-      <Navbar />
+      {/* Navbar handled globally in App.jsx */}
 
       {/* Main Content Area - Relative for positioning */}
       <div className="flex-grow w-full max-w-[1920px] mx-auto relative h-full">
