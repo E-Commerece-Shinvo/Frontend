@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyOrders } from '../../api/orders';
 import Navbar from '../../components/layout/Navbar/Navbar';
@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
     FiPackage, FiClock, FiTruck, FiCheckCircle, FiXCircle,
     FiShoppingBag, FiUser, FiSearch, FiChevronLeft, FiChevronRight,
-    FiSettings
+    FiSettings, FiMoreVertical
 } from 'react-icons/fi';
 
 /* ───────── status config ───────── */
@@ -30,6 +30,21 @@ function MyOrders() {
     const [activeTab, setActiveTab] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsAccountMenuOpen(false);
+            }
+        };
+        if (isAccountMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isAccountMenuOpen]);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -104,59 +119,146 @@ function MyOrders() {
 
     /* ────────────────────── RENDER ────────────────────── */
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f5f5' }}>
+        <div className="min-h-screen flex flex-col bg-[#f5f5f5]">
             <Navbar />
 
             {/* spacer for fixed navbar */}
-            <div style={{ height: 110 }} />
+            <div className="h-[90px] md:h-[110px]" />
 
             {/* ───── main wrapper ───── */}
-            <div className="myorders-wrapper" style={styles.mainWrapper}>
-                {/* ───── SIDEBAR ───── */}
-                <aside className="myorders-sidebar" style={styles.sidebar}>
+            <div className="flex-1 flex flex-col lg:flex-row max-w-[1200px] w-full mx-auto px-4 py-6 md:py-10 gap-6 lg:gap-8 items-start">
+                
+                {/* ───── SIDEBAR (Desktop) ───── */}
+                <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[130px]">
                     {/* greeting */}
-                    <div style={styles.sidebarGreeting}>
-                        <div style={styles.avatarCircle}>
+                    <div className="flex items-center gap-3 px-6 pb-5 border-b border-gray-100">
+                        <div className="w-10 h-10 rounded-full bg-[#53C1CC] text-white flex items-center justify-center font-bold text-base shadow-sm">
                             {user?.username?.charAt(0).toUpperCase() || 'U'}
                         </div>
-                        <span style={styles.greetingText}>
-                            Hello, {user?.username || 'User'}
-                        </span>
+                        <div className="flex flex-col">
+                            <span className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Welcome back</span>
+                            <span className="text-[15px] text-gray-900 font-bold truncate max-w-[150px]">
+                                {user?.username || 'User'}
+                            </span>
+                        </div>
                     </div>
 
                     {/* nav links */}
-                    <div style={styles.sidebarSection}>
-                        <h4 style={styles.sidebarHeading}>Manage My Account</h4>
-                        <Link to="/my-orders" style={styles.sidebarLinkInactive}>
-                            <FiUser size={15} />
+                    <div className="px-3 pt-5 flex flex-col gap-1">
+                        <h4 className="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Account Settings</h4>
+                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiUser className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
                             My Profile
                         </Link>
                     </div>
 
-                    <div style={styles.sidebarSection}>
-                        <h4 style={{ ...styles.sidebarHeading, color: '#53C1CC' }}>My Orders</h4>
-                        <Link to="/my-orders" style={styles.sidebarLinkActive}>
-                            <FiShoppingBag size={15} />
+                    <div className="px-3 pt-6 flex flex-col gap-1">
+                        <h4 className="px-3 text-[11px] font-bold text-[#53C1CC] uppercase tracking-widest mb-2">Shopping Activity</h4>
+                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#53C1CC] font-bold rounded-xl bg-[#53C1CC]/5 transition-all">
+                            <FiShoppingBag size={18} />
                             My Orders
                         </Link>
-                        <Link to="/my-orders" style={styles.sidebarLinkInactive}>
-                            <FiXCircle size={15} />
+                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiXCircle className="text-gray-400 group-hover:text-red-400" size={18} />
                             My Returns
                         </Link>
-                        <Link to="/my-orders" style={styles.sidebarLinkInactive}>
-                            <FiXCircle size={15} />
-                            My Cancellations
+                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiClock className="text-gray-400 group-hover:text-amber-400" size={18} />
+                            Cancellations
                         </Link>
                     </div>
                 </aside>
 
+                {/* ───── MOBILE USER BAR (Mobile Only) ───── */}
+                <div className="lg:hidden w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#53C1CC] text-white flex items-center justify-center font-bold text-base shadow-sm">
+                            {user?.username?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold leading-tight">Welcome back</span>
+                            <span className="text-[15px] text-gray-900 font-bold truncate max-w-[150px]">
+                                {user?.username || 'User'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div className="relative" ref={menuRef}>
+                        <button 
+                            onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                            className={`p-2 rounded-xl transition-all ${isAccountMenuOpen ? 'bg-gray-100 text-[#53C1CC]' : 'text-gray-400 hover:bg-gray-50'}`}
+                        >
+                            <FiMoreVertical size={20} />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isAccountMenuOpen && (
+                            <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="p-2 flex flex-col gap-1">
+                                    <h4 className="px-3 pt-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account</h4>
+                                    <Link 
+                                        to="/my-orders" 
+                                        onClick={() => setIsAccountMenuOpen(false)}
+                                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all"
+                                    >
+                                        <FiUser className="text-gray-400" size={18} />
+                                        My Profile
+                                    </Link>
+                                    
+                                    <div className="h-px bg-gray-50 my-1 mx-2" />
+                                    
+                                    <h4 className="px-3 pt-1 pb-1 text-[10px] font-bold text-[#53C1CC] uppercase tracking-widest">Activity</h4>
+                                    <Link 
+                                        to="/my-orders" 
+                                        onClick={() => setIsAccountMenuOpen(false)}
+                                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#53C1CC] font-bold rounded-xl bg-[#53C1CC]/5"
+                                    >
+                                        <FiShoppingBag size={18} />
+                                        My Orders
+                                    </Link>
+                                    <Link 
+                                        to="/my-orders" 
+                                        onClick={() => setIsAccountMenuOpen(false)}
+                                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50"
+                                    >
+                                        <FiXCircle className="text-gray-400" size={18} />
+                                        My Returns
+                                    </Link>
+                                    <Link 
+                                        to="/my-orders" 
+                                        onClick={() => setIsAccountMenuOpen(false)}
+                                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50"
+                                    >
+                                        <FiClock className="text-gray-400" size={18} />
+                                        Cancellations
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 {/* ───── RIGHT CONTENT ───── */}
-                <main style={styles.content}>
+                <main className="flex-1 min-w-0 w-full">
                     {/* title */}
-                    <h1 style={styles.pageTitle}>My Orders</h1>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">My Orders</h1>
+                        
+                        {/* search */}
+                        <div className="relative w-full md:w-[320px]">
+                            <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input
+                                type="text"
+                                placeholder="Order ID or product name..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] text-gray-800 outline-none focus:border-[#53C1CC] focus:ring-4 focus:ring-[#53C1CC]/10 transition-all placeholder:text-gray-400 shadow-sm"
+                            />
+                        </div>
+                    </div>
 
                     {/* tabs */}
-                    <div className="myorders-tabs" style={styles.tabBar}>
+                    <div className="flex gap-2 border-b border-gray-200 mb-6 overflow-x-auto no-scrollbar pb-px">
                         {STATUS_TABS.map((tab) => {
                             const isActive = activeTab === tab;
                             const count =
@@ -167,18 +269,20 @@ function MyOrders() {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    style={{
-                                        ...styles.tab,
-                                        ...(isActive ? styles.tabActive : {}),
-                                    }}
+                                    className={`
+                                        px-5 py-3 text-[14px] font-bold whitespace-nowrap transition-all border-b-2 -mb-px flex items-center gap-2
+                                        ${isActive 
+                                            ? 'text-[#53C1CC] border-[#53C1CC]' 
+                                            : 'text-gray-400 border-transparent hover:text-gray-600'}
+                                    `}
                                 >
                                     {tab}
                                     {count > 0 && (
-                                        <span style={{
-                                            ...styles.tabCount,
-                                            ...(isActive ? styles.tabCountActive : {}),
-                                        }}>
-                                            ({count})
+                                        <span className={`
+                                            px-2 py-0.5 rounded-full text-[11px]
+                                            ${isActive ? 'bg-[#53C1CC] text-white' : 'bg-gray-100 text-gray-500'}
+                                        `}>
+                                            {count}
                                         </span>
                                     )}
                                 </button>
@@ -186,91 +290,109 @@ function MyOrders() {
                         })}
                     </div>
 
-                    {/* search */}
-                    <div style={styles.searchWrap}>
-                        <FiSearch style={styles.searchIcon} />
-                        <input
-                            type="text"
-                            placeholder="Search by product name or order ID"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            style={styles.searchInput}
-                        />
-                    </div>
-
                     {/* ── loading ── */}
                     {loading && (
-                        <div style={styles.centeredMsg}>
-                            <div style={styles.spinner} />
-                            <p style={{ color: '#6C757D', fontSize: 14 }}>Loading your orders…</p>
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                            <div className="w-10 h-10 border-4 border-gray-100 border-t-[#53C1CC] rounded-full animate-spin mb-4" />
+                            <p className="text-gray-500 font-medium">Fetching your orders...</p>
                         </div>
                     )}
 
                     {/* ── empty ── */}
                     {!loading && filteredOrders.length === 0 && (
-                        <div style={styles.centeredMsg}>
-                            <FiPackage size={48} color="#ccc" />
-                            <p style={{ color: '#6C757D', fontSize: 15, marginTop: 12 }}>
-                                {orders.length === 0 ? 'No orders yet' : 'No orders match your filters'}
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm px-6 text-center">
+                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                <FiPackage size={40} className="text-gray-300" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">No orders found</h3>
+                            <p className="text-gray-500 text-[14px] max-w-[280px] mb-8">
+                                {orders.length === 0 
+                                    ? "Looks like you haven't placed any orders yet. Start shopping to see them here!" 
+                                    : "We couldn't find any orders matching your current filters."}
                             </p>
                             {orders.length === 0 && (
-                                <Link to="/shop" style={styles.shopBtn}>Shop Now</Link>
+                                <Link to="/shop" className="px-8 py-3 bg-[#53C1CC] text-white rounded-xl font-bold text-[14px] hover:bg-[#43aab5] transition-all shadow-lg shadow-[#53C1CC]/20 hover:scale-105 active:scale-95">
+                                    Browse Shop
+                                </Link>
                             )}
                         </div>
                     )}
 
                     {/* ── orders list ── */}
                     {!loading && paginatedOrders.length > 0 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                        <div className="flex flex-col gap-4">
                             {paginatedOrders.map((order) => {
                                 const info = statusConfig[order.status] || statusConfig.pending;
 
                                 return (
-                                    <div key={order._id} style={styles.orderCard}>
+                                    <div key={order._id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all">
                                         {/* order header */}
-                                        <div style={styles.orderHeader}>
-                                            <div style={styles.orderHeaderLeft}>
-                                                <span style={styles.orderIdText}>
+                                        <div className="flex flex-wrap items-center justify-between px-5 md:px-6 py-4 bg-gray-50/50 border-b border-gray-100 gap-3">
+                                            <div className="flex flex-col">
+                                                <span className="text-[13px] font-bold text-gray-900 uppercase tracking-tight">
                                                     Order #{order._id.slice(-8).toUpperCase()}
                                                 </span>
-                                                <span style={styles.orderDate}>{formatDate(order.createdAt)}</span>
+                                                <span className="text-[11px] font-medium text-gray-400 mt-0.5">
+                                                    Placed on {formatDate(order.createdAt)}
+                                                </span>
                                             </div>
-                                            <span style={{
-                                                ...styles.statusBadge,
-                                                color: info.color,
-                                                background: info.bg,
-                                            }}>
-                                                {info.label}
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="px-4 py-1.5 rounded-full text-[12px] font-bold flex items-center gap-1.5" style={{
+                                                    color: info.color,
+                                                    background: info.bg,
+                                                }}>
+                                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: info.color }} />
+                                                    {info.label}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         {/* items */}
-                                        {order.items.map((item, idx) => (
-                                            <div key={idx} className="myorders-item-row" style={styles.itemRow}>
-                                                {/* thumbnail */}
-                                                <div style={styles.itemThumb}>
-                                                    {item.image ? (
-                                                        <img src={item.image} alt={item.name} style={styles.itemImg} />
-                                                    ) : (
-                                                        <FiPackage size={24} color="#ccc" />
-                                                    )}
+                                        <div className="divide-y divide-gray-50">
+                                            {order.items.map((item, idx) => (
+                                                <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center p-5 md:p-6 gap-4 md:gap-6">
+                                                    {/* thumbnail */}
+                                                    <div className="w-[80px] h-[80px] rounded-xl bg-gray-50 overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-100 p-1">
+                                                        {item.image ? (
+                                                            <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                                                        ) : (
+                                                            <FiPackage size={30} className="text-gray-200" />
+                                                        )}
+                                                    </div>
+
+                                                    {/* info */}
+                                                    <div className="flex-1 min-w-0 w-full">
+                                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                            <div className="flex-1">
+                                                                <p className="text-[15px] font-bold text-gray-900 leading-tight mb-1 truncate">
+                                                                    {item.name}
+                                                                </p>
+                                                                {item.variant && (
+                                                                    <p className="text-[12px] font-medium text-gray-400">
+                                                                        {item.variant}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 sm:gap-0 mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-gray-50 w-full sm:w-auto">
+                                                                <p className="text-[15px] font-extrabold text-gray-900">
+                                                                    Rs. {item.price?.toLocaleString()}
+                                                                </p>
+                                                                <p className="text-[12px] font-semibold text-gray-500">
+                                                                    Qty: {item.quantity}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                            ))}
+                                        </div>
 
-                                                {/* name */}
-                                                <div style={styles.itemInfo}>
-                                                    <p style={styles.itemName}>{item.name}</p>
-                                                    {item.variant && (
-                                                        <p style={styles.itemVariant}>{item.variant}</p>
-                                                    )}
-                                                </div>
-
-                                                {/* price */}
-                                                <p style={styles.itemPrice}>Rs. {item.price?.toLocaleString()}</p>
-
-                                                {/* qty */}
-                                                <p style={styles.itemQty}>Qty: {item.quantity}</p>
-                                            </div>
-                                        ))}
+                                        {/* Footer / Total? (Optional) */}
+                                        <div className="px-6 py-3 bg-gray-50/30 flex justify-end items-center border-t border-gray-50">
+                                            <Link to={`/my-orders`} className="text-[13px] font-bold text-[#53C1CC] hover:underline">
+                                                View Details
+                                            </Link>
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -279,40 +401,38 @@ function MyOrders() {
 
                     {/* ── PAGINATION ── */}
                     {!loading && filteredOrders.length > 0 && (
-                        <div style={styles.pagination}>
+                        <div className="flex flex-wrap justify-end items-center gap-2 mt-10">
                             <button
                                 onClick={() => goToPage(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                style={{
-                                    ...styles.pageBtn,
-                                    ...(currentPage === 1 ? styles.pageBtnDisabled : {}),
-                                }}
+                                className="flex items-center gap-2 px-4 py-2.5 text-[14px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-[#53C1CC] hover:text-[#53C1CC] disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all"
                             >
-                                <FiChevronLeft size={16} /> Previous
+                                <FiChevronLeft size={18} /> <span className="hidden sm:inline">Previous</span>
                             </button>
 
-                            {pageNumbers.map((num) => (
-                                <button
-                                    key={num}
-                                    onClick={() => goToPage(num)}
-                                    style={{
-                                        ...styles.pageNumBtn,
-                                        ...(num === currentPage ? styles.pageNumBtnActive : {}),
-                                    }}
-                                >
-                                    {num}
-                                </button>
-                            ))}
+                            <div className="flex items-center gap-1.5">
+                                {pageNumbers.map((num) => (
+                                    <button
+                                        key={num}
+                                        onClick={() => goToPage(num)}
+                                        className={`
+                                            w-10 h-10 flex items-center justify-center text-[14px] font-bold rounded-xl transition-all
+                                            ${num === currentPage 
+                                                ? 'bg-[#53C1CC] text-white shadow-lg shadow-[#53C1CC]/20' 
+                                                : 'bg-white text-gray-500 border border-gray-200 hover:border-[#53C1CC] hover:text-[#53C1CC]'}
+                                        `}
+                                    >
+                                        {num}
+                                    </button>
+                                ))}
+                            </div>
 
                             <button
                                 onClick={() => goToPage(currentPage + 1)}
                                 disabled={currentPage === totalPages}
-                                style={{
-                                    ...styles.pageBtn,
-                                    ...(currentPage === totalPages ? styles.pageBtnDisabled : {}),
-                                }}
+                                className="flex items-center gap-2 px-4 py-2.5 text-[14px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-[#53C1CC] hover:text-[#53C1CC] disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all"
                             >
-                                Next <FiChevronRight size={16} />
+                                <span className="hidden sm:inline">Next</span> <FiChevronRight size={18} />
                             </button>
                         </div>
                     )}
@@ -323,232 +443,5 @@ function MyOrders() {
         </div>
     );
 }
-
-/* ════════════════════ STYLES ════════════════════ */
-const styles = {
-    /* layout */
-    mainWrapper: {
-        flex: 1,
-        display: 'flex',
-        maxWidth: 1200,
-        width: '100%',
-        margin: '0 auto',
-        padding: '24px 16px 48px',
-        gap: 28,
-        alignItems: 'flex-start',
-    },
-
-    /* ── sidebar ── */
-    sidebar: {
-        width: 220,
-        flexShrink: 0,
-        background: '#fff',
-        borderRadius: 12,
-        padding: '20px 0',
-        boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
-        position: 'sticky',
-        top: 130,
-    },
-    sidebarGreeting: {
-        display: 'flex', alignItems: 'center', gap: 10,
-        padding: '0 20px 16px',
-        borderBottom: '1px solid #eee',
-    },
-    avatarCircle: {
-        width: 36, height: 36, borderRadius: '50%',
-        background: '#53C1CC', color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontWeight: 700, fontSize: 15,
-    },
-    greetingText: {
-        fontSize: 13, color: '#212529', fontWeight: 500,
-    },
-    sidebarSection: {
-        padding: '14px 20px 0',
-    },
-    sidebarHeading: {
-        fontSize: 13, fontWeight: 600, color: '#212529',
-        margin: '0 0 8px',
-    },
-    sidebarLinkInactive: {
-        display: 'flex', alignItems: 'center', gap: 8,
-        fontSize: 13, color: '#6C757D',
-        textDecoration: 'none', padding: '6px 0',
-        transition: 'color .2s',
-    },
-    sidebarLinkActive: {
-        display: 'flex', alignItems: 'center', gap: 8,
-        fontSize: 13, color: '#53C1CC', fontWeight: 600,
-        textDecoration: 'none', padding: '6px 0',
-    },
-
-    /* ── content ── */
-    content: {
-        flex: 1,
-        minWidth: 0,
-    },
-    pageTitle: {
-        fontSize: 22, fontWeight: 700, color: '#212529',
-        margin: '0 0 16px',
-    },
-
-    /* tabs */
-    tabBar: {
-        display: 'flex', gap: 0,
-        borderBottom: '2px solid #eee',
-        marginBottom: 16,
-        overflowX: 'auto',
-    },
-    tab: {
-        padding: '10px 18px',
-        fontSize: 13, fontWeight: 500,
-        color: '#6C757D', cursor: 'pointer',
-        background: 'none', border: 'none',
-        borderBottom: '2px solid transparent',
-        marginBottom: -2,
-        whiteSpace: 'nowrap',
-        transition: 'color .2s, border-color .2s',
-    },
-    tabActive: {
-        color: '#53C1CC',
-        borderBottomColor: '#53C1CC',
-        fontWeight: 600,
-    },
-    tabCount: {
-        marginLeft: 4, fontSize: 12, color: '#aaa',
-    },
-    tabCountActive: {
-        color: '#53C1CC',
-    },
-
-    /* search */
-    searchWrap: {
-        position: 'relative',
-        marginBottom: 20,
-    },
-    searchIcon: {
-        position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
-        color: '#999', fontSize: 16,
-    },
-    searchInput: {
-        width: '100%', padding: '11px 14px 11px 40px',
-        border: '1px solid #E1E1E1', borderRadius: 8,
-        fontSize: 13, color: '#333', outline: 'none',
-        background: '#fff',
-        boxSizing: 'border-box',
-    },
-
-    /* centered messages */
-    centeredMsg: {
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', padding: '60px 0',
-    },
-    spinner: {
-        width: 36, height: 36, borderRadius: '50%',
-        border: '4px solid #e5e5e5', borderTopColor: '#53C1CC',
-        animation: 'spin 0.8s linear infinite',
-        marginBottom: 12,
-    },
-    shopBtn: {
-        marginTop: 16,
-        padding: '10px 28px',
-        background: '#53C1CC', color: '#fff',
-        borderRadius: 24, fontWeight: 600, fontSize: 13,
-        textDecoration: 'none',
-        transition: 'background .2s',
-    },
-
-    /* order card */
-    orderCard: {
-        background: '#fff',
-        borderRadius: 10,
-        border: '1px solid #eee',
-        marginBottom: 16,
-        overflow: 'hidden',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-    },
-    orderHeader: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '12px 20px',
-        borderBottom: '1px solid #f0f0f0',
-        background: '#fafafa',
-    },
-    orderHeaderLeft: {
-        display: 'flex', flexDirection: 'column', gap: 2,
-    },
-    orderIdText: {
-        fontSize: 13, fontWeight: 600, color: '#212529',
-    },
-    orderDate: {
-        fontSize: 11, color: '#999',
-    },
-    statusBadge: {
-        fontSize: 12, fontWeight: 600,
-        padding: '4px 14px',
-        borderRadius: 20,
-    },
-
-    /* item row */
-    itemRow: {
-        display: 'flex', alignItems: 'center',
-        padding: '14px 20px',
-        gap: 16,
-        borderBottom: '1px solid #f5f5f5',
-    },
-    itemThumb: {
-        width: 60, height: 60, borderRadius: 8,
-        background: '#f8f8fa', overflow: 'hidden', flexShrink: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        border: '1px solid #eee',
-    },
-    itemImg: {
-        width: '100%', height: '100%', objectFit: 'cover',
-    },
-    itemInfo: {
-        flex: 1, minWidth: 0,
-    },
-    itemName: {
-        fontSize: 13, fontWeight: 500, color: '#212529',
-        margin: 0, overflow: 'hidden', textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-    },
-    itemVariant: {
-        fontSize: 11, color: '#999', margin: '2px 0 0',
-    },
-    itemPrice: {
-        fontSize: 13, fontWeight: 600, color: '#212529',
-        whiteSpace: 'nowrap', margin: 0,
-    },
-    itemQty: {
-        fontSize: 12, color: '#6C757D', whiteSpace: 'nowrap', margin: 0,
-    },
-
-    /* pagination */
-    pagination: {
-        display: 'flex', justifyContent: 'center', alignItems: 'center',
-        gap: 6, marginTop: 32,
-    },
-    pageBtn: {
-        display: 'flex', alignItems: 'center', gap: 4,
-        padding: '8px 16px', fontSize: 13, fontWeight: 500,
-        color: '#53C1CC', background: '#fff',
-        border: '1px solid #E1E1E1', borderRadius: 8,
-        cursor: 'pointer', transition: 'all .2s',
-    },
-    pageBtnDisabled: {
-        color: '#ccc', cursor: 'default', borderColor: '#eee',
-    },
-    pageNumBtn: {
-        width: 36, height: 36,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 13, fontWeight: 500, color: '#555',
-        background: '#fff', border: '1px solid #E1E1E1',
-        borderRadius: 8, cursor: 'pointer',
-        transition: 'all .2s',
-    },
-    pageNumBtnActive: {
-        background: '#53C1CC', color: '#fff', borderColor: '#53C1CC',
-    },
-};
 
 export default MyOrders;

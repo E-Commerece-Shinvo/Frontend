@@ -7,6 +7,33 @@ import UpperNavbar from './UpperNavbar';
 import CategoryDropdown from './CategoryDropdown';
 import { getCategories } from '../../../api/categories';
 
+const ProfileDropdownMenu = ({ setProfileDropdownOpen, logout }) => (
+  <div className="absolute top-[120%] right-0 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-[100] animate-fade-in border border-gray-100">
+    <Link
+      to="/my-orders"
+      onClick={() => setProfileDropdownOpen(false)}
+      className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100"
+    >
+      <FiUser className="text-[#53C1CC]" />
+      My Profile
+    </Link>
+    <Link
+      to="/my-orders"
+      onClick={() => setProfileDropdownOpen(false)}
+      className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100"
+    >
+      <FiShoppingCart className="text-[#53C1CC]" />
+      My Orders
+    </Link>
+    <button
+      onClick={() => { logout(); setProfileDropdownOpen(false); }}
+      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+    >
+      Logout
+    </button>
+  </div>
+);
+
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
   const { cartCount, setIsCartOpen } = useCart();
@@ -16,11 +43,18 @@ function Navbar() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const profileDropdownRef = useRef(null);
+  const mobileProfileDropdownRef = useRef(null);
 
   // Close profile dropdown on click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target)) {
+      const desktopRef = profileDropdownRef.current;
+      const mobileRef = mobileProfileDropdownRef.current;
+      
+      const clickedInsideDesktop = desktopRef && desktopRef.contains(e.target);
+      const clickedInsideMobile = mobileRef && mobileRef.contains(e.target);
+      
+      if (!clickedInsideDesktop && !clickedInsideMobile) {
         setProfileDropdownOpen(false);
       }
     };
@@ -74,13 +108,21 @@ function Navbar() {
 
             {/* Mobile Icons */}
             <div className="flex items-center gap-3 md:hidden">
-              {isLoggedIn && (
-                <button
-                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="text-white hover:text-[#53C1CC] transition-colors"
-                >
-                  <FiUser className="text-2xl" />
-                </button>
+              {user && (
+                <div className="relative" ref={mobileProfileDropdownRef}>
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="text-white hover:text-[#53C1CC] transition-colors"
+                  >
+                    <FiUser className="text-2xl" color="white" />
+                  </button>
+                  {profileDropdownOpen && (
+                    <ProfileDropdownMenu 
+                      setProfileDropdownOpen={setProfileDropdownOpen} 
+                      logout={logout} 
+                    />
+                  )}
+                </div>
               )}
               <button onClick={() => setIsCartOpen(true)}>
                 <FiShoppingCart className="text-2xl" color='white' />
@@ -122,22 +164,10 @@ function Navbar() {
                   </button>
 
                   {profileDropdownOpen && (
-                    <div className="absolute top-[120%] right-0 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-50 animate-fade-in border border-gray-100">
-                      <Link
-                        to="/my-orders"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100"
-                      >
-                        <FiShoppingCart className="text-[#53C1CC]" />
-                        My Orders
-                      </Link>
-                      <button
-                        onClick={() => { logout(); setProfileDropdownOpen(false); }}
-                        className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        Logout
-                      </button>
-                    </div>
+                    <ProfileDropdownMenu 
+                      setProfileDropdownOpen={setProfileDropdownOpen} 
+                      logout={logout} 
+                    />
                   )}
 
                   <button
