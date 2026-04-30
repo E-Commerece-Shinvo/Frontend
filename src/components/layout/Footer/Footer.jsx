@@ -51,8 +51,8 @@ const Footer = () => {
 
                     {/* Newsletter Column */}
                     <div className="flex flex-col gap-6 col-span-2 md:col-span-1 lg:col-span-1">
-                        <h3 className="text-2xl font-bold">
-                            <span className="border-b-2 border-cyan-400 pb-1">Newsletter</span> SignUp
+                        <h3 className="text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-2">
+                            Newsletter SignUp
                         </h3>
                         <p className="text-gray-400 text-sm leading-relaxed">
                             Be the first to know about new arrivals and exclusive deals
