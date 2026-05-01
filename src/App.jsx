@@ -10,6 +10,7 @@ import CategoryPage from './pages/user/CategoryPage';
 import ProductDetails from './pages/user/ProductDetails';
 import Checkout from './pages/user/Checkout';
 import MyOrders from './pages/user/MyOrders';
+import MyReturns from './pages/user/MyReturns';
 import Profile from './pages/user/Profile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
@@ -17,11 +18,12 @@ import AdminAddProduct from './pages/admin/AdminAddProduct';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/ui/Cart/CartDrawer';
+import ProtectedRoute from './components/layout/ProtectedRoute';
 
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/profile' || isAdminRoute;
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || isAdminRoute;
 
   return (
     <AuthProvider>
@@ -37,9 +39,38 @@ function App() {
             <Route path="/category/:id" element={<CategoryPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/my-orders" element={<MyOrders />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-orders"
+              element={
+                <ProtectedRoute>
+                  <MyOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-returns"
+              element={
+                <ProtectedRoute>
+                  <MyReturns />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
