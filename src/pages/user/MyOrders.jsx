@@ -146,7 +146,7 @@ function MyOrders() {
                     {/* nav links */}
                     <div className="px-3 pt-5 flex flex-col gap-1">
                         <h4 className="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Account Settings</h4>
-                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                        <Link to="/profile" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
                             <FiUser className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
                             My Profile
                         </Link>
@@ -197,7 +197,7 @@ function MyOrders() {
                                 <div className="p-2 flex flex-col gap-1">
                                     <h4 className="px-3 pt-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account</h4>
                                     <Link 
-                                        to="/my-orders" 
+                                        to="/profile" 
                                         onClick={() => setIsAccountMenuOpen(false)}
                                         className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all"
                                     >

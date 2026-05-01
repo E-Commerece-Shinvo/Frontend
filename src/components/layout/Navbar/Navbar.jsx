@@ -10,7 +10,7 @@ import { getCategories } from '../../../api/categories';
 const ProfileDropdownMenu = ({ setProfileDropdownOpen, logout }) => (
   <div className="absolute top-[120%] right-0 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-[100] animate-fade-in border border-gray-100">
     <Link
-      to="/my-orders"
+      to="/profile"
       onClick={() => setProfileDropdownOpen(false)}
       className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100"
     >

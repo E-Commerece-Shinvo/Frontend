@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiArrowLeft, FiShoppingCart, FiMinus, FiPlus, FiTrash2, FiInfo, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiShoppingCart, FiMinus, FiPlus, FiTrash2, FiInfo, FiX, FiMapPin } from 'react-icons/fi';
 import { SiMastercard, SiVisa, SiPaypal } from 'react-icons/si';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
@@ -161,9 +161,39 @@ const Checkout = () => {
         lastName: '',
         address: '',
         city: '',
+        state: '',
         postalCode: '',
         phone: '',
     });
+
+    const [activeLocationSlot, setActiveLocationSlot] = useState(1);
+    const [savedLocations] = useState(
+        Array.from({ length: 5 }, (_, i) => ({
+            id: i + 1,
+            country: 'Pakistan',
+            firstName: i === 0 ? 'Muzamil' : '',
+            lastName: i === 0 ? 'Hussain' : '',
+            state: i === 0 ? 'Punjab' : '',
+            city: i === 0 ? 'Lahore' : '',
+            postalCode: i === 0 ? '54000' : '',
+            address: i === 0 ? '123 Street Name, Lahore, Pakistan' : '',
+            phone: i === 0 ? '+92 300 1234567' : ''
+        }))
+    );
+    const [showAllAddresses, setShowAllAddresses] = useState(false);
+    const handleSwitchSlot = (slotId) => {
+        const nextLoc = savedLocations.find(loc => loc.id === slotId);
+        setActiveLocationSlot(slotId);
+        setShipping({
+            firstName: nextLoc.firstName,
+            lastName: nextLoc.lastName,
+            address: nextLoc.address,
+            city: nextLoc.city,
+            state: nextLoc.state,
+            postalCode: nextLoc.postalCode,
+            phone: nextLoc.phone,
+        });
+    };
 
     const shippingFee = 0;
     const total = cartSubtotal + shippingFee;
@@ -198,6 +228,7 @@ const Checkout = () => {
                     fullName: `${shipping.firstName} ${shipping.lastName}`.trim(),
                     address: shipping.address,
                     city: shipping.city,
+                    state: shipping.state,
                     postalCode: shipping.postalCode || '00000',
                     phone: shipping.phone,
                 },
@@ -261,7 +292,60 @@ const Checkout = () => {
 
                         {/* 2. Shipping Address */}
                         <section>
-                            <h2 className="text-xl font-bold mb-6">2. Shipping Address</h2>
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold">2. Shipping Address</h2>
+                            </div>
+
+                            {/* Saved Addresses Box */}
+                            <div className="mb-8 p-4 md:p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
+                                <div className="flex justify-between items-center mb-4">
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1 block">Select Saved Address</label>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowAllAddresses(!showAllAddresses)}
+                                        className="lg:hidden text-[11px] font-bold text-teal-600 hover:text-teal-800 transition-colors px-2 py-1 rounded-lg hover:bg-teal-500/5"
+                                    >
+                                        {showAllAddresses ? 'Show Less' : 'View All'}
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                                    {savedLocations.map((loc, index) => (
+                                        <div
+                                            key={loc.id}
+                                            onClick={() => handleSwitchSlot(loc.id)}
+                                            className={`p-3 rounded-2xl border cursor-pointer transition-all relative flex flex-col gap-1.5 min-h-[90px] group
+                                                ${index >= 2 && !showAllAddresses ? 'hidden lg:flex' : 'flex'}
+                                                ${activeLocationSlot === loc.id 
+                                                    ? 'bg-white border-teal-500 shadow-md shadow-teal-500/5' 
+                                                    : 'bg-white border-gray-100 hover:border-gray-300'}`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className={`p-1 rounded-lg ${activeLocationSlot === loc.id ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                                    <FiMapPin size={10} />
+                                                </div>
+                                                <span className={`text-[9px] font-bold ${activeLocationSlot === loc.id ? 'text-teal-500' : 'text-gray-300'}`}>
+                                                    #{loc.id}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-0.5 overflow-hidden text-left">
+                                                <h4 className={`text-[12px] font-bold truncate ${activeLocationSlot === loc.id ? 'text-gray-900' : 'text-gray-500'}`}>
+                                                    {loc.firstName || loc.lastName ? `${loc.firstName} ${loc.lastName}` : `Slot ${loc.id}`}
+                                                </h4>
+                                                <p className="text-[10px] text-gray-400 truncate">
+                                                    {loc.address || 'Empty'}
+                                                </p>
+                                            </div>
+
+                                            {activeLocationSlot === loc.id && (
+                                                <div className="absolute top-0 right-0 w-5 h-5 bg-teal-500 text-white flex items-center justify-center rounded-bl-lg rounded-tr-xl scale-90 -mr-0.5 -mt-0.5">
+                                                    <div className="w-1 h-1 rounded-full bg-white animate-pulse" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                             <div className="space-y-4">
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-gray-400 font-bold uppercase ml-4">Country / Region</label>
@@ -275,7 +359,7 @@ const Checkout = () => {
                                     <input type="text" name="lastName" value={shipping.lastName} onChange={handleShippingChange} placeholder="Last Name" className="px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm md:text-base" />
                                 </div>
 
-                                <input type="text" placeholder="Company (Optional)" className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm md:text-base" />
+                                <input type="text" name="state" value={shipping.state} onChange={handleShippingChange} placeholder="State" className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm md:text-base" />
 
                                 <input type="text" name="address" value={shipping.address} onChange={handleShippingChange} placeholder="Address (35 Character Limit)" className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm md:text-base" required />
 
