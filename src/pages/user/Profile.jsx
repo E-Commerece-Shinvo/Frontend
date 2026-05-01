@@ -5,7 +5,7 @@ import Footer from '../../components/layout/Footer/Footer';
 import { useAuth } from '../../context/AuthContext';
 import {
     FiUser, FiShoppingBag, FiXCircle, FiClock, FiMoreVertical,
-    FiEdit2, FiMail, FiPhone, FiMapPin, FiCamera, FiLock
+    FiEdit2, FiMail, FiPhone, FiMapPin, FiCamera, FiLock, FiCheckCircle, FiRotateCcw
 } from 'react-icons/fi';
 
 const Profile = () => {
@@ -14,6 +14,14 @@ const Profile = () => {
     const menuRef = useRef(null);
     const fileInputRef = useRef(null);
     const [previewImage, setPreviewImage] = useState(null);
+
+    // Password change state
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
 
     // Form state (mocking some fields since they might not be in backend yet)
     const [profileData, setProfileData] = useState({
@@ -123,6 +131,18 @@ const Profile = () => {
         alert(`Changes saved to Address Slot ${activeLocationSlot}!`);
     };
 
+    const handlePasswordUpdate = (e) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            alert("New passwords do not match!");
+            return;
+        }
+        // Mock API call
+        alert("Password updated successfully!");
+        setIsPasswordModalOpen(false);
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-[#f5f5f5]">
             <Navbar />
@@ -143,7 +163,7 @@ const Profile = () => {
             <div className="flex-1 flex flex-col lg:flex-row max-w-[1200px] w-full mx-auto px-4 pb-6 md:pb-10 gap-6 lg:gap-8 lg:items-start relative z-10 overflow-x-hidden">
 
                 {/* ───── SIDEBAR (Desktop) ───── */}
-                <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[110px] mt-[-20px]">
+                <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[30px] mt-[-20px]">
                     {/* greeting */}
                     <div className="flex items-center gap-3 px-6 pb-5 border-b border-gray-100">
                         <div className="w-10 h-10 rounded-full bg-[#53C1CC] text-white flex items-center justify-center font-bold text-base shadow-sm overflow-hidden">
@@ -176,12 +196,17 @@ const Profile = () => {
                             <FiShoppingBag className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
                             My Orders
                         </Link>
-                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
-                            <FiXCircle className="text-gray-400 group-hover:text-red-400" size={18} />
+                        <Link to="/my-returns" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiRotateCcw className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
                             My Returns
+                        </Link>
+                        <Link to="/my-orders?tab=cancelled" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiClock className="text-gray-400 group-hover:text-amber-400" size={18} />
+                            Cancellations
                         </Link>
                     </div>
                 </aside>
+
 
                 {/* ───── RIGHT CONTENT ───── */}
 
@@ -189,7 +214,7 @@ const Profile = () => {
 
                 <main className="flex-1 min-w-0 w-full pt-6 md:pt-10">
                     {/* title */}
-                    <div className="mb-8">
+                    <div className="mb-8 hidden md:block">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">My Profile</h1>
                         <p className="text-gray-500 text-[14px]">Manage your account settings and personal information</p>
                     </div>
@@ -197,7 +222,8 @@ const Profile = () => {
 
                         {/* Profile Card */}
                         <div className="w-full bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                            <div className="h-32 bg-gradient-to-r from-[#316071] to-[#46869d] relative">
+                            <div className="h-32 bg-img-custom bg-[url('../assets/images/bg.jpg')] bg-cover bg-center relative">
+                                <div className="absolute inset-0 bg-black/10" /> {/* subtle overlay */}
                                 <div className="absolute -bottom-12 left-8 group">
                                     <div className="relative">
                                         <div className="w-24 h-24 rounded-full bg-white p-1.5 shadow-lg border border-gray-100 overflow-hidden">
@@ -359,14 +385,14 @@ const Profile = () => {
                                                 className={`p-4 rounded-2xl border cursor-pointer transition-all relative flex flex-col gap-2 min-h-[100px] group
                                                     ${index >= 2 && !showAllAddresses ? 'hidden lg:flex' : 'flex'}
                                                     ${activeLocationSlot === loc.id
-                                                        ? 'bg-white border-[#53C1CC] shadow-md shadow-[#53C1CC]/5'
-                                                        : 'bg-white border-gray-100 hover:border-gray-300'}`}
+                                                        ? 'bg-[#53C1CC]/10 border-[#53C1CC] shadow-lg shadow-[#53C1CC]/10 scale-[1.02]'
+                                                        : 'bg-white border-gray-100 hover:border-gray-300 hover:bg-gray-50/50'}`}
                                             >
                                                 <div className="flex items-center justify-between">
-                                                    <div className={`p-1.5 rounded-lg ${activeLocationSlot === loc.id ? 'bg-[#53C1CC] text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                                    <div className={`p-1.5 rounded-lg transition-colors ${activeLocationSlot === loc.id ? 'bg-[#53C1CC] text-white' : 'bg-gray-100 text-gray-400'}`}>
                                                         <FiMapPin size={12} />
                                                     </div>
-                                                    <span className={`text-[10px] font-bold ${activeLocationSlot === loc.id ? 'text-[#53C1CC]' : 'text-gray-300'}`}>
+                                                    <span className={`text-[10px] font-bold transition-colors ${activeLocationSlot === loc.id ? 'text-[#53C1CC]' : 'text-gray-300'}`}>
                                                         #{loc.id}
                                                     </span>
                                                 </div>
@@ -524,17 +550,21 @@ const Profile = () => {
 
                         {/* Security Section */}
                         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8 mb-12">
-                            <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center">
-                                        <FiLock size={24} />
+                                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shadow-sm">
+                                        <FiLock size={28} />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900">Security</h3>
-                                        <p className="text-gray-500 text-[13px]">Change your password and secure your account</p>
+                                        <h3 className="text-xl font-bold text-gray-900">Security & Password</h3>
+                                        <p className="text-gray-500 text-[14px]">Update your password and secure your account</p>
                                     </div>
                                 </div>
-                                <button className="px-6 py-2.5 bg-white text-gray-700 text-[14px] font-bold rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">
+                                <button
+                                    onClick={() => setIsPasswordModalOpen(true)}
+                                    className="px-8 py-3 bg-white text-gray-700 text-[14px] font-bold rounded-xl border border-gray-200 hover:border-[#53C1CC] hover:text-[#53C1CC] hover:bg-[#53C1CC]/5 transition-all shadow-sm flex items-center justify-center gap-2"
+                                >
+                                    <FiEdit2 size={16} />
                                     Change Password
                                 </button>
                             </div>
@@ -542,6 +572,102 @@ const Profile = () => {
                     </div>
                 </main>
             </div>
+
+            {/* ───── Change Password Modal ───── */}
+            {isPasswordModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+                    <div
+                        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
+                        onClick={() => setIsPasswordModalOpen(false)}
+                    />
+                    <div className="bg-white w-full max-w-[500px] rounded-[32px] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-200">
+                        {/* Header */}
+                        <div className="bg-img-custom bg-[url('../assets/images/bg.jpg')] bg-cover bg-center px-8 py-6 flex items-center justify-between relative overflow-hidden">
+                            <div className="absolute inset-0 bg-black/20" /> {/* subtle overlay */}
+                            <div className="flex items-center gap-3 relative z-10">
+                                <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-md border border-white/10">
+                                    <FiLock className="text-white" size={20} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white">Change Password</h3>
+                            </div>
+                            <button
+                                onClick={() => setIsPasswordModalOpen(false)}
+                                className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all relative z-10"
+                            >
+                                <FiXCircle size={24} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handlePasswordUpdate} className="p-8">
+                            <div className="flex flex-col gap-6">
+                                {/* Current Password */}
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[12px] font-bold text-gray-400 uppercase tracking-wider ml-1">Current Password</label>
+                                    <div className="relative group">
+                                        <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#53C1CC] transition-colors" />
+                                        <input
+                                            type="password"
+                                            required
+                                            value={passwordData.currentPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-[14px] outline-none focus:border-[#53C1CC] focus:ring-4 focus:ring-[#53C1CC]/10 transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* New Password */}
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[12px] font-bold text-gray-400 uppercase tracking-wider ml-1">New Password</label>
+                                    <div className="relative group">
+                                        <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#53C1CC] transition-colors" />
+                                        <input
+                                            type="password"
+                                            required
+                                            value={passwordData.newPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-[14px] outline-none focus:border-[#53C1CC] focus:ring-4 focus:ring-[#53C1CC]/10 transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Confirm New Password */}
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[12px] font-bold text-gray-400 uppercase tracking-wider ml-1">Confirm New Password</label>
+                                    <div className="relative group">
+                                        <FiCheckCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#53C1CC] transition-colors" />
+                                        <input
+                                            type="password"
+                                            required
+                                            value={passwordData.confirmPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-[14px] outline-none focus:border-[#53C1CC] focus:ring-4 focus:ring-[#53C1CC]/10 transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 flex flex-col gap-3">
+                                <button
+                                    type="submit"
+                                    className="w-full py-4 bg-[#53C1CC] text-white rounded-2xl font-bold text-[15px] hover:bg-[#43aab5] transition-all shadow-xl shadow-[#53C1CC]/20 active:scale-[0.98]"
+                                >
+                                    Save Password
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsPasswordModalOpen(false)}
+                                    className="w-full py-3 bg-white text-gray-500 font-bold text-[14px] hover:text-gray-700 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>

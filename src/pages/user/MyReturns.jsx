@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getMyOrders } from '../../api/orders';
 import Navbar from '../../components/layout/Navbar/Navbar';
 import Footer from '../../components/layout/Footer/Footer';
@@ -7,29 +7,24 @@ import { useAuth } from '../../context/AuthContext';
 import {
     FiPackage, FiClock, FiTruck, FiCheckCircle, FiXCircle,
     FiShoppingBag, FiUser, FiSearch, FiChevronLeft, FiChevronRight,
-    FiSettings, FiMoreVertical, FiRotateCcw
+    FiRotateCcw, FiMoreVertical
 } from 'react-icons/fi';
 
 /* ───────── status config ───────── */
 const statusConfig = {
-    pending: { label: 'Pending', color: '#f59e0b', bg: '#fef3c7' },
-    processing: { label: 'Processing', color: '#3b82f6', bg: '#dbeafe' },
-    shipped: { label: 'Shipped', color: '#8b5cf6', bg: '#ede9fe' },
-    delivered: { label: 'Delivered', color: '#10b981', bg: '#d1fae5' },
-    cancelled: { label: 'Cancelled', color: '#ef4444', bg: '#fee2e2' },
+    returned: { label: 'Returned', color: '#ef4444', bg: '#fee2e2' },
+    'return-pending': { label: 'Return Pending', color: '#f59e0b', bg: '#fef3c7' },
 };
 
-const STATUS_TABS = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+const RETURN_TABS = ['All Returns', 'Processing', 'Completed'];
 const ORDERS_PER_PAGE = 10;
 
 /* ───────── component ───────── */
-function MyOrders() {
+function MyReturns() {
     const { user } = useAuth();
-    const [searchParams] = useSearchParams();
-    const tabParam = searchParams.get('tab');
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('All');
+    const [activeTab, setActiveTab] = useState('All Returns');
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -52,9 +47,13 @@ function MyOrders() {
         const fetchOrders = async () => {
             try {
                 const data = await getMyOrders();
-                setOrders(data);
+                // Filter only returned or return-pending orders
+                const returnOrders = data.filter(o =>
+                    o.status?.toLowerCase().includes('return')
+                );
+                setOrders(returnOrders);
             } catch (err) {
-                console.error('Failed to fetch orders:', err);
+                console.error('Failed to fetch return orders:', err);
             } finally {
                 setLoading(false);
             }
@@ -62,22 +61,17 @@ function MyOrders() {
         fetchOrders();
     }, []);
 
-    useEffect(() => {
-        if (tabParam) {
-            const matchedTab = STATUS_TABS.find(t => t.toLowerCase() === tabParam.toLowerCase());
-            if (matchedTab) setActiveTab(matchedTab);
-        }
-    }, [tabParam]);
-
     /* ── filtering ── */
     const filteredOrders = useMemo(() => {
         let result = orders;
 
         // status filter
-        if (activeTab !== 'All') {
-            result = result.filter(
-                (o) => o.status?.toLowerCase() === activeTab.toLowerCase()
-            );
+        if (activeTab !== 'All Returns') {
+            if (activeTab === 'Processing') {
+                result = result.filter(o => o.status?.toLowerCase() === 'return-pending');
+            } else if (activeTab === 'Completed') {
+                result = result.filter(o => o.status?.toLowerCase() === 'returned');
+            }
         }
 
         // search filter
@@ -111,7 +105,6 @@ function MyOrders() {
         if (p >= 1 && p <= totalPages) setCurrentPage(p);
     };
 
-    /* helper — page buttons (show max 5) */
     const pageNumbers = useMemo(() => {
         const pages = [];
         let start = Math.max(1, currentPage - 2);
@@ -126,7 +119,6 @@ function MyOrders() {
             year: 'numeric', month: 'short', day: 'numeric',
         });
 
-    /* ────────────────────── RENDER ────────────────────── */
     return (
         <div className="min-h-screen flex flex-col bg-[#f5f5f5]">
             <Navbar />
@@ -163,12 +155,12 @@ function MyOrders() {
 
                     <div className="px-3 pt-6 flex flex-col gap-1">
                         <h4 className="px-3 text-[11px] font-bold text-[#53C1CC] uppercase tracking-widest mb-2">Shopping Activity</h4>
-                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#53C1CC] font-bold rounded-xl bg-[#53C1CC]/5 transition-all">
-                            <FiShoppingBag size={18} />
+                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiShoppingBag className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
                             My Orders
                         </Link>
-                        <Link to="/my-returns" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
-                            <FiRotateCcw className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
+                        <Link to="/my-returns" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#53C1CC] font-bold rounded-xl bg-[#53C1CC]/5 transition-all">
+                            <FiRotateCcw size={18} />
                             My Returns
                         </Link>
                         <Link to="/my-orders?tab=cancelled" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
@@ -183,14 +175,14 @@ function MyOrders() {
                 <main className="flex-1 min-w-0 w-full">
                     {/* title */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 hidden md:flex">
-                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">My Orders</h1>
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">My Returns</h1>
 
                         {/* search */}
                         <div className="relative w-full md:w-[320px]">
                             <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input
                                 type="text"
-                                placeholder="Order ID or product name..."
+                                placeholder="Search return orders..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] text-gray-800 outline-none focus:border-[#53C1CC] focus:ring-4 focus:ring-[#53C1CC]/10 transition-all placeholder:text-gray-400 shadow-sm"
@@ -200,12 +192,8 @@ function MyOrders() {
 
                     {/* tabs */}
                     <div className="flex gap-2 border-b border-gray-200 mb-6 overflow-x-auto no-scrollbar pb-px">
-                        {STATUS_TABS.map((tab) => {
+                        {RETURN_TABS.map((tab) => {
                             const isActive = activeTab === tab;
-                            const count =
-                                tab === 'All'
-                                    ? orders.length
-                                    : orders.filter((o) => o.status?.toLowerCase() === tab.toLowerCase()).length;
                             return (
                                 <button
                                     key={tab}
@@ -218,14 +206,6 @@ function MyOrders() {
                                     `}
                                 >
                                     {tab}
-                                    {count > 0 && (
-                                        <span className={`
-                                            px-2 py-0.5 rounded-full text-[11px]
-                                            ${isActive ? 'bg-[#53C1CC] text-white' : 'bg-gray-100 text-gray-500'}
-                                        `}>
-                                            {count}
-                                        </span>
-                                    )}
                                 </button>
                             );
                         })}
@@ -235,7 +215,7 @@ function MyOrders() {
                     {loading && (
                         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
                             <div className="w-10 h-10 border-4 border-gray-100 border-t-[#53C1CC] rounded-full animate-spin mb-4" />
-                            <p className="text-gray-500 font-medium">Fetching your orders...</p>
+                            <p className="text-gray-500 font-medium">Fetching return history...</p>
                         </div>
                     )}
 
@@ -243,19 +223,15 @@ function MyOrders() {
                     {!loading && filteredOrders.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm px-6 text-center">
                             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                                <FiPackage size={40} className="text-gray-300" />
+                                <FiRotateCcw size={40} className="text-gray-300" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">No orders found</h3>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">No return orders</h3>
                             <p className="text-gray-500 text-[14px] max-w-[280px] mb-8">
-                                {orders.length === 0
-                                    ? "Looks like you haven't placed any orders yet. Start shopping to see them here!"
-                                    : "We couldn't find any orders matching your current filters."}
+                                You don't have any return requests in this category.
                             </p>
-                            {orders.length === 0 && (
-                                <Link to="/shop" className="px-8 py-3 bg-[#53C1CC] text-white rounded-xl font-bold text-[14px] hover:bg-[#43aab5] transition-all shadow-lg shadow-[#53C1CC]/20 hover:scale-105 active:scale-95">
-                                    Browse Shop
-                                </Link>
-                            )}
+                            <Link to="/my-orders" className="px-8 py-3 bg-[#53C1CC] text-white rounded-xl font-bold text-[14px] hover:bg-[#43aab5] transition-all shadow-lg shadow-[#53C1CC]/20">
+                                View Recent Orders
+                            </Link>
                         </div>
                     )}
 
@@ -263,18 +239,18 @@ function MyOrders() {
                     {!loading && paginatedOrders.length > 0 && (
                         <div className="flex flex-col gap-4">
                             {paginatedOrders.map((order) => {
-                                const info = statusConfig[order.status] || statusConfig.pending;
+                                const info = statusConfig[order.status?.toLowerCase()] || statusConfig.returned;
 
                                 return (
                                     <div key={order._id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all">
-                                        {/* order header */}
+                                        {/* header */}
                                         <div className="flex flex-wrap items-center justify-between px-5 md:px-6 py-4 bg-gray-50/50 border-b border-gray-100 gap-3">
                                             <div className="flex flex-col">
                                                 <span className="text-[13px] font-bold text-gray-900 uppercase tracking-tight">
                                                     Order #{order._id.slice(-8).toUpperCase()}
                                                 </span>
                                                 <span className="text-[11px] font-medium text-gray-400 mt-0.5">
-                                                    Placed on {formatDate(order.createdAt)}
+                                                    Returned on {formatDate(order.updatedAt || order.createdAt)}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-3">
@@ -292,7 +268,6 @@ function MyOrders() {
                                         <div className="divide-y divide-gray-50">
                                             {order.items.map((item, idx) => (
                                                 <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center p-5 md:p-6 gap-4 md:gap-6">
-                                                    {/* thumbnail */}
                                                     <div className="w-[80px] h-[80px] rounded-xl bg-gray-50 overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-100 p-1">
                                                         {item.image ? (
                                                             <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
@@ -301,38 +276,25 @@ function MyOrders() {
                                                         )}
                                                     </div>
 
-                                                    {/* info */}
                                                     <div className="flex-1 min-w-0 w-full">
                                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                                             <div className="flex-1">
                                                                 <p className="text-[15px] font-bold text-gray-900 leading-tight mb-1 truncate">
                                                                     {item.name}
                                                                 </p>
-                                                                {item.variant && (
-                                                                    <p className="text-[12px] font-medium text-gray-400">
-                                                                        {item.variant}
-                                                                    </p>
-                                                                )}
+                                                                <p className="text-[12px] font-medium text-gray-400">
+                                                                    Reason: Changed mind
+                                                                </p>
                                                             </div>
-                                                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 sm:gap-0 mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-gray-50 w-full sm:w-auto">
+                                                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 sm:gap-0">
                                                                 <p className="text-[15px] font-extrabold text-gray-900">
                                                                     Rs. {item.price?.toLocaleString()}
-                                                                </p>
-                                                                <p className="text-[12px] font-semibold text-gray-500">
-                                                                    Qty: {item.quantity}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             ))}
-                                        </div>
-
-                                        {/* Footer / Total? (Optional) */}
-                                        <div className="px-6 py-3 bg-gray-50/30 flex justify-end items-center border-t border-gray-50">
-                                            <Link to={`/my-orders`} className="text-[13px] font-bold text-[#53C1CC] hover:underline">
-                                                View Details
-                                            </Link>
                                         </div>
                                     </div>
                                 );
@@ -346,7 +308,7 @@ function MyOrders() {
                             <button
                                 onClick={() => goToPage(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                className="flex items-center gap-2 px-4 py-2.5 text-[14px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-[#53C1CC] hover:text-[#53C1CC] disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all"
+                                className="flex items-center gap-2 px-4 py-2.5 text-[14px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-[#53C1CC] hover:text-[#53C1CC] disabled:opacity-50 transition-all"
                             >
                                 <FiChevronLeft size={18} /> <span className="hidden sm:inline">Previous</span>
                             </button>
@@ -371,7 +333,7 @@ function MyOrders() {
                             <button
                                 onClick={() => goToPage(currentPage + 1)}
                                 disabled={currentPage === totalPages}
-                                className="flex items-center gap-2 px-4 py-2.5 text-[14px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-[#53C1CC] hover:text-[#53C1CC] disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all"
+                                className="flex items-center gap-2 px-4 py-2.5 text-[14px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-[#53C1CC] hover:text-[#53C1CC] disabled:opacity-50 transition-all"
                             >
                                 <span className="hidden sm:inline">Next</span> <FiChevronRight size={18} />
                             </button>
@@ -385,4 +347,4 @@ function MyOrders() {
     );
 }
 
-export default MyOrders;
+export default MyReturns;

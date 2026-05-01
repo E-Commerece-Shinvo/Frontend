@@ -108,13 +108,27 @@ function Navbar() {
 
             {/* Mobile Icons */}
             <div className="flex items-center gap-3 md:hidden">
-              {user && (
+              <button 
+                onClick={() => setIsCartOpen(true)}
+                className="relative text-white hover:text-[#53C1CC] transition-transform hover:scale-110"
+              >
+                <FiShoppingCart className="text-2xl" color='white' />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#53C1CC] text-white text-[9px] font-bold w-3 h-3 flex items-center justify-center rounded-full">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+
+              {isLoggedIn && (
                 <div className="relative" ref={mobileProfileDropdownRef}>
                   <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    className="text-white hover:text-[#53C1CC] transition-colors"
+                    className="flex items-center gap-2 text-white hover:text-[#53C1CC] transition-colors"
                   >
-                    <FiUser className="text-2xl" color="white" />
+                    <div className="w-8 h-8 rounded-full bg-[#53C1CC] flex items-center justify-center font-bold text-xs border border-white/20">
+                      {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    </div>
                   </button>
                   {profileDropdownOpen && (
                     <ProfileDropdownMenu 
@@ -124,9 +138,6 @@ function Navbar() {
                   )}
                 </div>
               )}
-              <button onClick={() => setIsCartOpen(true)}>
-                <FiShoppingCart className="text-2xl" color='white' />
-              </button>
             </div>
           </div>
 
