@@ -18,7 +18,6 @@ const Profile = () => {
     // Password change state
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [passwordData, setPasswordData] = useState({
-        currentPassword: '',
         newPassword: '',
         confirmPassword: ''
     });
@@ -140,7 +139,7 @@ const Profile = () => {
         // Mock API call
         alert("Password updated successfully!");
         setIsPasswordModalOpen(false);
-        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setPasswordData({ newPassword: '', confirmPassword: '' });
     };
 
     return (
@@ -600,22 +599,6 @@ const Profile = () => {
 
                         <form onSubmit={handlePasswordUpdate} className="p-8">
                             <div className="flex flex-col gap-6">
-                                {/* Current Password */}
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[12px] font-bold text-gray-400 uppercase tracking-wider ml-1">Current Password</label>
-                                    <div className="relative group">
-                                        <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#53C1CC] transition-colors" />
-                                        <input
-                                            type="password"
-                                            required
-                                            value={passwordData.currentPassword}
-                                            onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                            placeholder="••••••••"
-                                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-[14px] outline-none focus:border-[#53C1CC] focus:ring-4 focus:ring-[#53C1CC]/10 transition-all"
-                                        />
-                                    </div>
-                                </div>
-
                                 {/* New Password */}
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[12px] font-bold text-gray-400 uppercase tracking-wider ml-1">New Password</label>

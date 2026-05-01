@@ -90,7 +90,7 @@ function Navbar() {
       <div className="max-w-[1820px] mx-auto mt-2 relative rounded-[30px] gradient-border-nav">
 
         {/* Inner Nav Content (Glassmorphism) */}
-        <nav className="w-full bg-white/10 backdrop-blur-md rounded-[30px] px-6 py-3 flex flex-col md:flex-row justify-between items-center shadow-lg nav-content relative z-50">
+        <nav className="w-full bg-white/10 backdrop-blur-md rounded-[30px] pl-6 pr-4 md:px-6 py-3 flex flex-col md:flex-row justify-between items-center shadow-lg nav-content relative z-50">
 
           <div className="w-full md:w-auto flex justify-between items-center">
             <button

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiMinus, FiPlus, FiShoppingCart, FiUser, FiChevronDown } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { getProductById } from '../../api/products';
 import img from "../../assets/productpage/product_details/1.png"
 import img2 from "../../assets/productpage/product_details/2.png"
@@ -148,8 +149,14 @@ const ProductDetails = () => {
     const [activeTab, setActiveTab] = useState('overview');
     const [visibleReviews, setVisibleReviews] = useState(3);
     const { addToCart } = useCart();
+    const { isLoggedIn } = useAuth();
+    const navigate = useNavigate();
 
     const handleAddToCart = () => {
+        if (!isLoggedIn) {
+            navigate('/login');
+            return;
+        }
         if (!product) return;
         addToCart({
             id: product.id,

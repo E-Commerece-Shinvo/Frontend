@@ -17,7 +17,7 @@ const Hero = () => {
 
         {/* --- Social Icons --- */}
         {/* Mobile: Vertical on Right. Desktop: Horizontal Top Right */}
-        <div className="absolute right-4 top-[20%] flex flex-col gap-4 z-20 lg:right-10 lg:flex-row">
+        <div className="absolute right-6 top-[20%] flex flex-col gap-4 z-20 lg:right-14 lg:flex-row">
           <div className="w-[40px] h-[40px] lg:w-[50px] lg:h-[50px] bg-white hover:bg-[#02D5E0] flex items-center justify-center rounded-full cursor-pointer transition-colors">
             <FaFacebookF className="w-[20px] h-[20px] lg:w-[24px] lg:h-[24px] text-black" />
           </div>
