@@ -26,7 +26,16 @@ const CategoryDropdown = ({ data, isOpen, onClose }) => {
                             <h3 className="font-bold text-lg mb-4 uppercase tracking-wider">{data[0].name}</h3>
                             <ul className="flex flex-col gap-2 text-gray-600">
                                 {data[0].children?.map((cat) => (
-                                    <li key={cat._id}>
+                                    <li key={cat._id} className="flex items-center gap-2 group">
+                                        <div className="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-gray-200 group-hover:border-[#02D5E0]/30 transition-colors">
+                                            {cat.image ? (
+                                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-[#02D5E0]/10 to-transparent flex items-center justify-center text-[8px] font-bold text-gray-400">
+                                                    C
+                                                </div>
+                                            )}
+                                        </div>
                                         <Link to={`/category/${cat._id}`} className="hover:text-[#02D5E0] transition-colors">{cat.name}</Link>
                                     </li>
                                 ))}
@@ -38,7 +47,16 @@ const CategoryDropdown = ({ data, isOpen, onClose }) => {
                             <h3 className="font-bold text-lg mb-4 uppercase tracking-wider">{data[2].name}</h3>
                             <ul className="flex flex-col gap-2 text-gray-600">
                                 {data[2].children?.map((cat) => (
-                                    <li key={cat._id}>
+                                    <li key={cat._id} className="flex items-center gap-2 group">
+                                        <div className="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-gray-200 group-hover:border-[#02D5E0]/30 transition-colors">
+                                            {cat.image ? (
+                                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-[#02D5E0]/10 to-transparent flex items-center justify-center text-[8px] font-bold text-gray-400">
+                                                    C
+                                                </div>
+                                            )}
+                                        </div>
                                         <Link to={`/category/${cat._id}`} className="hover:text-[#02D5E0] transition-colors">{cat.name}</Link>
                                     </li>
                                 ))}
@@ -54,7 +72,16 @@ const CategoryDropdown = ({ data, isOpen, onClose }) => {
                             <h3 className="font-bold text-lg mb-4 uppercase tracking-wider">{data[1].name}</h3>
                             <ul className="flex flex-col gap-2 text-gray-600">
                                 {data[1].children?.map((cat) => (
-                                    <li key={cat._id}>
+                                    <li key={cat._id} className="flex items-center gap-2 group">
+                                        <div className="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-gray-200 group-hover:border-[#02D5E0]/30 transition-colors">
+                                            {cat.image ? (
+                                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-[#02D5E0]/10 to-transparent flex items-center justify-center text-[8px] font-bold text-gray-400">
+                                                    C
+                                                </div>
+                                            )}
+                                        </div>
                                         <Link to={`/category/${cat._id}`} className="hover:text-[#02D5E0] transition-colors">{cat.name}</Link>
                                     </li>
                                 ))}
@@ -66,7 +93,16 @@ const CategoryDropdown = ({ data, isOpen, onClose }) => {
                             <h3 className="font-bold text-lg mb-4 uppercase tracking-wider">{data[3].name}</h3>
                             <ul className="flex flex-col gap-2 text-gray-600">
                                 {data[3].children?.map((cat) => (
-                                    <li key={cat._id}>
+                                    <li key={cat._id} className="flex items-center gap-2 group">
+                                        <div className="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-gray-200 group-hover:border-[#02D5E0]/30 transition-colors">
+                                            {cat.image ? (
+                                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-[#02D5E0]/10 to-transparent flex items-center justify-center text-[8px] font-bold text-gray-400">
+                                                    C
+                                                </div>
+                                            )}
+                                        </div>
                                         <Link to={`/category/${cat._id}`} className="hover:text-[#02D5E0] transition-colors">{cat.name}</Link>
                                     </li>
                                 ))}
