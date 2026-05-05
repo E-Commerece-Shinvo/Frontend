@@ -5,6 +5,7 @@ import { FiSearch, FiUser, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiChevron
 import { Link } from 'react-router-dom';
 import UpperNavbar from './UpperNavbar';
 import CategoryDropdown from './CategoryDropdown';
+import CategoryPopup from './CategoryPopup';
 import { getCategories } from '../../../api/categories';
 
 const ProfileDropdownMenu = ({ setProfileDropdownOpen, logout }) => (
@@ -39,7 +40,7 @@ function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
+  const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const profileDropdownRef = useRef(null);
@@ -80,6 +81,12 @@ function Navbar() {
   // Toggle Dropdown
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // Toggle Category Popup
+  const toggleCategoryPopup = () => {
+    setIsCategoryPopupOpen(!isCategoryPopupOpen);
+    if (!isCategoryPopupOpen) setIsOpen(false); // Close mobile menu when popup opens
   };
 
   return (
@@ -151,7 +158,7 @@ function Navbar() {
               onClick={toggleDropdown}
               className={`text-white/90 hover:text-[#53C1CC] transition-colors flex items-center gap-1 focus:outline-none ${isDropdownOpen ? 'text-[#53C1CC]' : ''} `}
             >
-              Categories <FiChevronDown className={`transition - transform duration - 300 ${isDropdownOpen ? 'rotate-180' : ''} `} />
+              Categories <FiChevronDown className={`transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''} `} />
             </button>
           </div>
 
@@ -217,6 +224,13 @@ function Navbar() {
           />
         </div>
 
+        {/* Mobile Category Popup Component */}
+        <CategoryPopup
+          data={categories}
+          isOpen={isCategoryPopupOpen}
+          onClose={() => setIsCategoryPopupOpen(false)}
+        />
+
         {/* Mobile Menu (Dropdown) */}
         {isOpen && (
           <div className="md:hidden absolute top-full left-0 w-full mt-2 bg-black/90 backdrop-blur-xl rounded-[20px] p-6 flex flex-col gap-6 border border-white/10 shadow-2xl z-40 animate-fade-in max-h-[80vh] overflow-y-auto">
@@ -226,52 +240,14 @@ function Navbar() {
               <Link to="/" className="hover:text-[#53C1CC] transition-colors border-b border-white/10 pb-2" onClick={() => setIsOpen(false)}>Home</Link>
               <Link to="/about" className="hover:text-[#53C1CC] transition-colors border-b border-white/10 pb-2" onClick={() => setIsOpen(false)}>About Us</Link>
 
-              {/* Mobile Categories Accordion */}
+              {/* Mobile Categories Trigger */}
               <div>
                 <button
-                  onClick={() => setMobileCategoryOpen(!mobileCategoryOpen)}
-                  className="w-full flex items-center justify-center gap-2 hover:text-[#53C1CC] transition-colors pb-2"
+                  onClick={toggleCategoryPopup}
+                  className="w-full flex items-center justify-center gap-2 hover:text-[#53C1CC] transition-colors pb-2 border-b border-white/10"
                 >
-                  Categories <FiChevronDown className={`transition-transform duration-300 ${mobileCategoryOpen ? 'rotate-180' : ''}`} />
+                  Categories <FiChevronDown className={`transition-transform duration-300 ${isCategoryPopupOpen ? 'rotate-180' : ''}`} />
                 </button>
-
-                {mobileCategoryOpen && (
-                  <div className="bg-white/5 rounded-xl p-4 mt-2 flex flex-col gap-4 text-left text-base">
-                    {categories.map((niche) => (
-                      <div key={niche._id}>
-                        <h4 className="text-[#53C1CC] font-bold mb-2 uppercase text-sm">{niche.name}</h4>
-                        <div className="flex flex-col gap-2 pl-2 border-l border-white/10">
-                          {niche.children && niche.children.map(cat => (
-                            <div key={cat._id} className="flex flex-col gap-1">
-                              <Link
-                                to="/shop"
-                                className="text-gray-300 text-sm font-medium hover:text-white"
-                                onClick={() => setIsOpen(false)}
-                              >
-                                {cat.name}
-                              </Link>
-                              {/* Sub-subcategories for mobile if needed */}
-                              {cat.children && cat.children.length > 0 && (
-                                <div className="flex flex-col gap-1 pl-3 border-l border-white/5 opacity-80">
-                                  {cat.children.map(sub => (
-                                    <Link
-                                      key={sub._id}
-                                      to="/shop"
-                                      className="text-gray-400 text-xs hover:text-white"
-                                      onClick={() => setIsOpen(false)}
-                                    >
-                                      {sub.name}
-                                    </Link>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
 
