@@ -18,7 +18,9 @@ import AdminAddProduct from './pages/admin/AdminAddProduct';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/ui/Cart/CartDrawer';
-import ProtectedRoute from './components/layout/ProtectedRoute';
+import AdminRoute from './components/layout/AdminRoute';
+import UserRoute from './components/layout/UserRoute';
+import PublicRoute from './components/layout/PublicRoute';
 
 function App() {
   const location = useLocation();
@@ -32,50 +34,33 @@ function App() {
           {!hideNavbar && <Navbar />}
           {!isAdminRoute && <CartDrawer />}
           <Routes>
+            {/* Public Access Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/shop" element={<ProductPage />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/category/:id" element={<CategoryPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-orders"
-              element={
-                <ProtectedRoute>
-                  <MyOrders />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-returns"
-              element={
-                <ProtectedRoute>
-                  <MyReturns />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
 
-            {/* Admin Routes */}
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/products" element={<AdminProducts />} />
-            <Route path="/admin/products/add" element={<AdminAddProduct />} />
+            {/* Auth Routes - Only for non-logged-in users */}
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
+
+            {/* User Protected Routes */}
+            <Route element={<UserRoute />}>
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/my-returns" element={<MyReturns />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+
+            {/* Admin Protected Routes */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/products/add" element={<AdminAddProduct />} />
+            </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>

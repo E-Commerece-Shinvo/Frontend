@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
                 role: data.role,
             });
             setIsLoggedIn(true);
-            return { success: true };
+            return { success: true, role: data.role };
         } catch (error) {
             console.error("Login Error:", error.response?.data?.message || error.message);
             return { success: false, message: error.response?.data?.message || 'Login failed' };
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
                 role: data.role,
             });
             setIsLoggedIn(true);
-            return { success: true };
+            return { success: true, role: data.role };
         } catch (error) {
             console.error("Register Error:", error.response?.data?.message || error.message);
             return { success: false, message: error.response?.data?.message || 'Registration failed' };
