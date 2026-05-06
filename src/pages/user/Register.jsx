@@ -21,7 +21,11 @@ const Register = () => {
         setLoading(true);
         const result = await register(username, email, password);
         if (result.success) {
-            navigate('/');
+            if (result.role === 'admin') {
+                navigate('/admin/dashboard', { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
         } else {
             setError(result.message);
         }

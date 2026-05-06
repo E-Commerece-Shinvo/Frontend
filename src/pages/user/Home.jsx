@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Hero from '../../components/home/Hero/Hero'
 import Features from '../../components/home/Features/Features'
 import Bestsellers from '../../components/home/Bestsellers/Bestsellers'
@@ -14,6 +17,15 @@ import shop1 from '../../assets/shop1.gif'
 import shop2 from '../../assets/shop2.gif'
 
 function Home() {
+  const { user, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoggedIn && user?.role === 'admin') {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isLoggedIn, user, navigate]);
+
   return (
     <div className='w-[100vw]'>
       <Hero />

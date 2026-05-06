@@ -21,10 +21,10 @@ const Login = () => {
         const result = await login(email, password);
         if (result.success) {
             // Check for admin role
-            if (email === 'admin@shinvo.com') {
-                navigate('/admin/dashboard');
+            if (result.role === 'admin') {
+                navigate('/admin/dashboard', { replace: true });
             } else {
-                navigate('/');
+                navigate('/', { replace: true });
             }
         } else {
             setError(result.message);
