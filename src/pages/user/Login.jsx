@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiUser, FiLock, FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const Login = () => {
     const { login } = useAuth();
@@ -20,6 +21,7 @@ const Login = () => {
         setLoading(true);
         const result = await login(email, password);
         if (result.success) {
+            toast.success('Login successful!');
             // Check for admin role
             if (result.role === 'admin') {
                 navigate('/admin/dashboard', { replace: true });
@@ -27,6 +29,7 @@ const Login = () => {
                 navigate('/', { replace: true });
             }
         } else {
+            toast.error(result.message || 'Login failed');
             setError(result.message);
         }
         setLoading(false);
@@ -46,12 +49,6 @@ const Login = () => {
                 <div className="w-full md:w-[60%] p-12 flex flex-col justify-center relative z-10">
                     <div className="max-w-sm mx-auto w-full">
                         <h2 className="text-4xl font-bold mb-12 text-center tracking-wide">Login</h2>
-
-                        {error && (
-                            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm text-center">
-                                {error}
-                            </div>
-                        )}
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="relative">

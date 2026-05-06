@@ -64,7 +64,7 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                             ]}
                             setIsSidebarOpen={setIsSidebarOpen}
                         />
-                        <MenuItem icon={<FiUsers />} label="Customers" to="#" setIsSidebarOpen={setIsSidebarOpen} />
+                        <MenuItem icon={<FiUsers />} label="Customers" to="/admin/customers" setIsSidebarOpen={setIsSidebarOpen} />
                         <MenuItem icon={<FiShoppingCart />} label="Orders" to="#" setIsSidebarOpen={setIsSidebarOpen} />
                         <MenuItem icon={<FiArchive />} label="Inventory" to="#" setIsSidebarOpen={setIsSidebarOpen} />
                         <MenuItem icon={<FiPieChart />} label="Sales" to="#" setIsSidebarOpen={setIsSidebarOpen} />

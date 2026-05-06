@@ -4,6 +4,7 @@ import { SiMastercard, SiVisa, SiPaypal } from 'react-icons/si';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { createOrder } from '../../api/orders';
+import toast from 'react-hot-toast';
 
 const PaymentModal = ({ isOpen, onClose }) => {
     const [cardData, setCardData] = useState({
@@ -208,7 +209,7 @@ const Checkout = () => {
 
         // Basic validation
         if (!shipping.firstName || !shipping.address || !shipping.city || !shipping.phone) {
-            alert('Please fill in all required shipping fields.');
+            toast.error('Please fill in all required shipping fields.');
             return;
         }
 
@@ -239,7 +240,7 @@ const Checkout = () => {
             navigate('/my-orders');
         } catch (err) {
             console.error('Order failed:', err);
-            alert('Failed to place order. Please try again.');
+            toast.error('Failed to place order. Please try again.');
         } finally {
             setSubmitting(false);
         }

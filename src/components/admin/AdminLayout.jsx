@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { FiSearch, FiBell, FiMessageSquare, FiMenu } from 'react-icons/fi';
 import AdminSidebar from './AdminSidebar';
 
@@ -87,7 +87,7 @@ const AdminLayout = ({ children }) => {
 
                 <div className="p-4 md:p-12 w-full overflow-x-hidden">
                     <div className="max-w-[1600px] mx-auto w-full">
-                        {children}
+                        <Outlet />
                     </div>
                 </div>
             </main>

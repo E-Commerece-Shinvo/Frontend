@@ -7,6 +7,7 @@ import {
     FiUser, FiShoppingBag, FiXCircle, FiClock, FiMoreVertical,
     FiEdit2, FiMail, FiPhone, FiMapPin, FiCamera, FiLock, FiCheckCircle, FiRotateCcw
 } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
     const { user } = useAuth();
@@ -127,17 +128,17 @@ const Profile = () => {
         );
         setSavedLocations(updatedSaved);
 
-        alert(`Changes saved to Address Slot ${activeLocationSlot}!`);
+        toast.success(`Changes saved to Address Slot ${activeLocationSlot}!`);
     };
 
     const handlePasswordUpdate = (e) => {
         e.preventDefault();
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            alert("New passwords do not match!");
+            toast.error("New passwords do not match!");
             return;
         }
         // Mock API call
-        alert("Password updated successfully!");
+        toast.success("Password updated successfully!");
         setIsPasswordModalOpen(false);
         setPasswordData({ newPassword: '', confirmPassword: '' });
     };
