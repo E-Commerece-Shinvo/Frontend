@@ -15,6 +15,7 @@ import Profile from './pages/user/Profile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminAddProduct from './pages/admin/AdminAddProduct';
+import AdminProfile from './pages/admin/AdminProfile';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/ui/Cart/CartDrawer';
@@ -60,6 +61,7 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/products/add" element={<AdminAddProduct />} />
+              <Route path="/admin/profile" element={<AdminProfile />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
