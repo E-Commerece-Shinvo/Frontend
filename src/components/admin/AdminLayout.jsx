@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FiSearch, FiBell, FiMessageSquare, FiMenu } from 'react-icons/fi';
 import AdminSidebar from './AdminSidebar';
 
 const AdminLayout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [showComingSoon, setShowComingSoon] = useState(false);
+
+    const handleComingSoon = () => {
+        setShowComingSoon(true);
+        setTimeout(() => setShowComingSoon(false), 3000);
+    };
 
     return (
         <div className="flex h-screen bg-gray-50 overflow-hidden font-outfit w-full">
@@ -35,29 +42,46 @@ const AdminLayout = ({ children }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 md:gap-6 ml-2 md:ml-4 shrink-0">
+                    <div className="flex items-center gap-2 md:gap-6 ml-2 md:ml-4 shrink-0 relative">
+                        {/* Coming Soon Popup */}
+                        {showComingSoon && (
+                            <div className="absolute top-full right-0 mt-4 bg-black text-white px-6 py-3 rounded-2xl shadow-2xl z-[100] flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                                <span className="text-xs font-bold uppercase tracking-widest whitespace-nowrap">Feature Coming Soon</span>
+                            </div>
+                        )}
+
                         <div className="hidden sm:flex items-center gap-4">
-                            <button className="p-3 text-gray-400 hover:text-cyan-400 hover:bg-cyan-50 rounded-2xl transition-all relative">
+                            <button 
+                                onClick={handleComingSoon}
+                                className="p-3 text-gray-400 hover:text-cyan-400 hover:bg-cyan-50 rounded-2xl transition-all relative cursor-pointer"
+                            >
                                 <FiBell className="text-xl" />
                                 <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                             </button>
-                            <button className="p-3 text-gray-400 hover:text-cyan-400 hover:bg-cyan-50 rounded-2xl transition-all">
+                            <button 
+                                onClick={handleComingSoon}
+                                className="p-3 text-gray-400 hover:text-cyan-400 hover:bg-cyan-50 rounded-2xl transition-all cursor-pointer"
+                            >
                                 <FiMessageSquare className="text-xl" />
                             </button>
                         </div>
-                        <div className="flex items-center gap-3 pl-2 sm:pl-6 border-l border-gray-100">
+                        <Link 
+                            to="/admin/profile"
+                            className="flex items-center gap-3 pl-2 sm:pl-6 border-l border-gray-100 hover:opacity-80 transition-opacity cursor-pointer group"
+                        >
                             <div className="text-right hidden lg:block">
-                                <p className="text-sm font-bold text-gray-900 leading-none mb-1 uppercase tracking-tight">Shinvo Admin</p>
+                                <p className="text-sm font-bold text-gray-900 leading-none mb-1 uppercase tracking-tight group-hover:text-cyan-600 transition-colors">Shinvo Admin</p>
                                 <p className="text-[10px] text-teal-500 font-bold uppercase tracking-widest leading-none">Super Admin</p>
                             </div>
-                            <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-100 rounded-2xl overflow-hidden cursor-pointer ring-2 ring-transparent hover:ring-cyan-400 transition-all">
+                            <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-100 rounded-2xl overflow-hidden ring-2 ring-transparent group-hover:ring-cyan-400 transition-all">
                                 <img
                                     src="https://ui-avatars.com/api/?name=Shinvo+Admin&background=008080&color=fff"
                                     alt="Admin"
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </header>
 

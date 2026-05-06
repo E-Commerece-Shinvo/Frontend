@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiGrid, FiPackage, FiUsers, FiShoppingCart, FiArchive, FiPieChart, FiTruck, FiLifeBuoy, FiMoreVertical, FiX } from 'react-icons/fi';
+import { FiGrid, FiPackage, FiUsers, FiShoppingCart, FiArchive, FiPieChart, FiTruck, FiLifeBuoy, FiMoreVertical, FiX, FiUser, FiLogOut } from 'react-icons/fi';
 
 const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const location = useLocation();
+    const [showAdminMenu, setShowAdminMenu] = useState(false);
+    const adminMenuRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (adminMenuRef.current && !adminMenuRef.current.contains(event.target)) {
+                setShowAdminMenu(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
         <>
@@ -23,10 +35,7 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 {/* Logo & Mobile Close Button */}
                 <div className="p-8 pb-4 flex items-center justify-between relative z-10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-cyan-400 rounded-xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-transform">
-                            <FiGrid className="text-black text-xl" />
-                        </div>
-                        <h1 className="text-2xl font-black tracking-tighter text-white uppercase italic">Shinvo</h1>
+                        <h1 className="text-2xl font-black tracking-tighter text-white uppercase">Logo</h1>
                     </div>
                     <button
                         type="button"
@@ -66,7 +75,7 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
                 {/* Admin Profile Footer */}
                 <div className="p-4 border-t border-white/5 relative z-10 mt-auto">
-                    <div className="bg-white/5 hover:bg-white/10 transition-colors p-3 rounded-2xl flex items-center gap-3 cursor-pointer group/profile relative">
+                    <div ref={adminMenuRef} className="bg-white/5 p-3 rounded-2xl flex items-center gap-3 relative">
                         <img
                             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100"
                             alt="Admin"
@@ -76,20 +85,36 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                             <p className="text-sm font-bold truncate">Admin Name</p>
                             <p className="text-[10px] text-white/40 truncate">admin@shinvo.com</p>
                         </div>
-                        <FiMoreVertical className="text-white/40" />
+                        <button
+                            onClick={() => setShowAdminMenu(!showAdminMenu)}
+                            className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-white/40 hover:text-white"
+                        >
+                            <FiMoreVertical />
+                        </button>
 
-                        {/* Simple Logout Dropup */}
-                        <div className="absolute bottom-full left-0 w-full mb-2 bg-[#002B2B] border border-white/10 rounded-xl overflow-hidden shadow-2xl opacity-0 invisible group-hover/profile:opacity-100 group-hover/profile:visible transition-all z-[100]">
-                            <button
-                                onClick={() => {
-                                    localStorage.removeItem('token');
-                                    window.location.href = '/login';
-                                }}
-                                className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 font-bold transition-colors cursor-pointer"
-                            >
-                                Logout
-                            </button>
-                        </div>
+                        {/* Admin Menu Dropup */}
+                        {showAdminMenu && (
+                            <div className="absolute bottom-full left-0 w-full mb-2 bg-[#002B2B] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-[100] animate-in fade-in slide-in-from-bottom-2 duration-200">
+                                <Link
+                                    to="/admin/profile"
+                                    onClick={() => setShowAdminMenu(false)}
+                                    className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                                >
+                                    <FiUser className="text-cyan-400" />
+                                    My Profile
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        localStorage.removeItem('token');
+                                        window.location.href = '/login';
+                                    }}
+                                    className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 font-bold transition-colors cursor-pointer border-t border-white/5"
+                                >
+                                    <FiLogOut className="text-red-500" />
+                                    Logout
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </aside>
