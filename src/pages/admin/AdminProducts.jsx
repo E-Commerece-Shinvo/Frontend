@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminLayout from '../../components/admin/AdminLayout';
 import { FiSearch, FiPlus, FiMoreVertical, FiChevronLeft, FiChevronRight, FiX, FiSave } from 'react-icons/fi';
 import { getProducts, createProduct } from '../../api/products';
 import { getCategories } from '../../api/categories';
@@ -124,7 +123,7 @@ const AdminProducts = () => {
     };
 
     return (
-        <AdminLayout>
+        <>
             {/* Add Product Modal */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-all">
@@ -320,7 +319,7 @@ const AdminProducts = () => {
                     )}
                 </div>
             </div>
-        </AdminLayout>
+        </>
     );
 };
 

@@ -6,7 +6,6 @@ import {
     FiMoreVertical, FiCheck, FiTrendingUp, FiAlertTriangle,
     FiMenu, FiX
 } from 'react-icons/fi';
-import AdminLayout from '../../components/admin/AdminLayout';
 
 const AdminDashboard = () => {
     const [isDateDropdownOpen, setIsDateDropdownOpen] = React.useState(false);
@@ -110,7 +109,7 @@ const AdminDashboard = () => {
     };
 
     return (
-        <AdminLayout>
+        <>
             {/* Dashboard Title Card */}
             <div className="bg-white rounded-xl py-4 px-4 md:px-8 shadow-sm border border-gray-50 mb-6 md:mb-12 min-h-[80px] md:min-h-[100px] flex items-center">
                 <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900">Dashboard</h2>
@@ -403,7 +402,7 @@ const AdminDashboard = () => {
                     </a>
                 </div>
             </div>
-        </AdminLayout>
+        </>
     );
 };
 

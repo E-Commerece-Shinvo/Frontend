@@ -16,12 +16,16 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminAddProduct from './pages/admin/AdminAddProduct';
 import AdminProfile from './pages/admin/AdminProfile';
+import AdminCustomers from './pages/admin/AdminCustomers';
+import AdminCustomerDetails from './pages/admin/AdminCustomerDetails';
+import AdminLayout from './components/admin/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/ui/Cart/CartDrawer';
 import AdminRoute from './components/layout/AdminRoute';
 import UserRoute from './components/layout/UserRoute';
 import PublicRoute from './components/layout/PublicRoute';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const location = useLocation();
@@ -32,6 +36,7 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <div className="font-outfit text-black bg-white min-h-screen overflow-x-hidden w-full relative">
+          <Toaster position="top-right" reverseOrder={false} />
           {!hideNavbar && <Navbar />}
           {!isAdminRoute && <CartDrawer />}
           <Routes>
@@ -58,10 +63,14 @@ function App() {
 
             {/* Admin Protected Routes */}
             <Route element={<AdminRoute />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/products" element={<AdminProducts />} />
-              <Route path="/admin/products/add" element={<AdminAddProduct />} />
-              <Route path="/admin/profile" element={<AdminProfile />} />
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/products" element={<AdminProducts />} />
+                <Route path="/admin/products/add" element={<AdminAddProduct />} />
+                <Route path="/admin/customers" element={<AdminCustomers />} />
+                <Route path="/admin/customers/:id" element={<AdminCustomerDetails />} />
+                <Route path="/admin/profile" element={<AdminProfile />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<NotFound />} />

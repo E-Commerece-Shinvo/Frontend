@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiUser, FiLock, FiMail, FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const Register = () => {
     const { register } = useAuth();
@@ -21,12 +22,14 @@ const Register = () => {
         setLoading(true);
         const result = await register(username, email, password);
         if (result.success) {
+            toast.success('Registration successful!');
             if (result.role === 'admin') {
                 navigate('/admin/dashboard', { replace: true });
             } else {
                 navigate('/', { replace: true });
             }
         } else {
+            toast.error(result.message || 'Registration failed');
             setError(result.message);
         }
         setLoading(false);
@@ -56,12 +59,6 @@ const Register = () => {
                 <div className="w-full absolute md:top-[150px] lg:top-0 xl:top-[100px] 2xl:top-0 md:w-[60%] ml-auto p-12 flex flex-col justify-center relative z-10">
                     <div className="max-w-sm mx-auto w-full">
                         <h2 className="text-4xl font-bold mb-12 text-center tracking-wide">Register</h2>
-
-                        {error && (
-                            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm text-center">
-                                {error}
-                            </div>
-                        )}
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="relative">

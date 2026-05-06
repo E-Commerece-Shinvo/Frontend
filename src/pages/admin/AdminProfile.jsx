@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { FiUser, FiMail, FiLock, FiSave, FiCamera, FiPhone, FiMapPin } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const AdminProfile = () => {
     const fileInputRef = useRef(null);
@@ -32,7 +33,7 @@ const AdminProfile = () => {
         setIsSaving(true);
         // Simulate API call
         setTimeout(() => {
-            alert('Profile updated successfully!');
+            toast.success('Profile updated successfully!');
             setIsSaving(false);
         }, 1500);
     };

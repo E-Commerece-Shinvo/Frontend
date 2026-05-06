@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import AdminLayout from '../../components/admin/AdminLayout';
 import { FiBold, FiItalic, FiLink, FiList, FiAlignLeft, FiImage, FiUploadCloud, FiInfo, FiPlus } from 'react-icons/fi';
 
 const AdminAddProduct = () => {
     return (
-        <AdminLayout>
+        <>
             <div className="flex flex-col gap-6 max-w-[1400px] mx-auto w-full">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -185,7 +184,7 @@ const AdminAddProduct = () => {
                     </div>
                 </div>
             </div>
-        </AdminLayout>
+        </>
     );
 };
 
