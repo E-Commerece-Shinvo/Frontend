@@ -64,12 +64,18 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                             ]}
                             setIsSidebarOpen={setIsSidebarOpen}
                         />
-                        <MenuItem icon={<FiUsers />} label="Customers" to="/admin/customers" setIsSidebarOpen={setIsSidebarOpen} />
-                        <MenuItem icon={<FiShoppingCart />} label="Orders" to="#" setIsSidebarOpen={setIsSidebarOpen} />
-                        <MenuItem icon={<FiArchive />} label="Inventory" to="#" setIsSidebarOpen={setIsSidebarOpen} />
-                        <MenuItem icon={<FiPieChart />} label="Sales" to="#" setIsSidebarOpen={setIsSidebarOpen} />
-                        <MenuItem icon={<FiTruck />} label="Shipping" to="#" setIsSidebarOpen={setIsSidebarOpen} />
-                        <MenuItem icon={<FiLifeBuoy />} label="Support" to="#" setIsSidebarOpen={setIsSidebarOpen} />
+                        <MenuItem 
+                            icon={<FiUsers />} 
+                            label="Customers" 
+                            to="/admin/customers" 
+                            active={location.pathname.startsWith('/admin/customers')}
+                            setIsSidebarOpen={setIsSidebarOpen} 
+                        />
+                        <MenuItem icon={<FiShoppingCart />} label="Orders" to="/admin/orders" active={location.pathname.startsWith('/admin/orders')} setIsSidebarOpen={setIsSidebarOpen} />
+                        <MenuItem icon={<FiArchive />} label="Inventory" to="/admin/inventory" active={location.pathname.startsWith('/admin/inventory')} setIsSidebarOpen={setIsSidebarOpen} />
+                        <MenuItem icon={<FiPieChart />} label="Sales" to="/admin/sales" active={location.pathname.startsWith('/admin/sales')} setIsSidebarOpen={setIsSidebarOpen} />
+                        <MenuItem icon={<FiTruck />} label="Shipping" to="/admin/shipping" active={location.pathname.startsWith('/admin/shipping')} setIsSidebarOpen={setIsSidebarOpen} />
+                        <MenuItem icon={<FiLifeBuoy />} label="Support" to="/admin/support" active={location.pathname.startsWith('/admin/support')} setIsSidebarOpen={setIsSidebarOpen} />
                     </ul>
                 </nav>
 
@@ -98,7 +104,7 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                                 <Link
                                     to="/admin/profile"
                                     onClick={() => setShowAdminMenu(false)}
-                                    className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                                    className={`flex items-center gap-3 w-full px-4 py-3 text-left text-sm transition-colors cursor-pointer ${location.pathname === '/admin/profile' ? 'bg-white/10 text-white font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'}`}
                                 >
                                     <FiUser className="text-cyan-400" />
                                     My Profile
@@ -125,6 +131,11 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 const MenuItem = ({ icon, label, active = false, hasSubmenu = false, to, subMenus = [], setIsSidebarOpen }) => {
     const [isOpen, setIsOpen] = useState(active);
     const location = useLocation();
+
+    // Sync isOpen with active state (e.g. when navigating via browser back/forward or direct link)
+    React.useEffect(() => {
+        if (active) setIsOpen(true);
+    }, [active]);
 
     if (hasSubmenu) {
         return (
