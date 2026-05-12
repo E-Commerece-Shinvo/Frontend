@@ -106,10 +106,24 @@ const AdminCustomers = () => {
     /* helper — page buttons (show max 5) */
     const pageNumbers = useMemo(() => {
         const pages = [];
-        let start = Math.max(1, currentPage - 2);
-        let end = Math.min(totalPages, start + 4);
-        if (end - start < 4) start = Math.max(1, end - 4);
-        for (let i = start; i <= end; i++) pages.push(i);
+        if (totalPages <= 3) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            pages.push(2);
+            if (currentPage === 3) {
+                pages.push(3);
+            } else if (currentPage > 3 && currentPage < totalPages) {
+                pages.push('...');
+                pages.push(currentPage);
+            }
+            if (currentPage < totalPages - 1) {
+                if (!pages.includes('...')) pages.push('...');
+            }
+            if (!pages.includes(totalPages)) {
+                pages.push(totalPages);
+            }
+        }
         return pages;
     }, [currentPage, totalPages]);
 
@@ -238,42 +252,41 @@ const AdminCustomers = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="p-6 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="text-sm text-gray-500 font-medium">
+                <div className="p-6 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <p className="text-sm text-gray-500 font-medium order-2 md:order-1 text-center md:text-left">
                         Showing <span className="font-bold text-gray-900">{(currentPage - 1) * USERS_PER_PAGE + 1}</span> to <span className="font-bold text-gray-900">{Math.min(currentPage * USERS_PER_PAGE, filteredCustomers.length)}</span> of <span className="font-bold text-gray-900">{filteredCustomers.length}</span> results
                     </p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-end">
                         <button
                             onClick={() => goToPage(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
+                            className="flex items-center justify-center w-10 h-10 lg:w-auto lg:h-auto lg:px-4 lg:py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
                         >
-                            <FiChevronLeft size={16} /> Previous
+                            <FiChevronLeft size={16} /> <span className="hidden lg:inline ml-2">Previous</span>
                         </button>
 
-                        <div className="flex items-center gap-1.5">
-                            {pageNumbers.map((num) => (
-                                <button
-                                    key={num}
-                                    onClick={() => goToPage(num)}
-                                    className={`
-                                        w-9 h-9 flex items-center justify-center text-[13px] font-bold rounded-xl transition-all
-                                        ${num === currentPage
-                                            ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white shadow-lg shadow-black/20'
-                                            : 'bg-white text-gray-500 border border-gray-200 hover:border-[#006060] hover:text-[#006060] shadow-sm'}
-                                    `}
-                                >
-                                    {num}
-                                </button>
+                        <div className="flex items-center gap-1">
+                            {pageNumbers.map((num, i) => (
+                                num === '...' ? (
+                                    <span key={`dots-${i}`} className="w-10 h-10 flex items-center justify-center text-gray-400 font-bold tracking-widest">...</span>
+                                ) : (
+                                    <button
+                                        key={i}
+                                        onClick={() => goToPage(num)}
+                                        className={`w-9 h-9 flex items-center justify-center text-[13px] font-bold rounded-xl transition-all ${currentPage === num ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white shadow-lg shadow-black/20' : 'bg-white text-gray-500 border border-gray-200 hover:border-[#006060] hover:text-[#006060] shadow-sm'}`}
+                                    >
+                                        {num}
+                                    </button>
+                                )
                             ))}
                         </div>
 
                         <button
                             onClick={() => goToPage(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
+                            className="flex items-center justify-center w-10 h-10 lg:w-auto lg:h-auto lg:px-4 lg:py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
                         >
-                            Next <FiChevronRight size={16} />
+                            <span className="hidden lg:inline mr-2">Next</span> <FiChevronRight size={16} />
                         </button>
                     </div>
                 </div>
