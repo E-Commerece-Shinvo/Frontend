@@ -75,10 +75,11 @@ const AdminOrders = () => {
             pages.push(1);
             pages.push(2);
             
-            // If current page is not 1, 2 or last, and not adjacent to 2, add its context
-            if (currentPage > 3 && currentPage < totalPages) {
+            if (currentPage === 3) {
+                pages.push(3);
+            } else if (currentPage > 3) {
                 pages.push('...');
-                pages.push(currentPage);
+                if (currentPage < totalPages) pages.push(currentPage);
             }
             
             // Always show dots before last page if there's a gap
