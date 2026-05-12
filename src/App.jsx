@@ -18,6 +18,8 @@ import AdminAddProduct from './pages/admin/AdminAddProduct';
 import AdminProfile from './pages/admin/AdminProfile';
 import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminCustomerDetails from './pages/admin/AdminCustomerDetails';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminOrderDetails from './pages/admin/AdminOrderDetails';
 import AdminLayout from './components/admin/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -69,6 +71,8 @@ function App() {
                 <Route path="/admin/products/add" element={<AdminAddProduct />} />
                 <Route path="/admin/customers" element={<AdminCustomers />} />
                 <Route path="/admin/customers/:id" element={<AdminCustomerDetails />} />
+                <Route path="/admin/orders" element={<AdminOrders />} />
+                <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
                 <Route path="/admin/profile" element={<AdminProfile />} />
               </Route>
             </Route>
