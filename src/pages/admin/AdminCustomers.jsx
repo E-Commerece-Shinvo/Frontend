@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSearch, FiFilter, FiMoreVertical, FiEye, FiUserX, FiMail, FiPhone, FiMapPin, FiCalendar, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import { FiSearch, FiFilter, FiMoreVertical, FiEye, FiUserX, FiMail, FiPhone, FiMapPin, FiCalendar, FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const USERS_PER_PAGE = 10;
 
@@ -103,29 +105,7 @@ const AdminCustomers = () => {
         if (p >= 1 && p <= totalPages) setCurrentPage(p);
     };
 
-    /* helper — page buttons (show max 5) */
-    const pageNumbers = useMemo(() => {
-        const pages = [];
-        if (totalPages <= 3) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            pages.push(1);
-            pages.push(2);
-            if (currentPage === 3) {
-                pages.push(3);
-            } else if (currentPage > 3 && currentPage < totalPages) {
-                pages.push('...');
-                pages.push(currentPage);
-            }
-            if (currentPage < totalPages - 1) {
-                if (!pages.includes('...')) pages.push('...');
-            }
-            if (!pages.includes(totalPages)) {
-                pages.push(totalPages);
-            }
-        }
-        return pages;
-    }, [currentPage, totalPages]);
+
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -140,7 +120,7 @@ const AdminCustomers = () => {
                         <FiFilter />
                         Filters
                     </button>
-                    <button className="bg-black text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-800 transition-all shadow-lg shadow-black/10">
+                    <button className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:from-[#002B2B] hover:to-[#008080] transition-all shadow-lg shadow-black/20 active:scale-95">
                         Export List
                     </button>
                 </div>
@@ -171,7 +151,7 @@ const AdminCustomers = () => {
             </div>
 
             {/* Main Content - Table */}
-            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[850px]">
                 {/* Table Header / Toolbar */}
                 <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md">
@@ -195,7 +175,7 @@ const AdminCustomers = () => {
                 </div>
 
                 {/* Table */}
-                <div className="overflow-x-auto">
+                <div className="overflow-auto flex-1 custom-scrollbar">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50/50">
@@ -237,7 +217,7 @@ const AdminCustomers = () => {
                                     </td>
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-2">
-                                            <button 
+                                            <button
                                                 onClick={() => navigate(`/admin/customers/${customer.id}`)}
                                                 className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:from-[#002B2B] hover:to-[#008080] transition-all shadow-xl shadow-black/20 border border-white/5 hover:border-cyan-500/30 hover:scale-105 active:scale-95"
                                             >
@@ -251,45 +231,14 @@ const AdminCustomers = () => {
                     </table>
                 </div>
 
-                {/* Pagination */}
-                <div className="p-6 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <p className="text-sm text-gray-500 font-medium order-2 md:order-1 text-center md:text-left">
-                        Showing <span className="font-bold text-gray-900">{(currentPage - 1) * USERS_PER_PAGE + 1}</span> to <span className="font-bold text-gray-900">{Math.min(currentPage * USERS_PER_PAGE, filteredCustomers.length)}</span> of <span className="font-bold text-gray-900">{filteredCustomers.length}</span> results
-                    </p>
-                    <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-end">
-                        <button
-                            onClick={() => goToPage(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="flex items-center justify-center w-10 h-10 lg:w-auto lg:h-auto lg:px-4 lg:py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
-                        >
-                            <FiChevronLeft size={16} /> <span className="hidden lg:inline ml-2">Previous</span>
-                        </button>
-
-                        <div className="flex items-center gap-1">
-                            {pageNumbers.map((num, i) => (
-                                num === '...' ? (
-                                    <span key={`dots-${i}`} className="w-10 h-10 flex items-center justify-center text-gray-400 font-bold tracking-widest">...</span>
-                                ) : (
-                                    <button
-                                        key={i}
-                                        onClick={() => goToPage(num)}
-                                        className={`w-9 h-9 flex items-center justify-center text-[13px] font-bold rounded-xl transition-all ${currentPage === num ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white shadow-lg shadow-black/20' : 'bg-white text-gray-500 border border-gray-200 hover:border-[#006060] hover:text-[#006060] shadow-sm'}`}
-                                    >
-                                        {num}
-                                    </button>
-                                )
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={() => goToPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="flex items-center justify-center w-10 h-10 lg:w-auto lg:h-auto lg:px-4 lg:py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
-                        >
-                            <span className="hidden lg:inline mr-2">Next</span> <FiChevronRight size={16} />
-                        </button>
-                    </div>
-                </div>
+                <AdminPagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                    totalItems={customers.length}
+                    itemsPerPage={USERS_PER_PAGE}
+                    itemName="customers"
+                />
             </div>
         </div>
     );

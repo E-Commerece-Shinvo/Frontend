@@ -51,7 +51,7 @@ const AdminCustomerDetails = () => {
                     Back to Customers
                 </button>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
+                    <button className="flex items-center gap-2 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:from-[#002B2B] hover:to-[#008080] transition-all shadow-lg shadow-black/20 active:scale-95">
                         <FiEdit /> Edit
                     </button>
                     <button className="flex items-center gap-2 bg-red-50 border border-red-100 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-red-600 hover:bg-red-100 transition-all shadow-sm">

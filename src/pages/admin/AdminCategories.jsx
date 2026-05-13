@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    FiSearch, FiPlus, FiGrid, FiFolder, 
-    FiEdit3, FiTrash2, FiX, FiCheck, 
+import {
+    FiSearch, FiPlus, FiGrid, FiFolder,
+    FiEdit3, FiTrash2, FiX, FiCheck,
     FiChevronLeft, FiChevronRight, FiImage,
     FiArrowRight, FiInfo
 } from 'react-icons/fi';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../api/categories';
 import toast from 'react-hot-toast';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const AdminCategories = () => {
     const [categories, setCategories] = useState([]);
@@ -119,7 +120,7 @@ const AdminCategories = () => {
 
     // Filtering
     const filteredCategories = useMemo(() => {
-        return categories.filter(c => 
+        return categories.filter(c =>
             c.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [categories, searchTerm]);
@@ -131,34 +132,7 @@ const AdminCategories = () => {
         currentPage * itemsPerPage
     );
 
-    const pageNumbers = useMemo(() => {
-        const pages = [];
-        if (totalPages <= 3) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            // Always show first two
-            pages.push(1);
-            pages.push(2);
-            
-            if (currentPage === 3) {
-                pages.push(3);
-            } else if (currentPage > 3) {
-                pages.push('...');
-                if (currentPage < totalPages) {
-                    pages.push(currentPage);
-                }
-            }
-            
-            if (currentPage < totalPages - 1) {
-                if (!pages.includes('...')) pages.push('...');
-            }
-            
-            if (!pages.includes(totalPages)) {
-                pages.push(totalPages);
-            }
-        }
-        return pages;
-    }, [currentPage, totalPages]);
+
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -173,17 +147,17 @@ const AdminCategories = () => {
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="relative flex-1 md:w-64 group">
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-cyan-500 transition-colors" />
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             placeholder="Search categories..."
                             className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-transparent focus:bg-white focus:border-cyan-200 rounded-2xl text-sm font-medium transition-all outline-none"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button 
+                    <button
                         onClick={() => handleOpenModal()}
-                        className="bg-[#001B1B] hover:bg-[#002B2B] text-white px-6 py-3.5 rounded-2xl font-bold text-sm flex items-center gap-3 transition-all shadow-xl shadow-black/10 active:scale-95"
+                        className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-6 py-3.5 rounded-2xl font-bold text-sm flex items-center gap-3 transition-all shadow-xl shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95"
                     >
                         <FiPlus /> Add Category
                     </button>
@@ -198,7 +172,7 @@ const AdminCategories = () => {
             </div>
 
             {/* Categories Table */}
-            <div className="bg-white rounded-[40px] shadow-sm border border-gray-50 overflow-hidden">
+            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[850px]">
                 <div className="p-8 border-b border-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-8 bg-cyan-500 rounded-full"></div>
@@ -206,7 +180,7 @@ const AdminCategories = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto custom-scrollbar">
+                <div className="overflow-auto flex-1 custom-scrollbar">
                     <table className="w-full min-w-[800px]">
                         <thead>
                             <tr className="bg-gray-50/50 text-[11px] text-gray-400 uppercase tracking-[0.2em] font-black">
@@ -248,11 +222,10 @@ const AdminCategories = () => {
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
-                                                c.level === 0 
-                                                ? 'bg-cyan-50 text-cyan-600 border-cyan-100' 
+                                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${c.level === 0
+                                                ? 'bg-cyan-50 text-cyan-600 border-cyan-100'
                                                 : 'bg-gray-50 text-gray-600 border-gray-100'
-                                            }`}>
+                                                }`}>
                                                 {c.level === 0 ? 'Niche' : `Subcategory (L${c.level})`}
                                             </span>
                                         </td>
@@ -270,13 +243,13 @@ const AdminCategories = () => {
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center justify-center gap-2">
-                                                <button 
+                                                <button
                                                     onClick={() => handleOpenModal(c)}
                                                     className="p-3 bg-white hover:bg-cyan-500 text-gray-400 hover:text-white rounded-xl shadow-sm border border-gray-100 transition-all hover:scale-110"
                                                 >
                                                     <FiEdit3 className="text-lg" />
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => handleDelete(c._id)}
                                                     className="p-3 bg-white hover:bg-red-500 text-gray-400 hover:text-white rounded-xl shadow-sm border border-gray-100 transition-all hover:scale-110"
                                                 >
@@ -291,43 +264,14 @@ const AdminCategories = () => {
                     </table>
                 </div>
 
-                {/* Footer Pagination */}
-                <div className="p-8 bg-gray-50/50 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-gray-50">
-                    <p className="text-[11px] text-gray-400 font-black uppercase tracking-[0.2em]">
-                        Showing <span className="text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-gray-900">{Math.min(currentPage * itemsPerPage, filteredCategories.length)}</span> of {filteredCategories.length} Results
-                    </p>
-                    <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-end">
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(prev => prev - 1)}
-                            className="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-gray-900 disabled:opacity-50 transition-all shadow-sm"
-                        >
-                            <FiChevronLeft />
-                        </button>
-                        <div className="flex items-center gap-1">
-                            {pageNumbers.map((num, i) => (
-                                num === '...' ? (
-                                    <span key={`dots-${i}`} className="w-10 h-10 flex items-center justify-center text-gray-400 font-bold tracking-widest">...</span>
-                                ) : (
-                                    <button
-                                        key={i}
-                                        onClick={() => setCurrentPage(num)}
-                                        className={`w-10 h-10 rounded-xl text-[11px] font-black transition-all ${currentPage === num ? 'bg-[#001B1B] text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'}`}
-                                    >
-                                        {num}
-                                    </button>
-                                )
-                            ))}
-                        </div>
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            className="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-gray-900 disabled:opacity-50 transition-all shadow-sm"
-                        >
-                            <FiChevronRight />
-                        </button>
-                    </div>
-                </div>
+                <AdminPagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={filteredCategories.length}
+                    itemsPerPage={itemsPerPage}
+                    itemName="categories"
+                />
             </div>
 
             {/* Add/Edit Modal */}
@@ -348,9 +292,9 @@ const AdminCategories = () => {
                         <form onSubmit={handleSubmit} className="p-8 space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">Category Name</label>
-                                <input 
+                                <input
                                     required
-                                    type="text" 
+                                    type="text"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
@@ -361,7 +305,7 @@ const AdminCategories = () => {
 
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">Parent Category</label>
-                                <select 
+                                <select
                                     name="parentCategory"
                                     value={formData.parentCategory}
                                     onChange={handleInputChange}
@@ -376,8 +320,8 @@ const AdminCategories = () => {
 
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">Image URL</label>
-                                <input 
-                                    type="url" 
+                                <input
+                                    type="url"
                                     name="image"
                                     value={formData.image}
                                     onChange={handleInputChange}
@@ -396,17 +340,17 @@ const AdminCategories = () => {
                             )}
 
                             <div className="pt-4 flex gap-4">
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
                                     className="flex-1 px-8 py-4 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-2xl font-bold transition-all"
                                 >
                                     Cancel
                                 </button>
-                                <button 
+                                <button
                                     type="submit"
                                     disabled={!formData.parentCategory && stats.niches >= 5 && !isEditing}
-                                    className="flex-1 px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-cyan-400/20 disabled:opacity-50 disabled:shadow-none"
+                                    className="flex-1 px-8 py-4 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95 disabled:opacity-50 disabled:shadow-none"
                                 >
                                     {isEditing ? 'Update Category' : 'Create Category'}
                                 </button>

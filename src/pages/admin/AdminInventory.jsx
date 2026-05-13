@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    FiSearch, FiFilter, FiArchive, FiAlertTriangle, 
-    FiCheckCircle, FiChevronLeft, FiChevronRight, 
+import {
+    FiSearch, FiFilter, FiArchive, FiAlertTriangle,
+    FiCheckCircle, FiChevronLeft, FiChevronRight,
     FiEdit3, FiTrendingDown, FiBox, FiArrowLeft
 } from 'react-icons/fi';
 import { getProducts, updateProduct } from '../../api/products';
 import toast from 'react-hot-toast';
 import { FiX } from 'react-icons/fi';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const AdminInventory = () => {
     const navigate = useNavigate();
@@ -70,16 +71,16 @@ const AdminInventory = () => {
         const lowStock = products.filter(p => p.stock > 0 && p.stock <= 10).length;
         const outOfStock = products.filter(p => p.stock === 0).length;
         const totalValue = products.reduce((acc, p) => acc + (p.price * p.stock), 0);
-        
+
         return { total, lowStock, outOfStock, totalValue };
     }, [products]);
 
     // Filtering & Searching
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
-            const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                p.brand.toLowerCase().includes(searchTerm.toLowerCase());
-            
+            const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                p.brand.toLowerCase().includes(searchTerm.toLowerCase());
+
             if (filterStatus === 'low') return matchesSearch && p.stock > 0 && p.stock <= 10;
             if (filterStatus === 'out') return matchesSearch && p.stock === 0;
             return matchesSearch;
@@ -92,30 +93,7 @@ const AdminInventory = () => {
         currentPage * itemsPerPage
     );
 
-    const pageNumbers = useMemo(() => {
-        const pages = [];
-        if (totalPages <= 3) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            pages.push(1);
-            pages.push(2);
-            if (currentPage === 3) {
-                pages.push(3);
-            } else if (currentPage > 3) {
-                pages.push('...');
-                if (currentPage < totalPages) {
-                    pages.push(currentPage);
-                }
-            }
-            if (currentPage < totalPages - 1) {
-                if (!pages.includes('...')) pages.push('...');
-            }
-            if (!pages.includes(totalPages)) {
-                pages.push(totalPages);
-            }
-        }
-        return pages;
-    }, [currentPage, totalPages]);
+
 
     const getStockStatus = (stock) => {
         if (stock === 0) return { label: 'Out of Stock', color: 'text-red-600 bg-red-50 border-red-100', icon: <FiXCircle className="text-[10px]" /> };
@@ -128,7 +106,7 @@ const AdminInventory = () => {
             {/* Header section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white p-8 rounded-[32px] shadow-sm border border-gray-50">
                 <div className="flex items-center gap-4">
-                    <button 
+                    <button
                         onClick={() => navigate(-1)}
                         className="w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-2xl text-gray-400 hover:text-gray-900 transition-all group"
                     >
@@ -143,8 +121,8 @@ const AdminInventory = () => {
                 </div>
                 <div className="relative w-full md:w-96 group">
                     <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-cyan-500 transition-colors" />
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         placeholder="Search products, SKU or brand..."
                         className="w-full pl-12 pr-4 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-cyan-200 rounded-[20px] text-sm font-medium transition-all outline-none"
                         value={searchTerm}
@@ -155,57 +133,56 @@ const AdminInventory = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <InventoryStatCard 
-                    label="Total Products" 
-                    value={stats.total} 
-                    icon={<FiBox />} 
-                    color="bg-[#001B1B]" 
+                <InventoryStatCard
+                    label="Total Products"
+                    value={stats.total}
+                    icon={<FiBox />}
+                    color="bg-[#001B1B]"
                     desc="Total unique products in catalog"
                 />
-                <InventoryStatCard 
-                    label="Low Stock Alert" 
-                    value={stats.lowStock} 
-                    icon={<FiTrendingDown />} 
-                    color="bg-orange-500" 
+                <InventoryStatCard
+                    label="Low Stock Alert"
+                    value={stats.lowStock}
+                    icon={<FiTrendingDown />}
+                    color="bg-orange-500"
                     desc="Products with less than 10 units"
                     warning={stats.lowStock > 0}
                 />
-                <InventoryStatCard 
-                    label="Out of Stock" 
-                    value={stats.outOfStock} 
-                    icon={<FiAlertTriangle />} 
-                    color="bg-red-500" 
+                <InventoryStatCard
+                    label="Out of Stock"
+                    value={stats.outOfStock}
+                    icon={<FiAlertTriangle />}
+                    color="bg-red-500"
                     desc="Products currently unavailable"
                     danger={stats.outOfStock > 0}
                 />
-                <InventoryStatCard 
-                    label="Stock Value" 
-                    value={`Rs. ${stats.totalValue.toLocaleString()}`} 
-                    icon={<FiArchive />} 
-                    color="bg-cyan-500" 
+                <InventoryStatCard
+                    label="Stock Value"
+                    value={`Rs. ${stats.totalValue.toLocaleString()}`}
+                    icon={<FiArchive />}
+                    color="bg-cyan-500"
                     desc="Total approximate value of stock"
                 />
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-white rounded-[40px] shadow-sm border border-gray-50 overflow-hidden">
+            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[850px]">
                 <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-8 bg-cyan-500 rounded-full"></div>
                         <h3 className="text-xl font-bold text-gray-900">Product Stock List</h3>
                     </div>
-                    
+
                     {/* Filters */}
                     <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-2xl">
                         {['all', 'low', 'out'].map((s) => (
                             <button
                                 key={s}
                                 onClick={() => setFilterStatus(s)}
-                                className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                                    filterStatus === s 
-                                    ? 'bg-white text-gray-900 shadow-sm' 
+                                className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterStatus === s
+                                    ? 'bg-white text-gray-900 shadow-sm'
                                     : 'text-gray-400 hover:text-gray-600'
-                                }`}
+                                    }`}
                             >
                                 {s === 'all' ? 'All Items' : s === 'low' ? 'Low Stock' : 'Out of Stock'}
                             </button>
@@ -213,7 +190,7 @@ const AdminInventory = () => {
                     </div>
                 </div>
 
-                <div className="overflow-hidden">
+                <div className="overflow-auto flex-1 custom-scrollbar">
                     {/* Mobile/Tablet View: Product Cards */}
                     <div className="lg:hidden divide-y divide-gray-50">
                         {loading ? (
@@ -231,9 +208,9 @@ const AdminInventory = () => {
                                     <div key={p._id} className="p-6 space-y-4">
                                         <div className="flex items-center gap-4">
                                             <div className="w-16 h-16 bg-white border border-gray-100 rounded-2xl p-2 flex items-center justify-center shrink-0">
-                                                <img 
-                                                    src={p.image || p.images?.[0] || 'https://via.placeholder.com/60'} 
-                                                    alt={p.title} 
+                                                <img
+                                                    src={p.image || p.images?.[0] || 'https://via.placeholder.com/60'}
+                                                    alt={p.title}
                                                     className="w-full h-full object-contain"
                                                 />
                                             </div>
@@ -267,13 +244,13 @@ const AdminInventory = () => {
                                                     </span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div 
+                                                    <div
                                                         className={`h-full rounded-full ${p.stock === 0 ? 'bg-red-500' : p.stock <= 10 ? 'bg-orange-500' : 'bg-cyan-500'}`}
                                                         style={{ width: `${Math.min(p.stock, 100)}%` }}
                                                     ></div>
                                                 </div>
                                             </div>
-                                            <button 
+                                            <button
                                                 onClick={() => handleEditClick(p)}
                                                 className="p-4 bg-[#001B1B] text-white rounded-2xl shadow-xl shadow-black/10 transition-all active:scale-95"
                                             >
@@ -320,9 +297,9 @@ const AdminInventory = () => {
                                                 <td className="px-8 py-6">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-16 h-16 bg-white border border-gray-100 rounded-2xl p-2 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                                            <img 
-                                                                src={p.image || p.images?.[0] || 'https://via.placeholder.com/60'} 
-                                                                alt={p.title} 
+                                                            <img
+                                                                src={p.image || p.images?.[0] || 'https://via.placeholder.com/60'}
+                                                                alt={p.title}
                                                                 className="w-full h-full object-contain"
                                                             />
                                                         </div>
@@ -349,7 +326,7 @@ const AdminInventory = () => {
                                                             <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Units</span>
                                                         </div>
                                                         <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                            <div 
+                                                            <div
                                                                 className={`h-full rounded-full ${p.stock === 0 ? 'bg-red-500' : p.stock <= 10 ? 'bg-orange-500' : 'bg-cyan-500'}`}
                                                                 style={{ width: `${Math.min(p.stock, 100)}%` }}
                                                             ></div>
@@ -362,7 +339,7 @@ const AdminInventory = () => {
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6 text-center">
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleEditClick(p)}
                                                         className="p-3 bg-white hover:bg-gray-900 text-gray-400 hover:text-white rounded-xl shadow-sm border border-gray-100 transition-all hover:scale-110 active:scale-95"
                                                         title="Quick Edit Stock"
@@ -379,43 +356,14 @@ const AdminInventory = () => {
                     </div>
                 </div>
 
-                {/* Footer Pagination */}
-                <div className="p-8 bg-gray-50/50 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-gray-50">
-                    <p className="text-[11px] text-gray-400 font-black uppercase tracking-[0.2em]">
-                        Showing <span className="text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-gray-900">{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> of {filteredProducts.length} Results
-                    </p>
-                    <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-end">
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(prev => prev - 1)}
-                            className="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-gray-900 disabled:opacity-50 transition-all shadow-sm"
-                        >
-                            <FiChevronLeft />
-                        </button>
-                        <div className="flex items-center gap-1">
-                            {pageNumbers.map((num, i) => (
-                                num === '...' ? (
-                                    <span key={`dots-${i}`} className="w-10 h-10 flex items-center justify-center text-gray-400 font-bold tracking-widest">...</span>
-                                ) : (
-                                    <button
-                                        key={i}
-                                        onClick={() => setCurrentPage(num)}
-                                        className={`w-10 h-10 rounded-xl text-[11px] font-black transition-all ${currentPage === num ? 'bg-[#001B1B] text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'}`}
-                                    >
-                                        {num}
-                                    </button>
-                                )
-                            ))}
-                        </div>
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            className="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-gray-900 disabled:opacity-50 transition-all shadow-sm"
-                        >
-                            <FiChevronRight />
-                        </button>
-                    </div>
-                </div>
+                <AdminPagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={filteredProducts.length}
+                    itemsPerPage={itemsPerPage}
+                    itemName="products"
+                />
             </div>
 
             {/* Edit Stock Modal */}
@@ -430,7 +378,7 @@ const AdminInventory = () => {
                                     <h3 className="text-2xl font-black tracking-tight">Update Stock</h3>
                                     <p className="text-cyan-400/80 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Quick Inventory Adjustment</p>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => setIsEditModalOpen(false)}
                                     className="p-2 hover:bg-white/10 rounded-xl transition-all"
                                 >
@@ -443,9 +391,9 @@ const AdminInventory = () => {
                         <form onSubmit={handleUpdateStock} className="p-8 space-y-8">
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-3xl border border-gray-100">
                                 <div className="w-16 h-16 bg-white rounded-2xl p-2 flex items-center justify-center shrink-0 shadow-sm">
-                                    <img 
-                                        src={selectedProduct.image || selectedProduct.images?.[0] || 'https://via.placeholder.com/60'} 
-                                        alt={selectedProduct.title} 
+                                    <img
+                                        src={selectedProduct.image || selectedProduct.images?.[0] || 'https://via.placeholder.com/60'}
+                                        alt={selectedProduct.title}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
@@ -459,8 +407,8 @@ const AdminInventory = () => {
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Quantity in Stock</label>
                                 <div className="relative group">
                                     <FiBox className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-cyan-500 transition-colors text-xl" />
-                                    <input 
-                                        type="number" 
+                                    <input
+                                        type="number"
                                         required
                                         min="0"
                                         className="w-full pl-14 pr-6 py-5 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-cyan-100 rounded-[24px] text-lg font-black transition-all outline-none"
@@ -473,25 +421,25 @@ const AdminInventory = () => {
                                 <div className="flex items-center gap-2 px-2">
                                     <FiAlertTriangle className={`text-xs ${newStock <= 10 ? 'text-orange-500' : 'text-gray-300'}`} />
                                     <p className="text-[10px] text-gray-400 font-medium">
-                                        {newStock <= 0 ? 'This will mark the product as OUT OF STOCK' : 
-                                         newStock <= 10 ? 'Low stock alert will be triggered' : 
-                                         'Product will be marked as IN STOCK'}
+                                        {newStock <= 0 ? 'This will mark the product as OUT OF STOCK' :
+                                            newStock <= 10 ? 'Low stock alert will be triggered' :
+                                                'Product will be marked as IN STOCK'}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex gap-4 pt-4">
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setIsEditModalOpen(false)}
                                     className="flex-1 py-5 rounded-[24px] text-xs font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all"
                                 >
                                     Cancel
                                 </button>
-                                <button 
+                                <button
                                     type="submit"
                                     disabled={updating}
-                                    className="flex-1 py-5 bg-cyan-500 hover:bg-cyan-600 text-white rounded-[24px] text-xs font-black uppercase tracking-widest shadow-xl shadow-cyan-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                                    className="flex-1 py-5 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white rounded-[24px] text-xs font-black uppercase tracking-widest shadow-xl shadow-black/20 transition-all hover:from-[#002B2B] hover:to-[#008080] active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
                                 >
                                     {updating ? (
                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
