@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-    FiShoppingCart, FiSearch, FiFilter, FiEye, 
+import {
+    FiShoppingCart, FiSearch, FiFilter, FiEye,
     FiClock, FiTruck, FiCheckCircle, FiXCircle,
     FiArrowUpRight, FiMoreVertical, FiCalendar,
     FiChevronLeft, FiChevronRight, FiChevronDown
 } from 'react-icons/fi';
 import { getAllOrders } from '../../api/orders';
 import toast from 'react-hot-toast';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const ORDERS_PER_PAGE = 10;
 
@@ -38,12 +39,12 @@ const AdminOrders = () => {
 
     const filteredOrders = useMemo(() => {
         return orders.filter(order => {
-            const matchesSearch = 
+            const matchesSearch =
                 order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 order.shippingAddress.fullName.toLowerCase().includes(searchTerm.toLowerCase());
-            
+
             const matchesFilter = filterStatus === 'all' || order.status === filterStatus;
-            
+
             return matchesSearch && matchesFilter;
         });
     }, [orders, searchTerm, filterStatus]);
@@ -64,34 +65,7 @@ const AdminOrders = () => {
         if (p >= 1 && p <= totalPages) setCurrentPage(p);
     };
 
-    /* helper — page buttons with ellipsis */
-    const pageNumbers = useMemo(() => {
-        const pages = [];
-        
-        if (totalPages <= 3) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            // Always show first two
-            pages.push(1);
-            pages.push(2);
-            
-            if (currentPage === 3) {
-                pages.push(3);
-            } else if (currentPage > 3) {
-                pages.push('...');
-                if (currentPage < totalPages) pages.push(currentPage);
-            }
-            
-            // Always show dots before last page if there's a gap
-            if (currentPage < totalPages - 1) {
-                if (!pages.includes('...')) pages.push('...');
-            }
-            
-            // Always show last page
-            if (!pages.includes(totalPages)) pages.push(totalPages);
-        }
-        return pages;
-    }, [currentPage, totalPages]);
+
 
     const stats = {
         total: orders.length,
@@ -165,7 +139,7 @@ const AdminOrders = () => {
             </div>
 
             {/* Filters & Table */}
-            <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50">
+            <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50 h-[850px] flex flex-col">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     {/* Desktop Filters */}
                     <div className="hidden md:flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 custom-scrollbar">
@@ -173,11 +147,10 @@ const AdminOrders = () => {
                             <button
                                 key={status}
                                 onClick={() => setFilterStatus(status)}
-                                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
-                                    filterStatus === status 
-                                    ? 'bg-cyan-400 text-black shadow-lg shadow-cyan-400/20' 
+                                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${filterStatus === status
+                                    ? 'bg-cyan-400 text-black shadow-lg shadow-cyan-400/20'
                                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                                }`}
+                                    }`}
                             >
                                 {status}
                             </button>
@@ -206,11 +179,10 @@ const AdminOrders = () => {
                                             setFilterStatus(status);
                                             setShowFilterDropdown(false);
                                         }}
-                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider mb-1 last:mb-0 transition-all ${
-                                            filterStatus === status
+                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider mb-1 last:mb-0 transition-all ${filterStatus === status
                                             ? 'bg-cyan-50 text-cyan-600'
                                             : 'text-gray-500 hover:bg-gray-50'
-                                        }`}
+                                            }`}
                                     >
                                         {status}
                                         {filterStatus === status && <FiCheckCircle size={14} />}
@@ -221,7 +193,7 @@ const AdminOrders = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto custom-scrollbar">
+                <div className="overflow-auto flex-1 custom-scrollbar">
                     <table className="w-full min-w-[1000px]">
                         <thead>
                             <tr className="border-b border-gray-50 text-[11px] text-gray-400 uppercase tracking-[0.2em] font-bold">
@@ -309,52 +281,14 @@ const AdminOrders = () => {
                     </table>
                 </div>
 
-                {/* Pagination */}
-                <div className="p-6 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <p className="text-sm text-gray-500 font-medium order-2 md:order-1 text-center md:text-left">
-                        Showing <span className="font-bold text-gray-900">{filteredOrders.length > 0 ? (currentPage - 1) * ORDERS_PER_PAGE + 1 : 0}</span> to <span className="font-bold text-gray-900">{Math.min(currentPage * ORDERS_PER_PAGE, filteredOrders.length)}</span> of <span className="font-bold text-gray-900">{filteredOrders.length}</span> results
-                    </p>
-                    <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-end">
-                        <button
-                            onClick={() => goToPage(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="flex items-center justify-center w-10 h-10 lg:w-auto lg:h-auto lg:px-4 lg:py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
-                            title="Previous Page"
-                        >
-                            <FiChevronLeft size={16} /> <span className="hidden lg:inline ml-2">Previous</span>
-                        </button>
-
-                        <div className="flex items-center gap-1">
-                            {pageNumbers.map((num, idx) => (
-                                num === '...' ? (
-                                    <span key={`dots-${idx}`} className="w-9 h-9 flex items-center justify-center text-gray-400 font-bold">...</span>
-                                ) : (
-                                    <button
-                                        key={num}
-                                        onClick={() => goToPage(num)}
-                                        className={`
-                                            w-9 h-9 flex items-center justify-center text-[13px] font-bold rounded-xl transition-all
-                                            ${num === currentPage
-                                                ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white shadow-lg shadow-black/20 scale-110 z-10'
-                                                : 'bg-white text-gray-500 border border-gray-200 hover:border-[#006060] hover:text-[#006060] shadow-sm'}
-                                        `}
-                                    >
-                                        {num}
-                                    </button>
-                                )
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={() => goToPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="flex items-center justify-center w-10 h-10 lg:w-auto lg:h-auto lg:px-4 lg:py-2 text-[13px] font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 hover:text-cyan-600 disabled:opacity-50 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all shadow-sm"
-                            title="Next Page"
-                        >
-                            <span className="hidden lg:inline mr-2">Next</span> <FiChevronRight size={16} />
-                        </button>
-                    </div>
-                </div>
+                <AdminPagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                    totalItems={filteredOrders.length}
+                    itemsPerPage={ORDERS_PER_PAGE}
+                    itemName="orders"
+                />
             </div>
         </div>
     );

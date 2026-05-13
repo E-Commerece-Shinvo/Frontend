@@ -212,7 +212,7 @@ const AdminProfile = () => {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="flex items-center gap-3 bg-cyan-400 text-black px-12 py-4 rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-xl shadow-cyan-400/20 disabled:opacity-50 transform hover:-translate-y-1"
+                                className="flex items-center gap-3 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-12 py-4 rounded-2xl font-bold hover:from-[#002B2B] hover:to-[#008080] transition-all shadow-xl shadow-black/20 disabled:opacity-50 transform hover:-translate-y-1 active:scale-95"
                             >
                                 <FiSave className="text-xl" />
                                 {isSaving ? 'Updating Profile...' : 'Save All Changes'}

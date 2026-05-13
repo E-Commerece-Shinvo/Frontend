@@ -76,7 +76,7 @@ const AdminSales = () => {
                                 onClick={() => setTimeRange(t)}
                                 className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                                     timeRange === t 
-                                    ? 'bg-[#001B1B] text-white shadow-lg' 
+                                    ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white shadow-lg shadow-black/20' 
                                     : 'text-gray-400 hover:text-gray-600'
                                 }`}
                             >

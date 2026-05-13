@@ -211,9 +211,9 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
-                    <button className="bg-cyan-400 hover:bg-cyan-500 text-black px-6 py-2.5 rounded-xl flex items-center gap-3 font-bold text-sm shadow-lg shadow-cyan-400/20 transition-all">
+                    <button className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-6 py-2.5 rounded-xl flex items-center gap-3 font-bold text-sm shadow-lg shadow-black/20 transition-all hover:from-[#002B2B] hover:to-[#008080] active:scale-95">
                         <span>Download Report</span>
-                        <div className="w-6 h-6 rounded-full border-2 border-black flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="rotate-0"><path d="M5 1V9M5 9L1 5M5 9L9 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                         </div>
                     </button>

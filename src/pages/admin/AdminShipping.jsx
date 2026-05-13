@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
+import {
     FiTruck, FiPackage, FiCheckCircle, FiMapPin,
     FiSearch, FiFilter, FiExternalLink, FiClock,
     FiChevronLeft, FiChevronRight, FiMoreVertical,
@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fi';
 import { getAllOrders, updateOrderStatus } from '../../api/orders';
 import toast from 'react-hot-toast';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const AdminShipping = () => {
     const [orders, setOrders] = useState([]);
@@ -14,7 +15,7 @@ const AdminShipping = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all'); // all, processing, shipped, delivered
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+    const itemsPerPage = 4;
 
     useEffect(() => {
         fetchOrders();
@@ -56,8 +57,8 @@ const AdminShipping = () => {
     // Filtering
     const filteredOrders = useMemo(() => {
         return orders.filter(o => {
-            const matchesSearch = o.shippingAddress.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                o._id.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesSearch = o.shippingAddress.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                o._id.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesStatus = filterStatus === 'all' || o.status === filterStatus;
             return matchesSearch && matchesStatus;
         });
@@ -70,25 +71,7 @@ const AdminShipping = () => {
         currentPage * itemsPerPage
     );
 
-    const pageNumbers = useMemo(() => {
-        const pages = [];
-        if (totalPages <= 3) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            pages.push(1);
-            pages.push(2);
-            if (currentPage === 3) pages.push(3);
-            else if (currentPage > 3) {
-                pages.push('...');
-                if (currentPage < totalPages) pages.push(currentPage);
-            }
-            if (currentPage < totalPages - 1) {
-                if (!pages.includes('...')) pages.push('...');
-            }
-            if (!pages.includes(totalPages)) pages.push(totalPages);
-        }
-        return pages;
-    }, [currentPage, totalPages]);
+
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -102,8 +85,8 @@ const AdminShipping = () => {
                 </div>
                 <div className="relative w-full md:w-96 group">
                     <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-cyan-500 transition-colors" />
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         placeholder="Search by Order ID or Customer..."
                         className="w-full pl-12 pr-4 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-cyan-200 rounded-[20px] text-sm font-medium transition-all outline-none"
                         value={searchTerm}
@@ -114,48 +97,47 @@ const AdminShipping = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <ShippingStatCard 
-                    label="Pending Pickup" 
-                    value={stats.pending} 
-                    icon={<FiPackage />} 
-                    color="bg-orange-500" 
+                <ShippingStatCard
+                    label="Pending Pickup"
+                    value={stats.pending}
+                    icon={<FiPackage />}
+                    color="bg-orange-500"
                     desc="Ready for courier"
                 />
-                <ShippingStatCard 
-                    label="In Transit" 
-                    value={stats.inTransit} 
-                    icon={<FiTruck />} 
-                    color="bg-cyan-500" 
+                <ShippingStatCard
+                    label="In Transit"
+                    value={stats.inTransit}
+                    icon={<FiTruck />}
+                    color="bg-cyan-500"
                     desc="Currently with courier"
                 />
-                <ShippingStatCard 
-                    label="Delivered" 
-                    value={stats.delivered} 
-                    icon={<FiCheckCircle />} 
-                    color="bg-teal-500" 
+                <ShippingStatCard
+                    label="Delivered"
+                    value={stats.delivered}
+                    icon={<FiCheckCircle />}
+                    color="bg-teal-500"
                     desc="Successfully completed"
                 />
             </div>
 
             {/* Shipping List Table */}
-            <div className="bg-white rounded-[40px] shadow-sm border border-gray-50 overflow-hidden">
+            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[850px]">
                 <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-8 bg-cyan-500 rounded-full"></div>
                         <h3 className="text-xl font-bold text-gray-900">Live Shipments</h3>
                     </div>
-                    
+
                     {/* Status Tabs */}
                     <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
                         {['all', 'processing', 'shipped', 'delivered'].map((s) => (
                             <button
                                 key={s}
                                 onClick={() => setFilterStatus(s)}
-                                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                                    filterStatus === s 
-                                    ? 'bg-white text-gray-900 shadow-sm border border-gray-100' 
+                                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${filterStatus === s
+                                    ? 'bg-white text-gray-900 shadow-sm border border-gray-100'
                                     : 'text-gray-400 hover:text-gray-600'
-                                }`}
+                                    }`}
                             >
                                 {s === 'all' ? 'All' : s === 'processing' ? 'Pending' : s === 'shipped' ? 'In Transit' : 'Delivered'}
                             </button>
@@ -163,7 +145,7 @@ const AdminShipping = () => {
                     </div>
                 </div>
 
-                <div className="">
+                <div className="flex-1 overflow-auto custom-scrollbar">
                     {/* Mobile View: Shipment Cards */}
                     <div className="lg:hidden divide-y divide-gray-50">
                         {loading ? (
@@ -184,15 +166,14 @@ const AdminShipping = () => {
                                                 Rs. {o.totalAmount.toLocaleString()} • {o.items.length} Items
                                             </span>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border flex items-center gap-1 ${
-                                            o.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
+                                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border flex items-center gap-1 ${o.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
                                             o.status === 'shipped' ? 'bg-cyan-50 text-cyan-600 border-cyan-100' :
-                                            'bg-orange-50 text-orange-600 border-orange-100'
-                                        }`}>
+                                                'bg-orange-50 text-orange-600 border-orange-100'
+                                            }`}>
                                             {o.status}
                                         </span>
                                     </div>
-                                    
+
                                     <div className="flex items-start gap-3 bg-gray-50/50 p-3 rounded-2xl">
                                         <FiMapPin className="text-cyan-500 mt-0.5" />
                                         <div className="flex flex-col">
@@ -210,7 +191,7 @@ const AdminShipping = () => {
                                         </div>
                                         <div className="flex gap-2">
                                             {o.status === 'processing' && (
-                                                <button 
+                                                <button
                                                     onClick={() => handleStatusUpdate(o._id, 'shipped')}
                                                     className="px-4 py-2 bg-[#001B1B] text-white text-[9px] font-black uppercase tracking-widest rounded-lg"
                                                 >
@@ -218,7 +199,7 @@ const AdminShipping = () => {
                                                 </button>
                                             )}
                                             {o.status === 'shipped' && (
-                                                <button 
+                                                <button
                                                     onClick={() => handleStatusUpdate(o._id, 'delivered')}
                                                     className="px-4 py-2 bg-teal-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg"
                                                 >
@@ -293,11 +274,10 @@ const AdminShipping = () => {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border flex items-center gap-2 w-fit ${
-                                                    o.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
+                                                <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border flex items-center gap-2 w-fit ${o.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
                                                     o.status === 'shipped' ? 'bg-cyan-50 text-cyan-600 border-cyan-100' :
-                                                    'bg-orange-50 text-orange-600 border-orange-100'
-                                                }`}>
+                                                        'bg-orange-50 text-orange-600 border-orange-100'
+                                                    }`}>
                                                     {o.status === 'delivered' ? <FiCheckCircle /> : o.status === 'shipped' ? <FiTruck /> : <FiClock />}
                                                     {o.status}
                                                 </span>
@@ -305,15 +285,15 @@ const AdminShipping = () => {
                                             <td className="px-8 py-6 text-center">
                                                 <div className="flex items-center justify-center gap-2">
                                                     {o.status === 'processing' && (
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleStatusUpdate(o._id, 'shipped')}
-                                                            className="px-4 py-2 bg-[#001B1B] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#002B2B] transition-all shadow-lg shadow-black/10"
+                                                            className="px-4 py-2 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-[#002B2B] hover:to-[#008080] active:scale-95 transition-all shadow-lg shadow-black/20"
                                                         >
                                                             Ship Order
                                                         </button>
                                                     )}
                                                     {o.status === 'shipped' && (
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleStatusUpdate(o._id, 'delivered')}
                                                             className="px-4 py-2 bg-teal-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-teal-600 transition-all shadow-lg shadow-teal-500/20"
                                                         >
@@ -333,43 +313,14 @@ const AdminShipping = () => {
                     </div>
                 </div>
 
-                {/* Footer Pagination */}
-                <div className="p-8 bg-gray-50/50 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-gray-50">
-                    <p className="text-[11px] text-gray-400 font-black uppercase tracking-[0.2em]">
-                        Showing <span className="text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-gray-900">{Math.min(currentPage * itemsPerPage, filteredOrders.length)}</span> of {filteredOrders.length} Results
-                    </p>
-                    <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-end">
-                        <button 
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(prev => prev - 1)}
-                            className="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-gray-900 disabled:opacity-50 transition-all shadow-sm"
-                        >
-                            <FiChevronLeft />
-                        </button>
-                        <div className="flex items-center gap-1">
-                            {pageNumbers.map((num, i) => (
-                                num === '...' ? (
-                                    <span key={`dots-${i}`} className="w-10 h-10 flex items-center justify-center text-gray-400 font-bold tracking-widest">...</span>
-                                ) : (
-                                    <button
-                                        key={i}
-                                        onClick={() => setCurrentPage(num)}
-                                        className={`w-10 h-10 rounded-xl text-[11px] font-black transition-all ${currentPage === num ? 'bg-[#001B1B] text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'}`}
-                                    >
-                                        {num}
-                                    </button>
-                                )
-                            ))}
-                        </div>
-                        <button 
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            className="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-gray-900 disabled:opacity-50 transition-all shadow-sm"
-                        >
-                            <FiChevronRight />
-                        </button>
-                    </div>
-                </div>
+                <AdminPagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={filteredOrders.length}
+                    itemsPerPage={itemsPerPage}
+                    itemName="orders"
+                />
             </div>
         </div>
     );

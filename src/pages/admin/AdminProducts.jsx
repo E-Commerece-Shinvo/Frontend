@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiPlus, FiMoreVertical, FiChevronLeft, FiChevronRight, FiX, FiSave } from 'react-icons/fi';
 import { getProducts, createProduct } from '../../api/products';
 import { getCategories } from '../../api/categories';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const AdminProducts = () => {
     const navigate = useNavigate();
@@ -104,23 +105,7 @@ const AdminProducts = () => {
         );
     };
 
-    const getPageNumbers = () => {
-        let pages = [];
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            if (page <= 3) {
-                pages = [1, 2, 3, 4, '...', totalPages];
-            } else if (page >= totalPages - 2) {
-                pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-            } else {
-                pages = [1, '...', page - 1, page, page + 1, '...', totalPages];
-            }
-        }
-        return pages;
-    };
+
 
     return (
         <>
@@ -173,7 +158,7 @@ const AdminProducts = () => {
                             <button onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 rounded-xl font-bold text-sm text-gray-600 hover:bg-gray-200 transition-colors">
                                 Cancel
                             </button>
-                            <button type="submit" form="add-product-form" disabled={isSubmitting} className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-colors text-sm shadow-sm disabled:opacity-50">
+                            <button type="submit" form="add-product-form" disabled={isSubmitting} className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all text-sm shadow-lg shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95 disabled:opacity-50">
                                 {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white/30 border-t-white rounded-full"></span> : <FiSave />}
                                 {isSubmitting ? 'Saving...' : 'Save Product'}
                             </button>
@@ -182,7 +167,7 @@ const AdminProducts = () => {
                 </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-50 flex flex-col p-6 min-h-[calc(100vh-160px)]">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-50 flex flex-col p-6 h-[850px]">
                 {/* Header Area */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
@@ -205,7 +190,7 @@ const AdminProducts = () => {
                         </div>
                         <button
                             onClick={handleOpenModal}
-                            className="border-2 border-cyan-400 text-cyan-500 hover:bg-cyan-50 w-11 h-11 md:w-auto md:h-auto md:px-5 md:py-2 rounded-lg flex items-center justify-center gap-2 font-bold text-sm transition-all whitespace-nowrap shrink-0"
+                            className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white w-11 h-11 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-sm transition-all shadow-lg shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95 whitespace-nowrap shrink-0"
                             title="Add new Product"
                         >
                             <FiPlus className="text-xl shrink-0" />
@@ -215,7 +200,7 @@ const AdminProducts = () => {
                 </div>
 
                 {/* Responsive Table Container */}
-                <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
+                <div className="w-full overflow-auto pb-4 custom-scrollbar flex-1">
                     <div className="min-w-[850px]">
                         {/* Table Header */}
                         <div className="bg-gray-100 rounded-xl px-6 py-4 flex items-center mb-4">
@@ -278,46 +263,14 @@ const AdminProducts = () => {
                     </div>
                 </div>
 
-                {/* Pagination */}
-                <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-100">
-                    <div className="text-xs font-medium text-gray-500">
-                        Showing {Math.min((page - 1) * limit + 1, totalProducts || 0)} to {Math.min(page * limit, totalProducts || 0)} of {totalProducts || 0} products
-                    </div>
-                    {totalPages > 1 && (
-                        <div className="flex flex-nowrap items-center justify-center gap-1 md:gap-1.5 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 custom-scrollbar">
-                            <button
-                                disabled={page === 1}
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
-                                className="p-1 text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-50 shrink-0"
-                            >
-                                <FiChevronLeft className="text-lg" />
-                            </button>
-
-                            {getPageNumbers().map((num, idx) => {
-                                if (num === '...') {
-                                    return <span key={`ellipsis-${idx}`} className="text-gray-400 text-xs tracking-wider mx-0.5 md:mx-1 shrink-0">...</span>;
-                                }
-                                return (
-                                    <button
-                                        key={num}
-                                        onClick={() => setPage(num)}
-                                        className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full font-bold text-[10px] md:text-xs transition-colors shrink-0 ${page === num ? 'border border-gray-300 text-gray-900 bg-white shadow-sm' : 'text-gray-500 hover:bg-gray-100'}`}
-                                    >
-                                        {num}
-                                    </button>
-                                );
-                            })}
-
-                            <button
-                                disabled={page === totalPages}
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                className="p-1 text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-50 shrink-0"
-                            >
-                                <FiChevronRight className="text-lg" />
-                            </button>
-                        </div>
-                    )}
-                </div>
+                <AdminPagination 
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    totalItems={totalProducts}
+                    itemsPerPage={limit}
+                    itemName="products"
+                />
             </div>
         </>
     );
