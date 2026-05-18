@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { loginUser, registerUser as apiRegisterUser, getUserProfile } from '../api/auth';
+import { loginUser, registerUser as apiRegisterUser, getUserProfile, updateUserProfile } from '../api/auth';
 
 const AuthContext = createContext(null);
 
@@ -39,6 +39,11 @@ export const AuthProvider = ({ children }) => {
                 username: data.username,
                 email: data.email,
                 role: data.role,
+                phone: data.phone,
+                gender: data.gender,
+                permanentAddress: data.permanentAddress,
+                profileImage: data.profileImage,
+                addresses: data.addresses,
             });
             setIsLoggedIn(true);
             return { success: true, role: data.role };
@@ -61,6 +66,11 @@ export const AuthProvider = ({ children }) => {
                 username: data.username,
                 email: data.email,
                 role: data.role,
+                phone: data.phone,
+                gender: data.gender,
+                permanentAddress: data.permanentAddress,
+                profileImage: data.profileImage,
+                addresses: data.addresses,
             });
             setIsLoggedIn(true);
             return { success: true, role: data.role };
@@ -76,8 +86,29 @@ export const AuthProvider = ({ children }) => {
         setIsLoggedIn(false);
     };
 
+    const updateProfile = async (profileData) => {
+        try {
+            const data = await updateUserProfile(profileData);
+            setUser({
+                _id: data._id,
+                username: data.username,
+                email: data.email,
+                role: data.role,
+                phone: data.phone,
+                gender: data.gender,
+                permanentAddress: data.permanentAddress,
+                profileImage: data.profileImage,
+                addresses: data.addresses,
+            });
+            return { success: true, data };
+        } catch (error) {
+            console.error("Update Profile Error:", error.response?.data?.message || error.message);
+            return { success: false, message: error.response?.data?.message || 'Failed to update profile' };
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isLoggedIn, loading, login, register: registerUser, logout }}>
+        <AuthContext.Provider value={{ user, isLoggedIn, loading, login, register: registerUser, logout, updateProfile }}>
             {children}
         </AuthContext.Provider>
     );

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar/Navbar';
 import Footer from '../../components/layout/Footer/Footer';
 import { useAuth } from '../../context/AuthContext';
+import { uploadImage } from '../../api/auth';
 import {
     FiUser, FiShoppingBag, FiXCircle, FiClock, FiMoreVertical,
     FiEdit2, FiMail, FiPhone, FiMapPin, FiCamera, FiLock, FiCheckCircle, FiRotateCcw
@@ -10,11 +11,12 @@ import {
 import toast from 'react-hot-toast';
 
 const Profile = () => {
-    const { user } = useAuth();
+    const { user, updateProfile } = useAuth();
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const fileInputRef = useRef(null);
     const [previewImage, setPreviewImage] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     // Password change state
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -97,21 +99,95 @@ const Profile = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isAccountMenuOpen]);
 
-    const handleImageChange = (e) => {
+    // Sync profile state with current user context
+    useEffect(() => {
+        if (user) {
+            setProfileData(prev => ({
+                ...prev,
+                username: user.username || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                gender: user.gender || 'Male',
+                permanentAddress: user.permanentAddress || '',
+                fullName: user.username || '',
+            }));
+
+            if (user.profileImage) {
+                setPreviewImage(user.profileImage);
+            }
+
+            if (user.addresses && user.addresses.length > 0) {
+                // Map the saved addresses from user model to the 5 slots
+                const mappedAddresses = Array.from({ length: 5 }, (_, i) => {
+                    const dbAddr = user.addresses[i] || {};
+                    return {
+                        id: i + 1,
+                        country: dbAddr.country || 'Pakistan',
+                        addressFirstName: dbAddr.firstName || '',
+                        addressLastName: dbAddr.lastName || '',
+                        state: dbAddr.state || '',
+                        city: dbAddr.city || '',
+                        postalCode: dbAddr.postalCode || '',
+                        address: dbAddr.address || '',
+                        addressPhone: dbAddr.phone || ''
+                    };
+                });
+                setSavedLocations(mappedAddresses);
+
+                // Set current form's shipping address fields to active slot
+                const activeLoc = mappedAddresses.find(loc => loc.id === activeLocationSlot) || mappedAddresses[0];
+                setProfileData(prev => ({
+                    ...prev,
+                    country: activeLoc.country,
+                    addressFirstName: activeLoc.addressFirstName,
+                    addressLastName: activeLoc.addressLastName,
+                    state: activeLoc.state,
+                    city: activeLoc.city,
+                    postalCode: activeLoc.postalCode,
+                    address: activeLoc.address,
+                    addressPhone: activeLoc.addressPhone,
+                }));
+            }
+        }
+    }, [user]);
+
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Show preview immediately for instant feedback
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewImage(reader.result);
             };
             reader.readAsDataURL(file);
+
+            // Upload to backend/Cloudinary
+            const uploadToastId = toast.loading('Uploading profile picture...');
+            setIsUploading(true);
+            try {
+                const uploadData = await uploadImage(file);
+                const imageUrl = uploadData.url;
+                
+                // Save directly to user profile in DB
+                const updateRes = await updateProfile({ profileImage: imageUrl });
+                if (updateRes.success) {
+                    toast.success('Profile picture updated successfully!', { id: uploadToastId });
+                } else {
+                    toast.error(updateRes.message || 'Failed to update profile image', { id: uploadToastId });
+                }
+            } catch (err) {
+                console.error('Image Upload Error:', err);
+                toast.error(err.response?.data?.message || 'Failed to upload profile picture', { id: uploadToastId });
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
 
-        // Update the current slot in savedLocations
+        // Update the current slot in savedLocations first
         const currentData = {
             country: profileData.country,
             addressFirstName: profileData.addressFirstName,
@@ -128,7 +204,38 @@ const Profile = () => {
         );
         setSavedLocations(updatedSaved);
 
-        toast.success(`Changes saved to Address Slot ${activeLocationSlot}!`);
+        // Prepare shipping addresses array for backend User model
+        const mappedForBackend = updatedSaved.map(loc => ({
+            firstName: loc.addressFirstName,
+            lastName: loc.addressLastName,
+            country: loc.country,
+            state: loc.state,
+            city: loc.city,
+            postalCode: loc.postalCode,
+            address: loc.address,
+            phone: loc.addressPhone
+        }));
+
+        const saveToastId = toast.loading('Saving profile changes...');
+        try {
+            const updateRes = await updateProfile({
+                username: profileData.fullName,
+                email: profileData.email,
+                phone: profileData.phone,
+                gender: profileData.gender,
+                permanentAddress: profileData.permanentAddress,
+                addresses: mappedForBackend
+            });
+
+            if (updateRes.success) {
+                toast.success('Profile changes saved successfully!', { id: saveToastId });
+            } else {
+                toast.error(updateRes.message || 'Failed to save changes', { id: saveToastId });
+            }
+        } catch (err) {
+            console.error('Profile Save Error:', err);
+            toast.error(err.response?.data?.message || 'Failed to save changes', { id: saveToastId });
+        }
     };
 
     const handlePasswordUpdate = (e) => {

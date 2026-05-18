@@ -133,8 +133,12 @@ function MyReturns() {
                 <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[130px]">
                     {/* greeting */}
                     <div className="flex items-center gap-3 px-6 pb-5 border-b border-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-[#53C1CC] text-white flex items-center justify-center font-bold text-base shadow-sm">
-                            {user?.username?.charAt(0).toUpperCase() || 'U'}
+                        <div className="w-10 h-10 rounded-full bg-[#53C1CC] text-white flex items-center justify-center font-bold text-base shadow-sm overflow-hidden">
+                            {user?.profileImage ? (
+                                <img src={user.profileImage} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                user?.username?.charAt(0).toUpperCase() || 'U'
+                            )}
                         </div>
                         <div className="flex flex-col">
                             <span className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Welcome back</span>
