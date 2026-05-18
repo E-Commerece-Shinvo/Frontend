@@ -133,8 +133,12 @@ function Navbar() {
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                     className="flex items-center gap-2 text-white hover:text-[#53C1CC] transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-[#53C1CC] flex items-center justify-center font-bold text-xs border border-white/20">
-                      {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    <div className="w-8 h-8 rounded-full bg-[#53C1CC] flex items-center justify-center font-bold text-xs border border-white/20 overflow-hidden">
+                      {user?.profileImage ? (
+                        <img src={user.profileImage} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        user?.username?.charAt(0).toUpperCase() || 'U'
+                      )}
                     </div>
                   </button>
                   {profileDropdownOpen && (
@@ -176,8 +180,12 @@ function Navbar() {
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                     className="flex items-center gap-2 text-white hover:text-[#53C1CC] transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-[#53C1CC] flex items-center justify-center font-bold text-sm">
-                      {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    <div className="w-8 h-8 rounded-full bg-[#53C1CC] flex items-center justify-center font-bold text-sm overflow-hidden">
+                      {user?.profileImage ? (
+                        <img src={user.profileImage} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        user?.username?.charAt(0).toUpperCase() || 'U'
+                      )}
                     </div>
                   </button>
 
