@@ -44,7 +44,11 @@ export const AuthProvider = ({ children }) => {
             return { success: true, role: data.role };
         } catch (error) {
             console.error("Login Error:", error.response?.data?.message || error.message);
-            return { success: false, message: error.response?.data?.message || 'Login failed' };
+            return { 
+                success: false, 
+                message: error.response?.data?.message || 'Login failed',
+                isBlocked: error.response?.data?.isBlocked || false 
+            };
         }
     };
 

@@ -6,18 +6,48 @@ import {
     FiMoreVertical, FiCheck, FiTrendingUp, FiAlertTriangle,
     FiMenu, FiX
 } from 'react-icons/fi';
+import { getDashboardStats, getRecentActivity } from '../../api/orders';
+import { useAuth } from '../../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const [stats, setStats] = React.useState(null);
+    const [activity, setActivity] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
     const [isDateDropdownOpen, setIsDateDropdownOpen] = React.useState(false);
 
     // Date Selection State
-    const [currentMonth, setCurrentMonth] = React.useState(2); // 0-indexed, 2 = March
-    const [currentYear, setCurrentYear] = React.useState(2026);
-    const [startDate, setStartDate] = React.useState({ day: 7, month: 2, year: 2026 });
-    const [endDate, setEndDate] = React.useState({ day: 31, month: 2, year: 2026 });
+    const [currentMonth, setCurrentMonth] = React.useState(new Date().getMonth());
+    const [currentYear, setCurrentYear] = React.useState(new Date().getFullYear());
+    const [startDate, setStartDate] = React.useState({ day: 1, month: new Date().getMonth(), year: new Date().getFullYear() });
+    const [endDate, setEndDate] = React.useState({ day: 31, month: new Date().getMonth(), year: new Date().getFullYear() });
     const [selecting, setSelecting] = React.useState('start'); // 'start' or 'end'
 
     const datePickerRef = React.useRef(null);
+
+    const fetchData = async () => {
+        try {
+            const [statsData, activityData] = await Promise.all([
+                getDashboardStats(),
+                getRecentActivity()
+            ]);
+            setStats(statsData);
+            setActivity(activityData);
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchData();
+        // Polling every 30 seconds
+        const interval = setInterval(fetchData, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     React.useEffect(() => {
         const handleClickOutside = (event) => {
@@ -108,6 +138,15 @@ const AdminDashboard = () => {
         }
     };
 
+
+    if (loading || !stats || !activity) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400"></div>
+            </div>
+        );
+    }
+
     return (
         <>
             {/* Dashboard Title Card */}
@@ -118,8 +157,8 @@ const AdminDashboard = () => {
             {/* Welcome Back Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div>
-                    <h3 className="text-3xl font-bold mb-1 text-gray-900">Welcome back , Name</h3>
-                    <p className="text-gray-400 text-sm">Here what is going on in your store</p>
+                    <h3 className="text-3xl font-bold mb-1 text-gray-900 capitalize">Welcome back, {user?.username || 'Admin'}</h3>
+                    <p className="text-gray-400 text-sm">Here's what is going on in your store today</p>
                 </div>
                 <div ref={datePickerRef} className="flex items-center gap-3 relative">
                     {/* Date Picker Button */}
@@ -195,8 +234,9 @@ const AdminDashboard = () => {
                                                 setStartDate({ day: 1, month: currentMonth, year: currentYear });
                                                 setEndDate({ day: getDaysInMonth(currentMonth, currentYear), month: currentMonth, year: currentYear });
                                             } else if (option === 'Last 7 Days') {
-                                                const today = new Date(2026, 2, 31);
-                                                const sevenDaysAgo = new Date(2026, 2, 24);
+                                                const today = new Date();
+                                                const sevenDaysAgo = new Date();
+                                                sevenDaysAgo.setDate(today.getDate() - 7);
                                                 setStartDate({ day: sevenDaysAgo.getDate(), month: sevenDaysAgo.getMonth(), year: sevenDaysAgo.getFullYear() });
                                                 setEndDate({ day: today.getDate(), month: today.getMonth(), year: today.getFullYear() });
                                             }
@@ -226,9 +266,9 @@ const AdminDashboard = () => {
                     icon={<FiTrendingUp className="text-orange-600 text-2xl" />}
                     bgColor="bg-orange-100"
                     label="TODAY'S SALES"
-                    value="Rs. 45,000"
+                    value={`Rs. ${stats.todaySales.toLocaleString()}`}
                     trend="+ 7 %"
-                    trendText="Higest than yesterday"
+                    trendText="Higher than yesterday"
                     chartType="up"
                     link="View Sales Report"
                 />
@@ -236,18 +276,19 @@ const AdminDashboard = () => {
                     icon={<FiPackage className="text-orange-700 text-2xl" />}
                     bgColor="bg-orange-200"
                     label="ORDERS TO FULFILL"
-                    value="45"
+                    value={stats.pendingOrders}
                     status="Action Required"
                     statusText="Pack and ship"
-                    link="Go to Shopping"
+                    link="Manage Orders"
+                    path="/admin/orders"
                 />
                 <SummaryCard
                     icon={<FiUsers className="text-purple-600 text-2xl" />}
                     bgColor="bg-purple-100"
-                    label="STORE VISITORS TODAY"
-                    value="1,122"
+                    label="TOTAL REVENUE"
+                    value={`Rs. ${stats.totalRevenue.toLocaleString()}`}
                     trend="+ 15 %"
-                    trendText="from yesterday"
+                    trendText="from last month"
                     chartType="up"
                     link="View Live Traffic"
                 />
@@ -255,10 +296,11 @@ const AdminDashboard = () => {
                     icon={<FiAlertTriangle className="text-yellow-400 text-2xl" />}
                     bgColor="bg-black"
                     label="LOW STOCK ALERTS"
-                    value="3 Items"
-                    status="Action Required"
-                    statusText="Restock Soon"
-                    link="View Inventory List"
+                    value={`${stats.lowStockItems} Items`}
+                    status={stats.lowStockItems > 0 ? "Action Required" : "All Good"}
+                    statusText={stats.lowStockItems > 0 ? "Restock Soon" : "Stock Levels Healthy"}
+                    link="View Inventory"
+                    path="/admin/inventory"
                 />
             </div>
 
@@ -267,49 +309,39 @@ const AdminDashboard = () => {
                 {/* Sales Overview Chart */}
                 <div className="xl:col-span-2 bg-white rounded-[32px] p-8 shadow-sm border border-gray-50 flex flex-col">
                     <div className="flex items-center justify-between mb-10">
-                        <h4 className="text-xl font-bold text-gray-900 font-sans">Sales Overview</h4>
+                        <h4 className="text-xl font-bold text-gray-900 font-sans">Sales Overview (7 Days)</h4>
                         <div className="flex items-center gap-6 text-xs font-medium text-gray-400">
                             <div className="flex items-center gap-2">
                                 <div className="w-3 h-3 bg-gradient-to-t from-teal-500 to-cyan-400 rounded-sm"></div>
-                                <span className="font-bold">This Week</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-gray-200 rounded-sm"></div>
-                                <span className="font-bold">Last Week</span>
+                                <span className="font-bold">Last 7 Days</span>
                             </div>
                         </div>
                     </div>
                     <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
                         <div className="min-w-[500px] h-full flex items-end justify-between gap-2 relative pt-12">
                             {/* Simple Bar Chart Implementation with Tooltips */}
-                            {[
-                                { day: 'Mon', main: 60, last: 45 },
-                                { day: 'Tue', main: 40, last: 55 },
-                                { day: 'Wed', main: 85, last: 65 },
-                                { day: 'Thu', main: 70, last: 40 },
-                                { day: 'Fri', main: 55, last: 45 },
-                                { day: 'Sat', main: 90, last: 75 },
-                                { day: 'Sun', main: 65, last: 50 },
-                            ].map((d, i) => (
-                                <div key={i} className="flex-1 flex flex-col items-center gap-4 group relative">
-                                    <div className="w-full flex justify-center gap-1.5 items-end h-[250px]">
-                                        <div
-                                            className="w-6 md:w-8 bg-gray-100 rounded-md md:rounded-lg group-hover:bg-gray-200 transition-all cursor-pointer relative"
-                                            style={{ height: `${d.last}%` }}
-                                        ></div>
-                                        <div
-                                            className="w-8 md:w-10 bg-gradient-to-t from-teal-500 to-cyan-400 rounded-md md:rounded-lg group-hover:from-teal-600 group-hover:to-cyan-500 transition-all cursor-pointer relative"
-                                            style={{ height: `${d.main}%` }}
-                                        >
-                                            {/* Value Label on Top */}
-                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                                                Rs. {(d.main * 1000).toLocaleString()}
+                            {stats.salesChart.map((d, i) => {
+                                // Calculate height percentage relative to max sales in the week
+                                const maxSales = Math.max(...stats.salesChart.map(x => x.sales)) || 1;
+                                const heightPercent = (d.sales / maxSales) * 100;
+
+                                return (
+                                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group relative">
+                                        <div className="w-full flex justify-center gap-1.5 items-end h-[250px]">
+                                            <div
+                                                className="w-8 md:w-12 bg-gradient-to-t from-teal-500 to-cyan-400 rounded-md md:rounded-lg group-hover:from-teal-600 group-hover:to-cyan-500 transition-all cursor-pointer relative"
+                                                style={{ height: `${Math.max(heightPercent, 5)}%` }}
+                                            >
+                                                {/* Value Label on Top */}
+                                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                                    Rs. {d.sales.toLocaleString()}
+                                                </div>
                                             </div>
                                         </div>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{d.day}</span>
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{d.day}</span>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -317,23 +349,32 @@ const AdminDashboard = () => {
                 {/* Top Selling Products */}
                 <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50">
                     <div className="flex items-center justify-between mb-8">
-                        <h4 className="text-xl font-bold text-gray-900">Top Selling Products</h4>
+                        <h4 className="text-xl font-bold text-gray-900">Low Stock Products</h4>
                         <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold tracking-widest uppercase">
-                            <span>this month</span>
+                            <span>Alerts</span>
                             <svg width="8" height="5" viewBox="0 0 8 5" fill="none"><path d="M1 1L4 4L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                         </div>
                     </div>
                     <div className="overflow-x-auto custom-scrollbar">
                         <div className="space-y-6 min-w-[280px]">
-                            <ProductItem name="Samsung 45W Travel Adapter" price="Rs. 5,250" sold="145 Sold" />
-                            <ProductItem name="Samsung 45W Travel Adapter" price="Rs. 5,250" sold="145 Sold" />
-                            <ProductItem name="Samsung 45W Travel Adapter" price="Rs. 5,250" sold="145 Sold" />
-                            <ProductItem name="Samsung 45W Travel Adapter" price="Rs. 5,250" sold="145 Sold" />
+                            {activity.lowStockProducts.length === 0 ? (
+                                <p className="text-center py-10 text-gray-400 font-bold uppercase tracking-widest text-[10px]">All products well stocked</p>
+                            ) : (
+                                activity.lowStockProducts.map((product, i) => (
+                                    <ProductItem 
+                                        key={i} 
+                                        name={product.title} 
+                                        price={`Rs. ${product.price.toLocaleString()}`} 
+                                        sold={`${product.stock} left`} 
+                                        image={product.image}
+                                    />
+                                ))
+                            )}
                         </div>
                     </div>
-                    <a href="#" className="mt-8 text-[11px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all leading-none">
+                    <Link to="/admin/inventory" className="mt-8 text-[11px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all leading-none">
                         View full Inventory Report <FiArrowUpRight />
-                    </a>
+                    </Link>
                 </div>
             </div>
 
@@ -343,9 +384,9 @@ const AdminDashboard = () => {
                 <div className="xl:col-span-2 bg-white rounded-[32px] p-8 shadow-sm border border-gray-50">
                     <div className="flex items-center justify-between mb-8">
                         <h4 className="text-xl font-bold text-gray-900">Recent Orders</h4>
-                        <a href="#" className="text-[11px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all leading-none">
+                        <Link to="/admin/orders" className="text-[11px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all leading-none">
                             View All Orders <FiArrowUpRight />
-                        </a>
+                        </Link>
                     </div>
                     <div className="overflow-x-auto custom-scrollbar">
                         <table className="w-full min-w-[600px]">
@@ -359,11 +400,22 @@ const AdminDashboard = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                <OrderRow id="#102" name="Ali Khan" items="3" price="Rs. 65,00" status="Pending" />
-                                <OrderRow id="#102" name="Ali Khan" items="5" price="Rs. 75,00" status="Delivered" />
-                                <OrderRow id="#102" name="Ali Khan" items="1" price="Rs. 55,00" status="Shipped" />
-                                <OrderRow id="#102" name="Ali Khan" items="2" price="Rs. 12,00" status="Pending" />
-                                <OrderRow id="#102" name="Ali Khan" items="3" price="Rs. 65,00" status="Pending" />
+                                {activity.recentOrders.map((order) => (
+                                    <OrderRow 
+                                        key={order._id}
+                                        id={`#${order._id.slice(-4)}`} 
+                                        name={order.shippingAddress.fullName} 
+                                        items={order.items.reduce((acc, item) => acc + item.quantity, 0)} 
+                                        price={`Rs. ${order.totalAmount.toLocaleString()}`} 
+                                        status={order.status.charAt(0).toUpperCase() + order.status.slice(1)} 
+                                        onClick={() => navigate(`/admin/orders/${order._id}`)}
+                                    />
+                                ))}
+                                {activity.recentOrders.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" className="py-10 text-center text-gray-400 font-bold uppercase tracking-widest text-[10px]">No orders found</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -373,33 +425,24 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50">
                     <div className="flex items-center justify-between mb-8">
                         <h4 className="text-xl font-bold text-gray-900">Recent Activity</h4>
-                        <a href="#" className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 leading-none">
+                        <button className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 leading-none">
                             Mark all read <FiCheck />
-                        </a>
+                        </button>
                     </div>
                     <div className="space-y-8">
-                        <ActivityItem
-                            color="bg-teal-500"
-                            title="New Order #1046"
-                            desc="Usman Tariq paid Rs. 5,300 via COD."
-                            time="15 minutes ago"
-                        />
-                        <ActivityItem
-                            color="bg-orange-500"
-                            title="Low Stock Alert"
-                            desc="Samsung 45W Adapter has 3 units left."
-                            time="1 hour ago"
-                        />
-                        <ActivityItem
-                            color="bg-cyan-500"
-                            title="New Registration"
-                            desc="Fatima Noor created a customer account."
-                            time="1 hour ago"
-                        />
+                        {activity.recentOrders.slice(0, 5).map((order, i) => (
+                            <ActivityItem
+                                key={i}
+                                color={order.status === 'pending' ? 'bg-orange-500' : 'bg-teal-500'}
+                                title={order.status === 'pending' ? `New Order #${order._id.slice(-4)}` : `Order #${order._id.slice(-4)} ${order.status}`}
+                                desc={`${order.shippingAddress.fullName} placed an order for Rs. ${order.totalAmount.toLocaleString()}.`}
+                                time={new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            />
+                        ))}
                     </div>
-                    <a href="#" className="mt-8 text-[11px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all leading-none">
-                        View full Inventory Report <FiArrowUpRight />
-                    </a>
+                    <Link to="/admin/inventory" className="mt-8 text-[11px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all leading-none">
+                        View Inventory <FiArrowUpRight />
+                    </Link>
                 </div>
             </div>
         </>
@@ -410,7 +453,7 @@ const AdminDashboard = () => {
 
 
 
-const SummaryCard = ({ icon, label, value, trend, trendText, status, statusText, link, chartType, bgColor = 'bg-gray-50' }) => (
+const SummaryCard = ({ icon, label, value, trend, trendText, status, statusText, link, chartType, path, bgColor = 'bg-gray-50' }) => (
     <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50 flex flex-col group hover:shadow-xl hover:shadow-cyan-400/5 transition-all">
         <div className="flex items-center justify-between mb-8">
             <div className={`w-14 h-14 ${bgColor} rounded-2xl flex items-center justify-center transition-colors`}>
@@ -443,25 +486,31 @@ const SummaryCard = ({ icon, label, value, trend, trendText, status, statusText,
                     <span className="text-gray-400">{statusText}</span>
                 </p>
             )}
-            <a href="#" className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all">
-                {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-            </a>
+            {path ? (
+                <Link to={path} className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all">
+                    {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                </Link>
+            ) : (
+                <button className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all text-left">
+                    {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                </button>
+            )}
         </div>
     </div>
 );
 
-const ProductItem = ({ name, price, sold }) => (
+const ProductItem = ({ name, price, sold, image }) => (
     <div className="flex items-center gap-4 group cursor-pointer">
         <div className="w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 p-2 flex items-center justify-center">
             <img
-                src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=100"
+                src={image || "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=100"}
                 alt={name}
                 className="w-full h-full object-contain group-hover:scale-110 transition-transform"
             />
         </div>
         <div className="flex-1 min-w-0">
             <h5 className="text-sm font-bold truncate group-hover:text-teal-600 transition-colors uppercase tracking-tight">{name}</h5>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Chargers - Black</p>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Best Seller</p>
         </div>
         <div className="text-right">
             <p className="text-sm font-bold">{price}</p>
@@ -470,20 +519,25 @@ const ProductItem = ({ name, price, sold }) => (
     </div>
 );
 
-const OrderRow = ({ id, name, items, price, status }) => {
+const OrderRow = ({ id, name, items, price, status, onClick }) => {
     const statusColors = {
         'Pending': 'text-orange-600',
+        'Processing': 'text-blue-500',
         'Delivered': 'text-teal-500',
-        'Shipped': 'text-blue-500'
+        'Shipped': 'text-purple-500',
+        'Cancelled': 'text-red-500'
     };
     return (
-        <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors cursor-pointer group">
+        <tr 
+            onClick={onClick}
+            className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors cursor-pointer group"
+        >
             <td className="py-6 text-sm font-bold text-gray-400 group-hover:text-black transition-colors">{id}</td>
             <td className="py-6 text-sm font-bold">{name}</td>
             <td className="py-6 text-sm font-bold text-gray-500">{items}</td>
             <td className="py-6 text-sm font-bold text-gray-900">{price}</td>
             <td className="py-6 text-sm font-bold text-right pr-4 font-sans">
-                <span className={statusColors[status]}>{status}</span>
+                <span className={statusColors[status] || 'text-gray-500'}>{status}</span>
             </td>
         </tr>
     );

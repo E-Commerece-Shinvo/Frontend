@@ -8,6 +8,7 @@ const Login = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+    const [showBlockedModal, setShowBlockedModal] = useState(false);
 
     // Form state
     const [email, setEmail] = useState('');
@@ -22,21 +23,49 @@ const Login = () => {
         const result = await login(email, password);
         if (result.success) {
             toast.success('Login successful!');
-            // Check for admin role
             if (result.role === 'admin') {
                 navigate('/admin/dashboard', { replace: true });
             } else {
                 navigate('/', { replace: true });
             }
         } else {
-            toast.error(result.message || 'Login failed');
-            setError(result.message);
+            if (result.isBlocked) {
+                setShowBlockedModal(true);
+            } else {
+                toast.error(result.message || 'Login failed');
+                setError(result.message);
+            }
         }
         setLoading(false);
     };
 
     return (
         <div className="h-screen  bg-[#1c1c1c] text-white flex items-center justify-center 2xl:p-4 overflow-hidden relative font-sans">
+            {/* Blocked Modal */}
+            {showBlockedModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowBlockedModal(false)}></div>
+                    <div className="relative bg-[#1a1a1a] border border-red-500/30 w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="h-2 bg-red-500"></div>
+                        <div className="p-8 text-center">
+                            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <FiLock className="text-red-500" size={40} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-4 uppercase tracking-wider">Account Blocked</h3>
+                            <p className="text-gray-400 mb-8 leading-relaxed font-medium">
+                                Apka account block kr dia gya hai. Meharbani kr k customer support sy rabta krein dobara login krny k lye.
+                            </p>
+                            <button 
+                                onClick={() => setShowBlockedModal(false)}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-red-500/20 uppercase tracking-widest text-sm"
+                            >
+                                Samjh gya
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Main Container */}
             <div className="relative w-full max-w-[1820px] h-full min-h-[890px] bg-[#1a1a1a] 2xl:rounded-[20px] shadow-2xl flex border overflow-hidden border-gray-800">
 
@@ -115,7 +144,6 @@ const Login = () => {
                 </div>
 
                 {/* Right Side - Visual Overlay */}
-                {/* This creates the rotated gradient shape */}
                 <div className="absolute top-[-100px] right-[-500px] lg:top-[-400px] xl:right-[-600px] w-[950px] h-[650px] lg:h-[1000px] xl:h-[1200px] xl:w-[1200px] bg-linear-to-tr from-[#000000]/40 to-[#02D5E0] rotate-45 rounded-[40px] shadow-[0_0_100px_rgba(0,255,255,0.3)] z-0 hidden md:block">
                     <div className="absolute bottom-[25%] left-[20%] transform -rotate-45 text-white text-left">
                         <h1 className="text-5xl font-bold leading-tight lg:mr-[200px]">

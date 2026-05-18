@@ -26,6 +26,14 @@ export const getAllOrders = async () => {
 };
 
 /**
+ * Get orders by specific user ID (admin only)
+ */
+export const getOrdersByUserId = async (userId) => {
+    const response = await api.get(`/orders/user/${userId}`);
+    return response.data;
+};
+
+/**
  * Get order by ID
  */
 export const getOrderById = async (id) => {
@@ -38,5 +46,21 @@ export const getOrderById = async (id) => {
  */
 export const updateOrderStatus = async (id, status) => {
     const response = await api.put(`/orders/${id}/status`, { status });
+    return response.data;
+};
+
+/**
+ * Get dashboard statistics (admin only)
+ */
+export const getDashboardStats = async () => {
+    const response = await api.get('/orders/admin/stats');
+    return response.data;
+};
+
+/**
+ * Get recent activity (admin only)
+ */
+export const getRecentActivity = async () => {
+    const response = await api.get('/orders/admin/recent');
     return response.data;
 };

@@ -21,19 +21,22 @@ const AdminOrders = () => {
     const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
     useEffect(() => {
-        fetchOrders();
+        fetchOrders(true);
+        // Polling every 30 seconds for real-time updates
+        const interval = setInterval(() => fetchOrders(false), 30000);
+        return () => clearInterval(interval);
     }, []);
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (showLoading = true) => {
         try {
-            setLoading(true);
+            if (showLoading) setLoading(true);
             const data = await getAllOrders();
             setOrders(data);
         } catch (error) {
-            toast.error('Failed to fetch orders');
-            console.error(error);
+            console.error('Failed to fetch orders:', error);
+            if (showLoading) toast.error('Failed to fetch orders');
         } finally {
-            setLoading(false);
+            if (showLoading) setLoading(false);
         }
     };
 
