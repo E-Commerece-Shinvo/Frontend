@@ -1,195 +1,446 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
     FiArrowLeft, FiMail, FiPhone, FiMapPin, FiCalendar, 
     FiShoppingBag, FiDollarSign, FiClock, FiShield, FiUser,
-    FiEdit, FiTrash2, FiSlash, FiCheckCircle
+    FiEdit, FiTrash2, FiSlash, FiCheckCircle, FiAlertTriangle, FiX, FiSave,
+    FiExternalLink, FiPackage, FiTruck, FiInfo
 } from 'react-icons/fi';
+import { toggleUserBlock, getUserById, updateUser } from '../../api/users';
+import { getOrdersByUserId } from '../../api/orders';
+import toast from 'react-hot-toast';
 
 const AdminCustomerDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-
-    // Mock data for the specific customer
-    const customer = {
-        id: id,
-        name: 'Muzamil Hussain',
-        email: 'muzamil@example.com',
-        phone: '+92 300 1234567',
-        status: 'Active',
-        joinedDate: 'January 15, 2024',
-        lastLogin: '2 hours ago',
-        totalOrders: 12,
-        totalSpent: 'Rs. 45,000',
-        avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=200',
-        address: {
-            street: '123 Tech Avenue, Phase 5',
-            city: 'Lahore',
-            state: 'Punjab',
+    
+    const [customer, setCustomer] = useState(null);
+    const [orders, setOrders] = useState([]);
+    const [isBlocked, setIsBlocked] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
+    
+    // Address Management State
+    const [activeAddressSlot, setActiveAddressSlot] = useState(1);
+    const [savedAddresses, setSavedAddresses] = useState(
+        Array.from({ length: 5 }, (_, i) => ({
+            id: i + 1,
+            firstName: '',
+            lastName: '',
             country: 'Pakistan',
-            postalCode: '54000'
-        },
-        orderHistory: [
-            { id: 'ORD-8821', date: '2024-03-10', amount: 'Rs. 12,500', status: 'Delivered' },
-            { id: 'ORD-7742', date: '2024-02-25', amount: 'Rs. 8,200', status: 'Shipped' },
-            { id: 'ORD-6631', date: '2024-02-10', amount: 'Rs. 5,000', status: 'Delivered' },
-            { id: 'ORD-5520', date: '2024-01-20', amount: 'Rs. 19,300', status: 'Cancelled' }
-        ]
+            state: '',
+            city: '',
+            postalCode: '',
+            address: '',
+            phone: '',
+            isDefault: i === 0
+        }))
+    );
+
+    // Modals
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+
+    // Edit Form State (Main Profile)
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        phone: '',
+        role: 'user'
+    });
+
+    useEffect(() => {
+        fetchData();
+    }, [id]);
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const [userData, userOrders] = await Promise.all([
+                getUserById(id),
+                getOrdersByUserId(id)
+            ]);
+
+            setCustomer({
+                ...userData,
+                joinedDate: new Date(userData.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+                totalSpent: userOrders.reduce((acc, o) => o.status !== 'cancelled' ? acc + o.totalAmount : acc, 0),
+                totalOrders: userOrders.length,
+                avatar: `https://ui-avatars.com/api/?name=${userData.username}&background=random`
+            });
+
+            setOrders(userOrders);
+            setIsBlocked(userData.isBlocked);
+            
+            setFormData({
+                username: userData.username,
+                email: userData.email,
+                phone: userData.phone || '',
+                role: userData.role || 'user'
+            });
+
+            // Map saved addresses from backend if they exist
+            if (userData.addresses && userData.addresses.length > 0) {
+                const mapped = Array.from({ length: 5 }, (_, i) => {
+                    const existing = userData.addresses[i];
+                    return {
+                        id: i + 1,
+                        firstName: existing?.firstName || '',
+                        lastName: existing?.lastName || '',
+                        country: existing?.country || 'Pakistan',
+                        state: existing?.state || '',
+                        city: existing?.city || '',
+                        postalCode: existing?.postalCode || '',
+                        address: existing?.address || '',
+                        phone: existing?.phone || '',
+                        isDefault: existing?.isDefault || (i === 0)
+                    };
+                });
+                setSavedAddresses(mapped);
+            }
+        } catch (error) {
+            toast.error('Failed to fetch customer data');
+            navigate('/admin/customers');
+        } finally {
+            setLoading(false);
+        }
     };
 
+    const handleSwitchAddress = (slotId) => {
+        setActiveAddressSlot(slotId);
+    };
+
+    const handleAddressFieldChange = (field, value) => {
+        setSavedAddresses(prev => prev.map(addr => 
+            addr.id === activeAddressSlot ? { ...addr, [field]: value } : addr
+        ));
+    };
+
+    const handleSaveAddresses = async (e) => {
+        e.preventDefault();
+        try {
+            setActionLoading(true);
+            // Filter out completely empty slots if desired, but here we save all 5
+            await updateUser(id, { addresses: savedAddresses });
+            toast.success(`Addresses updated for ${customer.username}`);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to save addresses');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleToggleBlock = async () => {
+        try {
+            setActionLoading(true);
+            const response = await toggleUserBlock(id);
+            setIsBlocked(response.isBlocked);
+            toast.success(response.message);
+            setShowConfirmModal(false);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update block status');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        try {
+            setActionLoading(true);
+            const updated = await updateUser(id, formData);
+            setCustomer(prev => ({ ...prev, ...updated }));
+            toast.success('Profile updated successfully!');
+            setShowEditModal(false);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400"></div>
+                <p className="text-gray-500 font-bold">Synchronizing Customer Data...</p>
+            </div>
+        );
+    }
+
+    const currentAddr = savedAddresses.find(a => a.id === activeAddressSlot);
+
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
-            {/* Header / Back Button */}
-            <div className="flex items-center justify-between">
-                <button 
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-gray-500 hover:text-cyan-600 font-bold transition-colors group"
-                >
-                    <div className="p-2 rounded-xl bg-white border border-gray-100 shadow-sm group-hover:border-cyan-200 transition-all">
-                        <FiArrowLeft />
+        <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+            {/* Edit Profile Modal */}
+            {showEditModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowEditModal(false)}></div>
+                    <div className="relative bg-white w-full max-w-xl rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="p-8">
+                            <div className="flex justify-between items-center mb-8">
+                                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Edit Basic Info</h3>
+                                <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                                    <FiX className="text-gray-400" size={24} />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleUpdateProfile} className="space-y-6">
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
+                                        <input type="text" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email</label>
+                                        <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" required />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone</label>
+                                        <input type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Role</label>
+                                        <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold appearance-none">
+                                            <option value="user">User</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" disabled={actionLoading} className="w-full py-5 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white font-black rounded-[24px] uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                                    {actionLoading ? 'Saving...' : <><FiSave /> Save Profile Info</>}
+                                </button>
+                            </form>
+                        </div>
                     </div>
+                </div>
+            )}
+
+            {/* Block Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)}></div>
+                    <div className="relative bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="p-8 text-center">
+                            <div className={`w-16 h-16 rounded-3xl mx-auto flex items-center justify-center mb-6 ${isBlocked ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                                {isBlocked ? <FiCheckCircle size={32} /> : <FiAlertTriangle size={32} />}
+                            </div>
+                            <h3 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">{isBlocked ? 'Unblock User?' : 'Block User?'}</h3>
+                            <p className="text-gray-500 font-medium mb-8 leading-relaxed">Are you sure you want to {isBlocked ? 'unblock' : 'block'} this customer? This action will affect their ability to log in.</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 bg-gray-50 text-gray-600 font-black rounded-2xl uppercase tracking-widest text-[10px]">Cancel</button>
+                                <button onClick={handleToggleBlock} disabled={actionLoading} className={`flex-1 py-4 text-white font-black rounded-2xl uppercase tracking-widest text-[10px] ${isBlocked ? 'bg-green-600' : 'bg-red-600'}`}>
+                                    {isBlocked ? 'Unblock' : 'Block'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Top Navigation */}
+            <div className="flex items-center justify-between">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-500 hover:text-cyan-600 font-black transition-colors group uppercase tracking-widest text-xs">
+                    <div className="p-2.5 rounded-xl bg-white border border-gray-100 shadow-sm group-hover:border-cyan-200"><FiArrowLeft /></div>
                     Back to Customers
                 </button>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:from-[#002B2B] hover:to-[#008080] transition-all shadow-lg shadow-black/20 active:scale-95">
-                        <FiEdit /> Edit
+                    <button onClick={() => setShowEditModal(true)} className="flex items-center gap-2 bg-[#004d4d] text-white px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all hover:bg-[#003333]">
+                        <FiEdit /> Edit Profile
                     </button>
-                    <button className="flex items-center gap-2 bg-red-50 border border-red-100 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-red-600 hover:bg-red-100 transition-all shadow-sm">
-                        <FiSlash /> Block User
+                    <button onClick={() => setShowConfirmModal(true)} className={`flex items-center gap-2 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all border ${isBlocked ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                        {isBlocked ? <><FiCheckCircle /> Unblock</> : <><FiSlash /> Block</>}
                     </button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column - Profile Card */}
+                {/* Left: Profile Card */}
                 <div className="lg:col-span-1 space-y-8">
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
-                        <div className="h-32 bg-gradient-to-r from-cyan-400 to-blue-500" />
-                        <div className="px-8 pb-8">
+                    <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="h-32 bg-gradient-to-br from-[#001B1B] via-[#004D4D] to-[#006060]" />
+                        <div className="px-8 pb-10">
                             <div className="relative -mt-16 mb-6">
-                                <div className="w-32 h-32 rounded-[40px] bg-white p-2 shadow-xl border border-gray-100 overflow-hidden">
-                                    <img src={customer.avatar} alt={customer.name} className="w-full h-full object-cover rounded-[32px]" />
+                                <div className="w-32 h-32 rounded-[40px] bg-white p-2 shadow-xl border border-gray-100">
+                                    <img src={customer.avatar} className="w-full h-full object-cover rounded-[32px]" />
                                 </div>
-                                <div className="absolute bottom-2 right-0 w-8 h-8 bg-green-500 border-4 border-white rounded-full" />
+                                <div className={`absolute bottom-2 right-2 w-6 h-6 border-4 border-white rounded-full ${isBlocked ? 'bg-red-500' : 'bg-green-500'}`} />
                             </div>
-                            
-                            <h2 className="text-2xl font-black text-gray-900 leading-tight">{customer.name}</h2>
-                            <p className="text-gray-400 font-medium mb-6">Customer ID: #{customer.id}</p>
+                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">{customer.username}</h2>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">ID: #{id.slice(-6)}</p>
                             
                             <div className="space-y-4">
-                                <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 border border-gray-100">
-                                    <div className="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center">
-                                        <FiMail />
-                                    </div>
+                                <div className="p-4 rounded-3xl bg-gray-50 border border-gray-100 flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-cyan-600"><FiMail /></div>
                                     <div className="min-w-0">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email</p>
                                         <p className="text-sm font-bold text-gray-800 truncate">{customer.email}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 border border-gray-100">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
-                                        <FiPhone />
-                                    </div>
+                                <div className="p-4 rounded-3xl bg-gray-50 border border-gray-100 flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-blue-600"><FiPhone /></div>
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone Number</p>
-                                        <p className="text-sm font-bold text-gray-800">{customer.phone}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone</p>
+                                        <p className="text-sm font-bold text-gray-800">{customer.phone || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div className="p-4 rounded-3xl bg-gray-50 border border-gray-100 flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-purple-600"><FiCalendar /></div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Member Since</p>
+                                        <p className="text-sm font-bold text-gray-800">{customer.joinedDate}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Quick Stats */}
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
-                        <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                            <span className="w-1 h-4 bg-cyan-400 rounded-full" />
-                            Engagement Summary
-                        </h3>
+                    {/* Stats */}
+                    <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8 space-y-6">
+                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-2"><FiInfo className="text-cyan-500" /> Summary</h3>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 rounded-3xl bg-cyan-50 border border-cyan-100">
-                                <p className="text-[10px] font-black text-cyan-600 uppercase tracking-widest mb-1">Total Orders</p>
-                                <p className="text-xl font-black text-gray-900">{customer.totalOrders}</p>
+                            <div className="p-6 rounded-[32px] bg-cyan-50/50 border border-cyan-100">
+                                <p className="text-[9px] font-black text-cyan-600 uppercase tracking-[0.2em] mb-2">Orders</p>
+                                <p className="text-2xl font-black text-gray-900">{customer.totalOrders}</p>
                             </div>
-                            <div className="p-4 rounded-3xl bg-blue-50 border border-blue-100">
-                                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Total Spent</p>
-                                <p className="text-xl font-black text-gray-900">{customer.totalSpent.split(' ')[1]}</p>
-                            </div>
-                        </div>
-                        <div className="space-y-4 pt-4 border-t border-gray-50">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500 font-bold">Joined On:</span>
-                                <span className="text-sm text-gray-900 font-black">{customer.joinedDate}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500 font-bold">Account Status:</span>
-                                <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-green-100">
-                                    {customer.status}
-                                </span>
+                            <div className="p-6 rounded-[32px] bg-blue-50/50 border border-blue-100">
+                                <p className="text-[9px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Spent</p>
+                                <p className="text-2xl font-black text-gray-900">Rs. {customer.totalSpent}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Column - Address & Orders */}
+                {/* Right: Order History & Address Management */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* Shipping Address */}
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
-                        <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
-                            <FiMapPin className="text-cyan-500" />
-                            Primary Shipping Address
-                        </h3>
-                        <div className="p-6 rounded-[24px] bg-gray-50 border border-gray-100 flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-400">
-                                <FiMapPin size={24} />
-                            </div>
-                            <div>
-                                <p className="text-lg font-bold text-gray-900">{customer.address.street}</p>
-                                <p className="text-gray-500 font-medium">
-                                    {customer.address.city}, {customer.address.state} {customer.address.postalCode}
-                                </p>
-                                <p className="text-gray-500 font-medium">{customer.address.country}</p>
-                            </div>
+                    {/* Order History */}
+                    <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center"><FiShoppingBag /></div>
+                                Recent Orders
+                            </h3>
+                            <button className="text-[10px] font-black text-cyan-600 uppercase tracking-widest hover:underline">View All</button>
                         </div>
+
+                        {orders.length > 0 ? (
+                            <div className="space-y-4">
+                                {orders.slice(0, 3).map((order) => (
+                                    <div key={order._id} className="flex items-center justify-between p-5 rounded-[28px] bg-gray-50 border border-gray-100 hover:border-cyan-200 transition-colors group">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-cyan-500 transition-colors">
+                                                <FiPackage size={24} />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-gray-900 uppercase tracking-tight">#{order._id.slice(-8).toUpperCase()}</p>
+                                                <p className="text-[10px] text-gray-400 font-bold">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-black text-gray-900">Rs. {order.totalAmount}</p>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                                                order.status === 'delivered' ? 'bg-green-50 text-green-600' : 
+                                                order.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                                            }`}>
+                                                {order.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-12 text-center bg-gray-50 rounded-[32px] border border-dashed border-gray-200">
+                                <FiShoppingBag className="mx-auto text-gray-300 mb-4" size={40} />
+                                <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">No orders found yet</p>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Recent Orders */}
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
-                        <div className="p-8 border-b border-gray-50 flex items-center justify-between">
-                            <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                                <FiShoppingBag className="text-cyan-500" />
-                                Order History
+                    {/* Address Management */}
+                    <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><FiMapPin /></div>
+                                Multi-Address Management
                             </h3>
-                            <button className="text-sm font-bold text-cyan-600 hover:underline">View All Orders</button>
+                            <button onClick={handleSaveAddresses} disabled={actionLoading} className="px-8 py-3.5 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:shadow-cyan-900/20 transition-all flex items-center gap-2 active:scale-95">
+                                <FiSave /> {actionLoading ? 'Saving...' : 'Save Changes'}
+                            </button>
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="bg-gray-50/50">
-                                        <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Order ID</th>
-                                        <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Date</th>
-                                        <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Amount</th>
-                                        <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {customer.orderHistory.map((order) => (
-                                        <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-8 py-5 font-black text-gray-900">{order.id}</td>
-                                            <td className="px-8 py-5 text-sm text-gray-500 font-bold">{order.date}</td>
-                                            <td className="px-8 py-5 text-sm text-gray-900 font-black">{order.amount}</td>
-                                            <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                    order.status === 'Delivered' ? 'bg-green-50 text-green-600' :
-                                                    order.status === 'Cancelled' ? 'bg-red-50 text-red-600' :
-                                                    'bg-blue-50 text-blue-600'
-                                                }`}>
-                                                    {order.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+
+                        {/* Slot Selector (Similar to Profile.jsx) */}
+                        <div className="grid grid-cols-5 gap-3 mb-10">
+                            {savedAddresses.map((addr) => (
+                                <button
+                                    key={addr.id}
+                                    onClick={() => handleSwitchAddress(addr.id)}
+                                    className={`p-4 rounded-[24px] border transition-all flex flex-col items-center gap-2 group ${
+                                        activeAddressSlot === addr.id 
+                                        ? 'bg-cyan-50 border-cyan-400 shadow-lg shadow-cyan-100' 
+                                        : 'bg-white border-gray-100 hover:border-gray-200'
+                                    }`}
+                                >
+                                    <div className={`p-2 rounded-xl ${activeAddressSlot === addr.id ? 'bg-cyan-500 text-white' : 'bg-gray-50 text-gray-400 group-hover:text-cyan-500'}`}>
+                                        <FiMapPin size={16} />
+                                    </div>
+                                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${activeAddressSlot === addr.id ? 'text-cyan-700' : 'text-gray-400'}`}>Slot {addr.id}</span>
+                                    {addr.address && <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Address Form (Same as udr) */}
+                        <div className="p-8 rounded-[32px] bg-gray-50/50 border border-gray-100 animate-in fade-in duration-300">
+                            <div className="grid grid-cols-2 gap-6 mb-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">First Name</label>
+                                    <input type="text" value={currentAddr.firstName} onChange={(e) => handleAddressFieldChange('firstName', e.target.value)} placeholder="Recipient First Name" className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
+                                    <input type="text" value={currentAddr.lastName} onChange={(e) => handleAddressFieldChange('lastName', e.target.value)} placeholder="Recipient Last Name" className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                </div>
+                            </div>
+                            <div className="space-y-2 mb-6">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Address</label>
+                                <input type="text" value={currentAddr.address} onChange={(e) => handleAddressFieldChange('address', e.target.value)} placeholder="House #, Street, Area..." className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                            </div>
+                            <div className="grid grid-cols-3 gap-6 mb-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">City</label>
+                                    <input type="text" value={currentAddr.city} onChange={(e) => handleAddressFieldChange('city', e.target.value)} placeholder="City" className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">State</label>
+                                    <input type="text" value={currentAddr.state} onChange={(e) => handleAddressFieldChange('state', e.target.value)} placeholder="Province/State" className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
+                                    <input type="text" value={currentAddr.postalCode} onChange={(e) => handleAddressFieldChange('postalCode', e.target.value)} placeholder="Optional" className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone</label>
+                                    <input type="text" value={currentAddr.phone} onChange={(e) => handleAddressFieldChange('phone', e.target.value)} placeholder="+92 ..." className="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Set Default</label>
+                                    <button 
+                                        type="button"
+                                        onClick={() => handleAddressFieldChange('isDefault', !currentAddr.isDefault)}
+                                        className={`w-full py-4 rounded-2xl border font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 ${
+                                            currentAddr.isDefault 
+                                            ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white border-transparent shadow-cyan-900/20' 
+                                            : 'bg-white text-gray-400 border-gray-100 hover:border-cyan-200'
+                                        }`}
+                                    >
+                                        {currentAddr.isDefault ? 'Default Address' : 'Set as Default'}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
