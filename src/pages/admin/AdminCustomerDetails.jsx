@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
     FiArrowLeft, FiMail, FiPhone, FiMapPin, FiCalendar, 
     FiShoppingBag, FiDollarSign, FiClock, FiShield, FiUser,
     FiEdit, FiTrash2, FiSlash, FiCheckCircle, FiAlertTriangle, FiX, FiSave,
-    FiExternalLink, FiPackage, FiTruck, FiInfo
+    FiExternalLink, FiPackage, FiTruck, FiInfo, FiCamera
 } from 'react-icons/fi';
 import { toggleUserBlock, getUserById, updateUser } from '../../api/users';
 import { getOrdersByUserId } from '../../api/orders';
+import { uploadImage } from '../../api/auth';
 import toast from 'react-hot-toast';
 
 const AdminCustomerDetails = () => {
@@ -46,8 +47,12 @@ const AdminCustomerDetails = () => {
         username: '',
         email: '',
         phone: '',
-        role: 'user'
+        role: 'user',
+        profileImage: ''
     });
+
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         fetchData();
@@ -66,7 +71,7 @@ const AdminCustomerDetails = () => {
                 joinedDate: new Date(userData.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
                 totalSpent: userOrders.reduce((acc, o) => o.status !== 'cancelled' ? acc + o.totalAmount : acc, 0),
                 totalOrders: userOrders.length,
-                avatar: `https://ui-avatars.com/api/?name=${userData.username}&background=random`
+                avatar: userData.profileImage || `https://ui-avatars.com/api/?name=${userData.username}&background=random`
             });
 
             setOrders(userOrders);
@@ -76,7 +81,8 @@ const AdminCustomerDetails = () => {
                 username: userData.username,
                 email: userData.email,
                 phone: userData.phone || '',
-                role: userData.role || 'user'
+                role: userData.role || 'user',
+                profileImage: userData.profileImage || ''
             });
 
             // Map saved addresses from backend if they exist
@@ -149,13 +155,36 @@ const AdminCustomerDetails = () => {
         try {
             setActionLoading(true);
             const updated = await updateUser(id, formData);
-            setCustomer(prev => ({ ...prev, ...updated }));
+            setCustomer(prev => ({
+                ...prev,
+                ...updated,
+                avatar: updated.profileImage || `https://ui-avatars.com/api/?name=${updated.username}&background=random`
+            }));
             toast.success('Profile updated successfully!');
             setShowEditModal(false);
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update profile');
         } finally {
             setActionLoading(false);
+        }
+    };
+
+    const handleImageChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const uploadToastId = toast.loading('Uploading profile picture...');
+            setIsUploading(true);
+            try {
+                const uploadData = await uploadImage(file);
+                const imageUrl = uploadData.url;
+                setFormData(prev => ({ ...prev, profileImage: imageUrl }));
+                toast.success('Image uploaded successfully! Remember to save profile info.', { id: uploadToastId });
+            } catch (err) {
+                console.error('Image Upload Error:', err);
+                toast.error(err.response?.data?.message || 'Failed to upload image', { id: uploadToastId });
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
@@ -186,6 +215,35 @@ const AdminCustomerDetails = () => {
                             </div>
 
                             <form onSubmit={handleUpdateProfile} className="space-y-6">
+                                <div className="flex flex-col items-center justify-center mb-6">
+                                    <div className="relative group">
+                                        <div className="w-24 h-24 rounded-[28px] bg-white p-1.5 shadow-md border border-gray-100 overflow-hidden">
+                                            <img
+                                                src={formData.profileImage || `https://ui-avatars.com/api/?name=${formData.username}&background=random`}
+                                                alt="Customer Profile"
+                                                className="w-full h-full object-cover rounded-[22px]"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => fileInputRef.current.click()}
+                                            className="absolute -bottom-2 -right-2 p-2 bg-white text-[#006060] rounded-xl shadow-md border border-gray-100 hover:bg-gray-50 transition-all transform hover:scale-110 active:scale-95"
+                                        >
+                                            <FiCamera size={16} />
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleImageChange}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                    {isUploading && (
+                                        <span className="text-[10px] text-cyan-600 font-bold mt-2 animate-pulse">Uploading Image...</span>
+                                    )}
+                                </div>
+
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
