@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
-import { FiSearch, FiUser, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiSearch, FiUser, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiChevronUp, FiHelpCircle } from "react-icons/fi";
 import { Link } from 'react-router-dom';
 import UpperNavbar from './UpperNavbar';
 import CategoryDropdown from './CategoryDropdown';
@@ -25,6 +25,14 @@ const ProfileDropdownMenu = ({ setProfileDropdownOpen, logout }) => (
     >
       <FiShoppingCart className="text-[#53C1CC]" />
       My Orders
+    </Link>
+    <Link
+      to="/support"
+      onClick={() => setProfileDropdownOpen(false)}
+      className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100"
+    >
+      <FiHelpCircle className="text-[#53C1CC]" />
+      Customer Support
     </Link>
     <button
       onClick={() => { logout(); setProfileDropdownOpen(false); }}
