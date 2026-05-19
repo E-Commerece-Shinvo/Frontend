@@ -12,6 +12,7 @@ import Checkout from './pages/user/Checkout';
 import MyOrders from './pages/user/MyOrders';
 import MyReturns from './pages/user/MyReturns';
 import Profile from './pages/user/Profile';
+import CustomerSupport from './pages/user/CustomerSupport';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminAddProduct from './pages/admin/AdminAddProduct';
@@ -21,6 +22,7 @@ import AdminCustomerDetails from './pages/admin/AdminCustomerDetails';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetails from './pages/admin/AdminOrderDetails';
 import AdminInventory from './pages/admin/AdminInventory';
+import AdminSupport from './pages/admin/AdminSupport';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminSales from './pages/admin/AdminSales';
 import AdminShipping from './pages/admin/AdminShipping';
@@ -36,7 +38,7 @@ import { Toaster } from 'react-hot-toast';
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || isAdminRoute;
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || location.pathname === '/support' || isAdminRoute;
 
   return (
     <AuthProvider>
@@ -65,6 +67,7 @@ function App() {
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/my-returns" element={<MyReturns />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/support" element={<CustomerSupport />} />
             </Route>
 
             {/* Admin Protected Routes */}
@@ -81,6 +84,7 @@ function App() {
                 <Route path="/admin/categories" element={<AdminCategories />} />
                 <Route path="/admin/sales" element={<AdminSales />} />
                 <Route path="/admin/shipping" element={<AdminShipping />} />
+                <Route path="/admin/support" element={<AdminSupport />} />
                 <Route path="/admin/profile" element={<AdminProfile />} />
               </Route>
             </Route>

@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { uploadImage } from '../../api/auth';
 import {
     FiUser, FiShoppingBag, FiXCircle, FiClock, FiMoreVertical,
-    FiEdit2, FiMail, FiPhone, FiMapPin, FiCamera, FiLock, FiCheckCircle, FiRotateCcw
+    FiEdit2, FiMail, FiPhone, FiMapPin, FiCamera, FiLock, FiCheckCircle, FiRotateCcw,
+    FiHelpCircle
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -310,6 +311,14 @@ const Profile = () => {
                         <Link to="/my-orders?tab=cancelled" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
                             <FiClock className="text-gray-400 group-hover:text-amber-400" size={18} />
                             Cancellations
+                        </Link>
+                    </div>
+
+                    <div className="px-3 pt-6 flex flex-col gap-1">
+                        <h4 className="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Help & Support</h4>
+                        <Link to="/support" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiHelpCircle className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
+                            Customer Support
                         </Link>
                     </div>
                 </aside>
