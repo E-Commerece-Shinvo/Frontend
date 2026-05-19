@@ -53,13 +53,13 @@ const Login = () => {
                             </div>
                             <h3 className="text-2xl font-bold text-white mb-4 uppercase tracking-wider">Account Blocked</h3>
                             <p className="text-gray-400 mb-8 leading-relaxed font-medium">
-                                Apka account block kr dia gya hai. Meharbani kr k customer support sy rabta krein dobara login krny k lye.
+                                Your account has been blocked. Please contact on customer support.
                             </p>
-                            <button 
+                            <button
                                 onClick={() => setShowBlockedModal(false)}
                                 className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-red-500/20 uppercase tracking-widest text-sm"
                             >
-                                Samjh gya
+                                Got it
                             </button>
                         </div>
                     </div>
