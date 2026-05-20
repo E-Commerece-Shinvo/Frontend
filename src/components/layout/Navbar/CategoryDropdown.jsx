@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import smartwatchImg from '../../../assets/images/watch_cat.gif';
 
-const CategoryDropdown = ({ data, isOpen, onClose }) => {
+const CategoryDropdown = ({ data, isOpen, onClose, className }) => {
     if (!isOpen || !data || data.length === 0) return null;
 
     // We have 5 niches:
@@ -14,7 +14,7 @@ const CategoryDropdown = ({ data, isOpen, onClose }) => {
 
     return (
         <div
-            className="absolute top-[80px] lg:top-[120px] left-[5%] w-[90%] bg-white text-black shadow-2xl rounded-[30px] p-10 z-50 animate-fade-in-up"
+            className={className || "absolute top-[80px] lg:top-[120px] left-[5%] w-[90%] bg-white text-black shadow-2xl rounded-[30px] p-10 z-50 animate-fade-in-up"}
             onMouseLeave={onClose}
         >
             <div className="max-w-[1720px] mx-auto flex flex-wrap justify-between gap-8">

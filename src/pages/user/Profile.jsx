@@ -168,7 +168,7 @@ const Profile = () => {
             try {
                 const uploadData = await uploadImage(file);
                 const imageUrl = uploadData.url;
-                
+
                 // Save directly to user profile in DB
                 const updateRes = await updateProfile({ profileImage: imageUrl });
                 if (updateRes.success) {
@@ -268,10 +268,10 @@ const Profile = () => {
             <div className="h-[90px] md:h-[110px]" />
 
             {/* ───── main wrapper ───── */}
-            <div className="flex-1 flex flex-col lg:flex-row max-w-[1200px] w-full mx-auto px-4 pb-6 md:pb-10 gap-6 lg:gap-8 lg:items-start relative z-10 overflow-x-hidden">
+            <div className="flex-1 flex flex-col lg:flex-row max-w-[1200px] w-full mx-auto px-4 py-6 md:py-10 gap-6 lg:gap-8 items-start">
 
                 {/* ───── SIDEBAR (Desktop) ───── */}
-                <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[30px] mt-[-20px]">
+                <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[95px]">
                     {/* greeting */}
                     <div className="flex items-center gap-3 px-6 pb-5 border-b border-gray-100">
                         <div className="w-10 h-10 rounded-full bg-[#53C1CC] text-white flex items-center justify-center font-bold text-base shadow-sm overflow-hidden">

@@ -43,7 +43,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="font-outfit text-black bg-white min-h-screen overflow-x-hidden w-full relative">
+        <div className="font-outfit text-black bg-white min-h-screen overflow-x-clip w-full relative">
           <Toaster position="top-right" reverseOrder={false} />
           {!hideNavbar && <Navbar />}
           {!isAdminRoute && <CartDrawer />}

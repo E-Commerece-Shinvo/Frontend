@@ -15,7 +15,7 @@ function CustomerSupport() {
     const { user } = useAuth();
     const [faqOpenIndex, setFaqOpenIndex] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     // Ticket form state
     const [ticketData, setTicketData] = useState({
         category: 'Order Query',
@@ -36,7 +36,7 @@ function CustomerSupport() {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!ticketData.email.trim() || !ticketData.subject.trim() || !ticketData.message.trim()) {
             toast.error("Please fill in all fields.");
             return;
@@ -89,13 +89,13 @@ function CustomerSupport() {
             <Navbar />
 
             {/* Spacer for fixed navbar */}
-            <div className="h-[90px] md:h-[110px]" />
+            <div className="h-[40px] md:h-[110px]" />
 
             {/* ───── main wrapper ───── */}
-            <div className="flex-1 flex flex-col lg:flex-row max-w-[1200px] w-full mx-auto px-4 pb-6 md:pb-10 gap-6 lg:gap-8 items-start relative z-10">
+            <div className="flex-1 flex flex-col lg:flex-row max-w-[1200px] w-full mx-auto px-4 py-6 md:py-10 gap-6 lg:gap-8 items-start">
 
                 {/* ───── SIDEBAR (Desktop) ───── */}
-                <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[130px]">
+                <aside className="hidden lg:block w-[260px] flex-shrink-0 bg-white rounded-2xl py-6 shadow-sm border border-gray-100 sticky top-[95px]">
                     {/* greeting */}
                     <div className="flex items-center gap-3 px-6 pb-5 border-b border-gray-100">
                         <div className="w-10 h-10 rounded-full bg-[#53C1CC] text-white flex items-center justify-center font-bold text-base shadow-sm overflow-hidden">
@@ -149,7 +149,7 @@ function CustomerSupport() {
 
                 {/* ───── RIGHT CONTENT ───── */}
                 <main className="flex-1 min-w-0 w-full pt-6 md:pt-10">
-                    
+
                     {/* Page Header */}
                     <div className="mb-8">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Customer Support</h1>
@@ -157,7 +157,7 @@ function CustomerSupport() {
                     </div>
 
                     <div className="flex flex-col gap-8">
-                        
+
                         {/* ───── 1. Quick Contact Cards ───── */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                             {/* Card 1: Email */}
@@ -312,9 +312,8 @@ function CustomerSupport() {
                                     return (
                                         <div
                                             key={index}
-                                            className={`border rounded-2xl transition-all duration-300 ${
-                                                isOpen ? 'border-[#53C1CC] bg-[#53C1CC]/5 shadow-sm' : 'border-gray-100 bg-white hover:border-gray-200'
-                                            }`}
+                                            className={`border rounded-2xl transition-all duration-300 ${isOpen ? 'border-[#53C1CC] bg-[#53C1CC]/5 shadow-sm' : 'border-gray-100 bg-white hover:border-gray-200'
+                                                }`}
                                         >
                                             <button
                                                 onClick={() => toggleFaq(index)}
@@ -327,11 +326,10 @@ function CustomerSupport() {
                                                     <FiChevronDown size={20} />
                                                 </span>
                                             </button>
-                                            
+
                                             <div
-                                                className={`transition-all duration-300 overflow-hidden ${
-                                                    isOpen ? 'max-h-[200px] border-t border-[#53C1CC]/10' : 'max-h-0'
-                                                }`}
+                                                className={`transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-[200px] border-t border-[#53C1CC]/10' : 'max-h-0'
+                                                    }`}
                                             >
                                                 <p className="px-5 py-4 text-[13px] md:text-[14px] text-gray-500 font-medium leading-relaxed">
                                                     {faq.a}
