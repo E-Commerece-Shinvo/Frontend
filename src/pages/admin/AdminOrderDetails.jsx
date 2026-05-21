@@ -226,26 +226,50 @@ const AdminOrderDetails = () => {
                         </div>
                     </div>
 
-                    {/* Order Timeline Placeholder */}
+                    {/* Order Timeline */}
                     <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50">
                         <h3 className="text-xl font-bold text-gray-900 mb-8">Order History</h3>
                         <div className="space-y-8">
-                            <TimelineItem
-                                icon={<FiCheckCircle className="text-white" />}
-                                color="bg-teal-500"
-                                title="Order Placed"
-                                date={new Date(order.createdAt).toLocaleString()}
-                                desc="Order was successfully placed by the customer."
-                            />
-                            {order.status !== 'pending' && (
-                                <TimelineItem
-                                    icon={getStatusIcon(order.status)}
-                                    color={getStatusColor(order.status).split(' ')[1]}
-                                    title={`Status Updated to ${order.status}`}
-                                    date={new Date(order.updatedAt).toLocaleString()}
-                                    desc={`Admin updated the order status to ${order.status}.`}
-                                    isLast
-                                />
+                            {order.status === 'cancelled' ? (
+                                (order.history || []).map((hist, idx) => (
+                                    <TimelineItem
+                                        key={idx}
+                                        icon={getStatusIcon(hist.status)}
+                                        color={getStatusColor(hist.status).split(' ')[1] || 'bg-gray-50'}
+                                        title={hist.status === 'pending' ? 'Order Placed' : `Status Updated to ${hist.status}`}
+                                        date={new Date(hist.timestamp).toLocaleString()}
+                                        desc={hist.message || `Admin updated the order status to ${hist.status}.`}
+                                        isLast={idx === (order.history || []).length - 1}
+                                        isCompleted={true}
+                                        isNextCompleted={true}
+                                    />
+                                ))
+                            ) : (
+                                [
+                                    { id: 'pending', label: 'Order Placed', desc: 'Order was successfully placed by the customer.' },
+                                    { id: 'processing', label: 'Processing', desc: 'Admin has started processing the order.' },
+                                    { id: 'shipped', label: 'Shipped', desc: 'Order has been shipped and is on its way.' },
+                                    { id: 'delivered', label: 'Delivered', desc: 'Order has been successfully delivered.' }
+                                ].map((step, idx, arr) => {
+                                    const hist = (order.history || []).find(h => h.status === step.id);
+                                    const isCompleted = !!hist;
+                                    const nextStep = arr[idx + 1];
+                                    const isNextCompleted = nextStep ? !!(order.history || []).find(h => h.status === nextStep.id) : false;
+                                    
+                                    return (
+                                        <TimelineItem
+                                            key={step.id}
+                                            icon={getStatusIcon(step.id)}
+                                            color={isCompleted ? getStatusColor(step.id).split(' ')[1] : 'bg-gray-50'}
+                                            title={step.label}
+                                            date={isCompleted ? new Date(hist.timestamp).toLocaleString() : '---'}
+                                            desc={isCompleted ? (hist.message || step.desc) : step.desc}
+                                            isLast={idx === arr.length - 1}
+                                            isCompleted={isCompleted}
+                                            isNextCompleted={isNextCompleted}
+                                        />
+                                    );
+                                })
                             )}
                         </div>
                     </div>
@@ -322,18 +346,20 @@ const InfoRow = ({ icon, label, value }) => (
     </div>
 );
 
-const TimelineItem = ({ icon, color, title, date, desc, isLast }) => (
-    <div className="flex gap-6 relative">
-        {!isLast && <div className="absolute left-6 top-12 bottom-0 w-px bg-gray-100"></div>}
-        <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center shadow-lg relative z-10 shrink-0`}>
+const TimelineItem = ({ icon, color, title, date, desc, isLast, isCompleted = true, isNextCompleted = false }) => (
+    <div className={`flex gap-6 relative ${!isCompleted ? 'opacity-60' : ''}`}>
+        {!isLast && (
+            <div className={`absolute left-[23px] top-12 bottom-0 w-0.5 ${isNextCompleted ? 'bg-[#53C1CC]' : 'bg-gray-100'}`}></div>
+        )}
+        <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center shadow-sm relative z-10 shrink-0 ${!isCompleted ? 'grayscale' : ''}`}>
             {icon}
         </div>
         <div className="flex-1 pb-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1 sm:gap-0">
-                <h4 className="text-sm font-bold text-gray-900">{title}</h4>
-                <span className="text-[10px] text-gray-300 font-bold">{date}</span>
+                <h4 className={`text-sm font-bold ${!isCompleted ? 'text-gray-400' : 'text-gray-900'}`}>{title}</h4>
+                <span className={`text-[10px] font-bold ${!isCompleted ? 'text-gray-300' : 'text-gray-400'}`}>{date}</span>
             </div>
-            <p className="text-xs text-gray-400 leading-relaxed font-medium">{desc}</p>
+            <p className={`text-xs leading-relaxed font-medium ${!isCompleted ? 'text-gray-300' : 'text-gray-500'}`}>{desc}</p>
         </div>
     </div>
 );
