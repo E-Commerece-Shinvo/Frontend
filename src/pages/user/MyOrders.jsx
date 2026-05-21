@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
     FiPackage, FiClock, FiTruck, FiCheckCircle, FiXCircle,
     FiShoppingBag, FiUser, FiSearch, FiChevronLeft, FiChevronRight,
-    FiSettings, FiMoreVertical, FiRotateCcw, FiHelpCircle
+    FiSettings, FiMoreVertical, FiRotateCcw, FiHelpCircle, FiFileText
 } from 'react-icons/fi';
 
 /* ───────── status config ───────── */
@@ -186,6 +186,10 @@ function MyOrders() {
                         <Link to="/support" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
                             <FiHelpCircle className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
                             Customer Support
+                        </Link>
+                        <Link to="/my-complaints" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
+                            <FiFileText className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
+                            My Complaints
                         </Link>
                     </div>
                 </aside>

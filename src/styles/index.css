@@ -10,11 +10,23 @@
 @import './animations.css';
 @import './utils.css';
 
-/* Prevent horizontal overflow globally */
+/* Prevent horizontal overflow globally and hide scrollbars */
 html, body {
   overflow-x: clip;
   width: 100%;
 }
+
+/* Hide scrollbar for Chrome, Safari, Opera and all other webkit browsers */
+*::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Hide scrollbar for Firefox, IE and Edge */
+* {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+
 
 /* 3. Any other quick global overrides can go here */
 @layer utilities {

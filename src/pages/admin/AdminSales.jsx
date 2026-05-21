@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    FiTrendingUp, FiDollarSign, FiShoppingBag, 
+import {
+    FiTrendingUp, FiDollarSign, FiShoppingBag,
     FiUserCheck, FiCalendar, FiArrowUpRight,
     FiArrowDownRight, FiPieChart, FiActivity,
     FiDownload, FiFilter
 } from 'react-icons/fi';
 import { getAllOrders } from '../../api/orders';
+import { getAllUsers } from '../../api/users';
 import toast from 'react-hot-toast';
 
 const AdminSales = () => {
     const [orders, setOrders] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [timeRange, setTimeRange] = useState('all'); // all, month, week
 
@@ -20,8 +22,12 @@ const AdminSales = () => {
     const fetchSalesData = async () => {
         setLoading(true);
         try {
-            const data = await getAllOrders();
-            setOrders(data || []);
+            const [ordersData, usersData] = await Promise.all([
+                getAllOrders(),
+                getAllUsers()
+            ]);
+            setOrders(ordersData || []);
+            setUsers(usersData || []);
         } catch (error) {
             console.error("Failed to fetch sales data:", error);
             toast.error("Failed to load sales analytics");
@@ -32,31 +38,164 @@ const AdminSales = () => {
 
     // Calculate Sales Stats
     const salesStats = useMemo(() => {
-        const completedOrders = orders.filter(o => o.status === 'delivered');
-        const totalRevenue = completedOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-        const avgOrderValue = completedOrders.length > 0 ? totalRevenue / completedOrders.length : 0;
-        
-        // Mocking growth percentages for visual appeal
+        const now = new Date();
+        let currentOrders = [];
+        let prevOrders = [];
+
+        if (timeRange === 'week') {
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+            currentOrders = orders.filter(o => new Date(o.createdAt) >= sevenDaysAgo);
+            prevOrders = orders.filter(o => {
+                const d = new Date(o.createdAt);
+                return d >= fourteenDaysAgo && d < sevenDaysAgo;
+            });
+        } else if (timeRange === 'month') {
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+            currentOrders = orders.filter(o => new Date(o.createdAt) >= thirtyDaysAgo);
+            prevOrders = orders.filter(o => {
+                const d = new Date(o.createdAt);
+                return d >= sixtyDaysAgo && d < thirtyDaysAgo;
+            });
+        } else {
+            // 'all'
+            const sorted = [...orders].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            const mid = Math.floor(sorted.length / 2);
+            prevOrders = sorted.slice(0, mid);
+            currentOrders = sorted.slice(mid);
+        }
+
+        const currentCompleted = currentOrders.filter(o => o.status === 'delivered');
+        const prevCompleted = prevOrders.filter(o => o.status === 'delivered');
+
+        const currentRevenue = currentCompleted.reduce((sum, o) => sum + o.totalAmount, 0);
+        const prevRevenue = prevCompleted.reduce((sum, o) => sum + o.totalAmount, 0);
+
+        const currentAOV = currentCompleted.length > 0 ? currentRevenue / currentCompleted.length : 0;
+        const prevAOV = prevCompleted.length > 0 ? prevRevenue / prevCompleted.length : 0;
+
+        const totalUsers = Math.max(users.length, 1);
+        const currentConv = (currentOrders.length / totalUsers) * 100;
+        const prevConv = (prevOrders.length / totalUsers) * 100;
+
+        const revenueGrowth = prevRevenue > 0 ? ((currentRevenue - prevRevenue) / prevRevenue) * 100 : (currentRevenue > 0 ? 100 : 0);
+        const ordersGrowth = prevOrders.length > 0 ? ((currentOrders.length - prevOrders.length) / prevOrders.length) * 100 : (currentOrders.length > 0 ? 100 : 0);
+        const aovGrowth = prevAOV > 0 ? ((currentAOV - prevAOV) / prevAOV) * 100 : (currentAOV > 0 ? 100 : 0);
+        const convGrowth = prevConv > 0 ? ((currentConv - prevConv) / prevConv) * 100 : (currentConv > 0 ? 100 : 0);
+
         return {
-            revenue: totalRevenue,
-            totalOrders: orders.length,
-            completedOrders: completedOrders.length,
-            aov: avgOrderValue,
-            growth: 12.5,
-            orderGrowth: 8.2
+            revenue: currentRevenue,
+            totalOrders: currentOrders.length,
+            completedOrders: currentCompleted.length,
+            aov: currentAOV,
+            conversionRate: currentConv,
+            revenueGrowth,
+            ordersGrowth,
+            aovGrowth,
+            convGrowth
         };
+    }, [orders, users, timeRange]);
+
+    // Grouping sales for a simple chart
+    const trendData = useMemo(() => {
+        const result = [];
+        const now = new Date();
+
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(now.getDate() - i);
+            d.setHours(0, 0, 0, 0);
+
+            const nextDay = new Date(d);
+            nextDay.setDate(d.getDate() + 1);
+
+            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+
+            const dayOrders = orders.filter(o => {
+                const orderDate = new Date(o.createdAt);
+                return orderDate >= d && orderDate < nextDay && o.status === 'delivered';
+            });
+            const totalSales = dayOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+            result.push({ day: dayName, value: totalSales });
+        }
+        return result;
     }, [orders]);
 
-    // Grouping sales for a simple chart (Mocking 7 days trend)
-    const trendData = [
-        { day: 'Mon', value: 45000 },
-        { day: 'Tue', value: 52000 },
-        { day: 'Wed', value: 48000 },
-        { day: 'Thu', value: 61000 },
-        { day: 'Fri', value: 55000 },
-        { day: 'Sat', value: 67000 },
-        { day: 'Sun', value: 72000 },
-    ];
+    // Generate smooth SVG path coordinates
+    const chartPaths = useMemo(() => {
+        const maxSales = Math.max(...trendData.map(d => d.value)) || 1;
+        const points = trendData.map((d, i) => {
+            const x = i * (700 / 6);
+            // Height is 200, so let's bound y between 20 (max sales) and 170 (0 sales)
+            const y = 170 - (d.value / maxSales) * 140;
+            return { x, y };
+        });
+
+        let pathD = "";
+        if (points.length > 0) {
+            pathD = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                const cpX1 = points[i-1].x + (points[i].x - points[i-1].x) / 3;
+                const cpY1 = points[i-1].y;
+                const cpX2 = points[i-1].x + 2 * (points[i].x - points[i-1].x) / 3;
+                const cpY2 = points[i].y;
+                pathD += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${points[i].x} ${points[i].y}`;
+            }
+        }
+        const areaD = pathD ? `${pathD} V 200 H 0 Z` : "";
+        return { pathD, areaD };
+    }, [trendData]);
+
+    // Real Category Sales Breakdown
+    const categorySales = useMemo(() => {
+        const completedOrders = orders.filter(o => o.status === 'delivered');
+        const totalRevenue = completedOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+
+        const salesMap = {};
+        completedOrders.forEach(order => {
+            order.items.forEach(item => {
+                const catName = item.product?.category?.name || 'Uncategorized';
+                const itemSales = item.price * item.quantity;
+                salesMap[catName] = (salesMap[catName] || 0) + itemSales;
+            });
+        });
+
+        const sorted = Object.entries(salesMap)
+            .map(([name, amount]) => ({
+                name,
+                amount,
+                percent: totalRevenue > 0 ? (amount / totalRevenue) * 100 : 0
+            }))
+            .sort((a, b) => b.amount - a.amount);
+
+        const colors = ['bg-cyan-500', 'bg-[#001B1B]', 'bg-teal-500', 'bg-purple-500'];
+
+        const result = sorted.map((cat, idx) => ({
+            ...cat,
+            color: colors[idx % colors.length]
+        }));
+
+        if (result.length === 0) {
+            return [
+                { name: 'Face Care', percent: 0, amount: 0, color: 'bg-cyan-500' },
+                { name: 'Hair Care', percent: 0, amount: 0, color: 'bg-[#001B1B]' },
+                { name: 'Lipsticks', percent: 0, amount: 0, color: 'bg-teal-500' },
+                { name: 'Perfumes', percent: 0, amount: 0, color: 'bg-purple-500' }
+            ];
+        }
+        return result.slice(0, 4);
+    }, [orders]);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -74,11 +213,10 @@ const AdminSales = () => {
                             <button
                                 key={t}
                                 onClick={() => setTimeRange(t)}
-                                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                                    timeRange === t 
-                                    ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white shadow-lg shadow-black/20' 
-                                    : 'text-gray-400 hover:text-gray-600'
-                                }`}
+                                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${timeRange === t
+                                        ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white shadow-lg shadow-black/20'
+                                        : 'text-gray-400 hover:text-gray-600'
+                                    }`}
                             >
                                 {t}
                             </button>
@@ -92,37 +230,37 @@ const AdminSales = () => {
 
             {/* Primary Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <SalesCard 
-                    label="Total Revenue" 
-                    value={`Rs. ${salesStats.revenue.toLocaleString()}`} 
-                    icon={<FiDollarSign />} 
+                <SalesCard
+                    label="Total Revenue"
+                    value={`Rs. ${salesStats.revenue.toLocaleString()}`}
+                    icon={<FiDollarSign />}
                     color="bg-cyan-500"
-                    trend="+12.5%"
-                    isUp={true}
+                    trend={`${salesStats.revenueGrowth >= 0 ? '+' : ''}${salesStats.revenueGrowth.toFixed(1)}%`}
+                    isUp={salesStats.revenueGrowth >= 0}
                 />
-                <SalesCard 
-                    label="Total Orders" 
-                    value={salesStats.totalOrders} 
-                    icon={<FiShoppingBag />} 
+                <SalesCard
+                    label="Total Orders"
+                    value={salesStats.totalOrders}
+                    icon={<FiShoppingBag />}
                     color="bg-[#001B1B]"
-                    trend="+8.2%"
-                    isUp={true}
+                    trend={`${salesStats.ordersGrowth >= 0 ? '+' : ''}${salesStats.ordersGrowth.toFixed(1)}%`}
+                    isUp={salesStats.ordersGrowth >= 0}
                 />
-                <SalesCard 
-                    label="Avg. Order Value" 
-                    value={`Rs. ${Math.round(salesStats.aov).toLocaleString()}`} 
-                    icon={<FiActivity />} 
+                <SalesCard
+                    label="Avg. Order Value"
+                    value={`Rs. ${Math.round(salesStats.aov).toLocaleString()}`}
+                    icon={<FiActivity />}
                     color="bg-teal-500"
-                    trend="-2.1%"
-                    isUp={false}
+                    trend={`${salesStats.aovGrowth >= 0 ? '+' : ''}${salesStats.aovGrowth.toFixed(1)}%`}
+                    isUp={salesStats.aovGrowth >= 0}
                 />
-                <SalesCard 
-                    label="Conversion Rate" 
-                    value="3.24%" 
-                    icon={<FiTrendingUp />} 
+                <SalesCard
+                    label="Conversion Rate"
+                    value={`${salesStats.conversionRate.toFixed(2)}%`}
+                    icon={<FiTrendingUp />}
                     color="bg-purple-500"
-                    trend="+1.4%"
-                    isUp={true}
+                    trend={`${salesStats.convGrowth >= 0 ? '+' : ''}${salesStats.convGrowth.toFixed(1)}%`}
+                    isUp={salesStats.convGrowth >= 0}
                 />
             </div>
 
@@ -148,24 +286,28 @@ const AdminSales = () => {
                                 {[0, 50, 100, 150, 200].map((y) => (
                                     <line key={y} x1="0" y1={y} x2="700" y2={y} stroke="#f3f4f6" strokeWidth="1" />
                                 ))}
-                                
+
                                 {/* The Path */}
-                                <path 
-                                    d="M 0 150 C 100 130, 200 140, 300 80 S 500 100, 600 40 L 700 20" 
-                                    fill="none" 
-                                    stroke="#06b6d4" 
-                                    strokeWidth="4" 
-                                    strokeLinecap="round" 
-                                    className="drop-shadow-lg"
-                                />
-                                
+                                {chartPaths.pathD && (
+                                    <path
+                                        d={chartPaths.pathD}
+                                        fill="none"
+                                        stroke="#06b6d4"
+                                        strokeWidth="4"
+                                        strokeLinecap="round"
+                                        className="drop-shadow-lg"
+                                    />
+                                )}
+
                                 {/* Area Fill */}
-                                <path 
-                                    d="M 0 150 C 100 130, 200 140, 300 80 S 500 100, 600 40 L 700 20 V 200 H 0 Z" 
-                                    fill="url(#salesGradient)" 
-                                    opacity="0.1"
-                                />
-                                
+                                {chartPaths.areaD && (
+                                    <path
+                                        d={chartPaths.areaD}
+                                        fill="url(#salesGradient)"
+                                        opacity="0.1"
+                                    />
+                                )}
+
                                 <defs>
                                     <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor="#06b6d4" />
@@ -174,7 +316,7 @@ const AdminSales = () => {
                                 </defs>
                             </svg>
                         </div>
-                        
+
                         {/* X-Axis Labels */}
                         <div className="flex justify-between mt-8 px-1">
                             {trendData.map((d, i) => (
@@ -192,21 +334,16 @@ const AdminSales = () => {
                     </div>
 
                     <div className="space-y-6">
-                        {[
-                            { name: 'Face Care', value: 75, color: 'bg-cyan-500', amount: 'Rs. 124k' },
-                            { name: 'Hair Care', value: 58, color: 'bg-[#001B1B]', amount: 'Rs. 89k' },
-                            { name: 'Lipsticks', value: 42, color: 'bg-teal-500', amount: 'Rs. 45k' },
-                            { name: 'Perfumes', value: 30, color: 'bg-purple-500', amount: 'Rs. 28k' },
-                        ].map((cat, i) => (
+                        {categorySales.map((cat, i) => (
                             <div key={i} className="space-y-3">
                                 <div className="flex justify-between items-end">
                                     <span className="text-[11px] font-black text-gray-900 uppercase tracking-widest">{cat.name}</span>
-                                    <span className="text-[10px] font-bold text-gray-400">{cat.amount}</span>
+                                    <span className="text-[10px] font-bold text-gray-400">Rs. {Math.round(cat.amount).toLocaleString()}</span>
                                 </div>
                                 <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
-                                    <div 
-                                        className={`h-full rounded-full ${cat.color} transition-all duration-1000`} 
-                                        style={{ width: `${cat.value}%` }}
+                                    <div
+                                        className={`h-full rounded-full ${cat.color} transition-all duration-1000`}
+                                        style={{ width: `${cat.percent}%` }}
                                     ></div>
                                 </div>
                             </div>
@@ -267,11 +404,10 @@ const AdminSales = () => {
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex justify-center">
-                                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.1em] ${
-                                                order.status === 'delivered' ? 'bg-green-50 text-green-600 border border-green-100' :
-                                                order.status === 'cancelled' ? 'bg-red-50 text-red-600 border border-red-100' :
-                                                'bg-cyan-50 text-cyan-600 border border-cyan-100'
-                                            }`}>
+                                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.1em] ${order.status === 'delivered' ? 'bg-green-50 text-green-600 border border-green-100' :
+                                                    order.status === 'cancelled' ? 'bg-red-50 text-red-600 border border-red-100' :
+                                                        'bg-cyan-50 text-cyan-600 border border-cyan-100'
+                                                }`}>
                                                 {order.status}
                                             </span>
                                         </div>
