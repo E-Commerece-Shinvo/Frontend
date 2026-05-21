@@ -13,6 +13,7 @@ import MyOrders from './pages/user/MyOrders';
 import MyReturns from './pages/user/MyReturns';
 import Profile from './pages/user/Profile';
 import CustomerSupport from './pages/user/CustomerSupport';
+import SearchResults from './pages/user/SearchResults';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminAddProduct from './pages/admin/AdminAddProduct';
@@ -38,7 +39,7 @@ import { Toaster } from 'react-hot-toast';
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || location.pathname === '/support' || isAdminRoute;
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || location.pathname === '/support' || location.pathname === '/search' || isAdminRoute;
 
   return (
     <AuthProvider>
@@ -54,6 +55,7 @@ function App() {
             <Route path="/shop" element={<ProductPage />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/category/:id" element={<CategoryPage />} />
+            <Route path="/search" element={<SearchResults />} />
 
             {/* Auth Routes - Only for non-logged-in users */}
             <Route element={<PublicRoute />}>

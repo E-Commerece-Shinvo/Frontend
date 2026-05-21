@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import { FiSearch, FiUser, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiChevronUp, FiHelpCircle } from "react-icons/fi";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import UpperNavbar from './UpperNavbar';
 import CategoryDropdown from './CategoryDropdown';
 import CategoryPopup from './CategoryPopup';
@@ -46,6 +46,7 @@ const ProfileDropdownMenu = ({ setProfileDropdownOpen, logout }) => (
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
   const { cartCount, setIsCartOpen } = useCart();
+  const navigate = useNavigate();
   
   // Normal Absolute Navbar states
   const [isOpen, setIsOpen] = useState(false);
@@ -62,6 +63,22 @@ function Navbar() {
   const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Navigate to search results page
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setIsOpen(false);
+      setIsScrolledOpen(false);
+    }
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   // Refs for click outside
   const profileDropdownRef = useRef(null);
@@ -220,12 +237,13 @@ function Navbar() {
               <div className="hidden lg:flex items-center bg-white/20 rounded-full px-4 py-1.5 w-[300px] xl:w-[555px] h-[55px] border border-white/10 focus-within:bg-white/30 focus-within:border-[#53C1CC] transition-all">
                 <input 
                   type="text" 
-                  placeholder="Search" 
+                  placeholder="Search products..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   className="bg-transparent border-none outline-none text-sm text-white placeholder-gray-300 w-full" 
                 />
-                <FiSearch className="text-white/70 w-[24px] h-[24px] text-lg cursor-pointer hover:text-white" />
+                <FiSearch onClick={handleSearch} className="text-white/70 w-[24px] h-[24px] text-lg cursor-pointer hover:text-white transition-colors" />
               </div>
 
               <div className="flex items-center gap-3 border-l border-white/20 pl-4 relative" ref={profileDropdownRef}>
@@ -318,12 +336,13 @@ function Navbar() {
               <div className="flex items-center bg-white/20 rounded-full px-4 py-3 w-full border border-white/10">
                 <input 
                   type="text" 
-                  placeholder="Search" 
+                  placeholder="Search products..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   className="bg-transparent border-none outline-none text-sm text-white placeholder-gray-300 w-full" 
                 />
-                <FiSearch className="text-white/70 text-lg" />
+                <FiSearch onClick={handleSearch} className="text-white/70 text-lg cursor-pointer hover:text-white transition-colors" />
               </div>
 
               {/* Mobile Auth — only show login/signup if not logged in */}
@@ -437,12 +456,13 @@ function Navbar() {
               <div className="hidden lg:flex items-center bg-white/10 rounded-full px-4 py-1.5 w-[250px] xl:w-[450px] h-[48px] border border-white/10 focus-within:bg-white/20 focus-within:border-[#53C1CC] transition-all">
                 <input 
                   type="text" 
-                  placeholder="Search" 
+                  placeholder="Search products..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   className="bg-transparent border-none outline-none text-sm text-white placeholder-gray-300 w-full" 
                 />
-                <FiSearch className="text-white/70 w-[20px] h-[20px] text-lg cursor-pointer hover:text-white" />
+                <FiSearch onClick={handleSearch} className="text-white/70 w-[20px] h-[20px] text-lg cursor-pointer hover:text-white transition-colors" />
               </div>
 
               <div className="flex items-center gap-3 border-l border-white/20 pl-4 relative" ref={scrolledProfileDropdownRef}>
@@ -529,12 +549,13 @@ function Navbar() {
               <div className="flex items-center bg-white/10 rounded-full px-4 py-3 w-full border border-white/10">
                 <input 
                   type="text" 
-                  placeholder="Search" 
+                  placeholder="Search products..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   className="bg-transparent border-none outline-none text-sm text-white placeholder-gray-300 w-full" 
                 />
-                <FiSearch className="text-white/70 text-lg" />
+                <FiSearch onClick={handleSearch} className="text-white/70 text-lg cursor-pointer hover:text-white transition-colors" />
               </div>
 
               {/* Mobile Auth — only show login/signup if not logged in */}
