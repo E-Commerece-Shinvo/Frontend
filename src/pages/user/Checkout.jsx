@@ -157,6 +157,7 @@ const Checkout = () => {
     const [isCardModalOpen, setIsCardModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [shippingMethod, setShippingMethod] = useState('standard');
     const [shipping, setShipping] = useState({
         firstName: '',
         lastName: '',
@@ -196,7 +197,7 @@ const Checkout = () => {
         });
     };
 
-    const shippingFee = 0;
+    const shippingFee = shippingMethod === 'urgent' ? 300 : 0;
     const total = cartSubtotal + shippingFee;
 
     const handleShippingChange = (e) => {
@@ -392,10 +393,13 @@ const Checkout = () => {
                         <section>
                             <h2 className="text-xl font-bold mb-6">3. Shipping Method</h2>
                             <div className="space-y-4">
-                                <label className="flex items-center justify-between p-4 border-2 border-teal-500 bg-teal-50/10 rounded-xl cursor-pointer transition-all">
+                                <label 
+                                    onClick={() => setShippingMethod('standard')}
+                                    className={`flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer transition-all ${shippingMethod === 'standard' ? 'border-teal-500 bg-teal-50/10' : 'border-gray-300 hover:border-black'}`}
+                                >
                                     <div className="flex items-center gap-3 md:gap-4">
-                                        <div className="w-5 h-5 rounded-full border-2 border-teal-500 flex items-center justify-center shrink-0">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-teal-500"></div>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${shippingMethod === 'standard' ? 'border-teal-500' : 'border-gray-300'}`}>
+                                            {shippingMethod === 'standard' && <div className="w-2.5 h-2.5 rounded-full bg-teal-500"></div>}
                                         </div>
                                         <div>
                                             <p className="font-bold text-sm">Standard</p>
@@ -403,19 +407,36 @@ const Checkout = () => {
                                         </div>
                                     </div>
                                     <span className="font-bold text-sm">Free</span>
-                                    <input type="radio" name="shipping" className="hidden" defaultChecked />
+                                    <input 
+                                        type="radio" 
+                                        name="shipping" 
+                                        className="hidden" 
+                                        checked={shippingMethod === 'standard'}
+                                        onChange={() => setShippingMethod('standard')}
+                                    />
                                 </label>
 
-                                <label className="flex items-center justify-between p-4 border border-gray-300 rounded-xl cursor-pointer hover:border-black transition-all">
+                                <label 
+                                    onClick={() => setShippingMethod('urgent')}
+                                    className={`flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer transition-all ${shippingMethod === 'urgent' ? 'border-teal-500 bg-teal-50/10' : 'border-gray-300 hover:border-black'}`}
+                                >
                                     <div className="flex items-center gap-3 md:gap-4">
-                                        <div className="w-5 h-5 rounded-full border-2 border-gray-300 shrink-0"></div>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${shippingMethod === 'urgent' ? 'border-teal-500' : 'border-gray-300'}`}>
+                                            {shippingMethod === 'urgent' && <div className="w-2.5 h-2.5 rounded-full bg-teal-500"></div>}
+                                        </div>
                                         <div>
                                             <p className="font-bold text-sm">Urgent Delivery</p>
                                             <p className="text-[10px] md:text-xs text-gray-500">Delivered in 1-2 days</p>
                                         </div>
                                     </div>
                                     <span className="font-bold text-sm">Rs. 300</span>
-                                    <input type="radio" name="shipping" className="hidden" />
+                                    <input 
+                                        type="radio" 
+                                        name="shipping" 
+                                        className="hidden" 
+                                        checked={shippingMethod === 'urgent'}
+                                        onChange={() => setShippingMethod('urgent')}
+                                    />
                                 </label>
                             </div>
                         </section>

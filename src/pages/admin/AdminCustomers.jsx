@@ -166,7 +166,7 @@ const AdminCustomers = () => {
                                                 e.stopPropagation();
                                                 navigate(`/admin/customers/${customer.id}`);
                                             }}
-                                            className="px-8 py-3.5 rounded-[20px] bg-gradient-to-r from-[#001B1B] to-[#006060] text-white text-[12.5px] font-black uppercase tracking-[0.1em] hover:shadow-xl hover:shadow-cyan-900/30 transition-all border border-white/5 flex items-center justify-center gap-2 group/btn active:scale-95"
+                                            className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#001B1B] to-[#006060] text-white text-[11px] font-black uppercase tracking-[0.1em] hover:shadow-xl hover:shadow-cyan-900/30 transition-all border border-white/5 flex items-center justify-center gap-2 group/btn active:scale-95"
                                         >
                                             View Profile
                                             <FiExternalLink className="group-hover/btn:translate-x-0.5 transition-transform" />

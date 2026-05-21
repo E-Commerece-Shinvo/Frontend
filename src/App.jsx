@@ -13,6 +13,7 @@ import MyOrders from './pages/user/MyOrders';
 import MyReturns from './pages/user/MyReturns';
 import Profile from './pages/user/Profile';
 import CustomerSupport from './pages/user/CustomerSupport';
+import MyComplaints from './pages/user/MyComplaints';
 import SearchResults from './pages/user/SearchResults';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
@@ -39,7 +40,7 @@ import { Toaster } from 'react-hot-toast';
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || location.pathname === '/support' || location.pathname === '/search' || isAdminRoute;
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || location.pathname === '/support' || location.pathname === '/my-complaints' || location.pathname === '/search' || isAdminRoute;
 
   return (
     <AuthProvider>
@@ -70,6 +71,7 @@ function App() {
               <Route path="/my-returns" element={<MyReturns />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/support" element={<CustomerSupport />} />
+              <Route path="/my-complaints" element={<MyComplaints />} />
             </Route>
 
             {/* Admin Protected Routes */}
