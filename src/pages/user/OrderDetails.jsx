@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getOrderById, cancelOrder, updateOrderAddress } from '../../api/orders';
+import { getOrderById, cancelOrder, updateOrderAddress, requestRefund } from '../../api/orders';
 import Navbar from '../../components/layout/Navbar/Navbar';
 import Footer from '../../components/layout/Footer/Footer';
 import { useAuth } from '../../context/AuthContext';
@@ -8,7 +8,7 @@ import { useCart } from '../../context/CartContext';
 import {
     FiPackage, FiClock, FiTruck, FiCheckCircle, FiXCircle,
     FiShoppingBag, FiUser, FiArrowLeft, FiMapPin,
-    FiCreditCard, FiActivity, FiRotateCcw, FiHelpCircle, FiFileText, FiEdit
+    FiCreditCard, FiActivity, FiRotateCcw, FiHelpCircle, FiFileText, FiEdit, FiCheck
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -62,6 +62,8 @@ function OrderDetails() {
     const [loading, setLoading] = useState(true);
     const [cancelling, setCancelling] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showRefundModal, setShowRefundModal] = useState(false);
+    const [cancelReasons, setCancelReasons] = useState([]);
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [updatingAddress, setUpdatingAddress] = useState(false);
     const [activeSlot, setActiveSlot] = useState(null);
@@ -131,6 +133,7 @@ function OrderDetails() {
     };
 
     const handleCancelOrderClick = () => {
+        setCancelReasons([]);
         setShowCancelModal(true);
     };
 
@@ -139,12 +142,29 @@ function OrderDetails() {
 
         try {
             setCancelling(true);
+            // Optionally, pass cancelReason to backend if supported: await cancelOrder(id, { reason: cancelReason });
             const updatedOrder = await cancelOrder(id);
             setOrder(updatedOrder);
             toast.success('Order cancelled successfully.');
         } catch (err) {
             console.error('Failed to cancel order:', err);
             toast.error(err.response?.data?.message || 'Failed to cancel order.');
+        } finally {
+            setCancelling(false);
+        }
+    };
+
+    const handleRefundRequest = async () => {
+        try {
+            setCancelling(true); // Reusing cancelling state for the button loading
+            const updatedOrder = await requestRefund(id);
+            setOrder(updatedOrder);
+            toast.success('Refund requested successfully.');
+            setShowRefundModal(false);
+            navigate('/my-returns');
+        } catch (err) {
+            console.error('Failed to request refund:', err);
+            toast.error(err.response?.data?.message || 'Failed to request refund.');
         } finally {
             setCancelling(false);
         }
@@ -277,26 +297,41 @@ function OrderDetails() {
                                             Buy Again
                                         </button>
                                     )}
-                                    <button
-                                        onClick={handleCancelOrderClick}
-                                        disabled={cancelling || order.status !== 'pending'}
-                                        className={`px-6 py-2.5 font-bold rounded-xl text-sm transition-all shadow-sm border flex items-center justify-center gap-2 ${order.status === 'pending'
-                                            ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-100'
-                                            : 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed opacity-75'
-                                            }`}
-                                    >
-                                        {cancelling ? (
-                                            <>
-                                                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                                Cancelling...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FiXCircle size={16} />
-                                                Cancel Order
-                                            </>
-                                        )}
-                                    </button>
+                                    {order.status === 'cancelled' && order.refundStatus === 'none' ? (
+                                        <button
+                                            onClick={() => setShowRefundModal(true)}
+                                            className="px-6 py-2.5 font-bold rounded-xl text-sm transition-all shadow-sm border flex items-center justify-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 border-indigo-100"
+                                        >
+                                            <FiRotateCcw size={16} />
+                                            Refund
+                                        </button>
+                                    ) : order.refundStatus !== 'none' ? (
+                                        <div className="px-6 py-2.5 font-bold rounded-xl text-sm border flex items-center justify-center gap-2 bg-indigo-50 text-indigo-600 border-indigo-100 cursor-default">
+                                            <FiCheckCircle size={16} />
+                                            Refund {order.refundStatus === 'requested' ? 'Requested' : 'Processed'}
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={handleCancelOrderClick}
+                                            disabled={cancelling || order.status !== 'pending'}
+                                            className={`px-6 py-2.5 font-bold rounded-xl text-sm transition-all shadow-sm border flex items-center justify-center gap-2 ${order.status === 'pending'
+                                                ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-100'
+                                                : 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed opacity-75'
+                                                }`}
+                                        >
+                                            {cancelling ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                    Cancelling...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FiXCircle size={16} />
+                                                    Cancel Order
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -473,16 +508,70 @@ function OrderDetails() {
 
             {/* Cancel Confirmation Modal */}
             {showCancelModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[32px] p-6 md:p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200">
-                        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <FiXCircle className="text-red-500 w-8 h-8" />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+                    <div className="bg-white rounded-[32px] p-6 md:p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center">
+                                    <FiXCircle className="text-red-500 w-5 h-5" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900">Cancel Order</h3>
+                            </div>
+                            <button
+                                onClick={() => setShowCancelModal(false)}
+                                className="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-full text-gray-500 hover:bg-gray-100 transition-all"
+                            >
+                                <FiXCircle size={20} />
+                            </button>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Cancel Order</h3>
-                        <p className="text-gray-500 text-center text-[15px] font-medium mb-8">
-                            Are you sure you want to cancel this order? This action cannot be undone.
+                        
+                        <p className="text-gray-500 text-sm font-medium mb-6">
+                            Please select a reason for cancelling your order. This helps us improve our service.
                         </p>
-                        <div className="flex gap-3">
+
+                        <div className="space-y-2 mb-8 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {[
+                                "Found a better price elsewhere",
+                                "Ordered by mistake",
+                                "Shipping time is too long",
+                                "Changed my mind",
+                                "Want to change shipping address",
+                                "Product is no longer needed",
+                                "Other reasons"
+                            ].map((reason, idx) => {
+                                const isSelected = cancelReasons.includes(reason);
+                                return (
+                                    <label 
+                                        key={idx} 
+                                        onClick={() => {
+                                            if (isSelected) {
+                                                setCancelReasons(cancelReasons.filter(r => r !== reason));
+                                            } else {
+                                                setCancelReasons([...cancelReasons, reason]);
+                                            }
+                                        }}
+                                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                            isSelected 
+                                                ? 'bg-red-50/50 border-red-200' 
+                                                : 'border-gray-100 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <div className={`w-5 h-5 rounded-[6px] border flex items-center justify-center transition-all ${
+                                            isSelected 
+                                                ? 'border-red-500 bg-red-500 text-white' 
+                                                : 'border-gray-300 bg-white'
+                                        }`}>
+                                            {isSelected && <FiCheck size={14} strokeWidth={3} />}
+                                        </div>
+                                        <span className={`text-sm font-medium ${isSelected ? 'text-red-900' : 'text-gray-700'}`}>
+                                            {reason}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+
+                        <div className="flex gap-3 pt-2 border-t border-gray-50">
                             <button
                                 onClick={() => setShowCancelModal(false)}
                                 className="flex-1 py-3.5 px-4 bg-gray-50 text-gray-700 font-bold rounded-xl hover:bg-gray-100 transition-all text-sm"
@@ -491,9 +580,48 @@ function OrderDetails() {
                             </button>
                             <button
                                 onClick={confirmCancelOrder}
-                                className="flex-1 py-3.5 px-4 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-all text-sm shadow-sm"
+                                disabled={cancelReasons.length === 0 || cancelling}
+                                className={`flex-1 py-3.5 px-4 font-bold rounded-xl transition-all text-sm shadow-sm ${
+                                    cancelReasons.length === 0 
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                        : 'bg-red-500 text-white hover:bg-red-600'
+                                }`}
                             >
-                                Yes, cancel
+                                {cancelling ? 'Cancelling...' : 'Yes, cancel'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Refund Confirmation Modal */}
+            {showRefundModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[32px] p-6 md:p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <FiRotateCcw className="text-indigo-500 w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Initiate Refund</h3>
+                        <p className="text-gray-500 text-center text-[15px] font-medium mb-8">
+                            Do you want to initiate a refund for this cancelled order?
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowRefundModal(false)}
+                                className="flex-1 py-3.5 px-4 bg-gray-50 text-gray-700 font-bold rounded-xl hover:bg-gray-100 transition-all text-sm"
+                            >
+                                No, Cancel
+                            </button>
+                            <button
+                                onClick={handleRefundRequest}
+                                disabled={cancelling}
+                                className={`flex-1 py-3.5 px-4 font-bold rounded-xl transition-all text-sm shadow-sm ${
+                                    cancelling 
+                                        ? 'bg-indigo-300 text-white cursor-not-allowed' 
+                                        : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                                }`}
+                            >
+                                {cancelling ? 'Initiating...' : 'Yes, Initiate'}
                             </button>
                         </div>
                     </div>

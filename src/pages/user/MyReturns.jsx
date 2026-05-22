@@ -12,8 +12,8 @@ import {
 
 /* ───────── status config ───────── */
 const statusConfig = {
-    returned: { label: 'Returned', color: '#ef4444', bg: '#fee2e2' },
-    'return-pending': { label: 'Return Pending', color: '#f59e0b', bg: '#fef3c7' },
+    completed: { label: 'Refunded', color: '#10b981', bg: '#d1fae5' },
+    requested: { label: 'Refund Pending', color: '#f59e0b', bg: '#fef3c7' },
 };
 
 const RETURN_TABS = ['All Returns', 'Processing', 'Completed'];
@@ -47,9 +47,9 @@ function MyReturns() {
         const fetchOrders = async () => {
             try {
                 const data = await getMyOrders();
-                // Filter only returned or return-pending orders
+                // Filter only orders with a refund request
                 const returnOrders = data.filter(o =>
-                    o.status?.toLowerCase().includes('return')
+                    o.refundStatus && o.refundStatus !== 'none'
                 );
                 setOrders(returnOrders);
             } catch (err) {
@@ -65,12 +65,11 @@ function MyReturns() {
     const filteredOrders = useMemo(() => {
         let result = orders;
 
-        // status filter
         if (activeTab !== 'All Returns') {
             if (activeTab === 'Processing') {
-                result = result.filter(o => o.status?.toLowerCase() === 'return-pending');
+                result = result.filter(o => o.refundStatus === 'requested');
             } else if (activeTab === 'Completed') {
-                result = result.filter(o => o.status?.toLowerCase() === 'returned');
+                result = result.filter(o => o.refundStatus === 'completed');
             }
         }
 
@@ -255,7 +254,7 @@ function MyReturns() {
                     {!loading && paginatedOrders.length > 0 && (
                         <div className="flex flex-col gap-4">
                             {paginatedOrders.map((order) => {
-                                const info = statusConfig[order.status?.toLowerCase()] || statusConfig.returned;
+                                const info = statusConfig[order.refundStatus] || statusConfig.requested;
 
                                 return (
                                     <div key={order._id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all">

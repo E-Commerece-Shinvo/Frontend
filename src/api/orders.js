@@ -58,6 +58,21 @@ export const updateOrderAddress = async (id, shippingAddress) => {
 };
 
 /**
+ * Request a refund (user)
+ */
+export const requestRefund = async (id) => {
+    const response = await api.put(`/orders/${id}/refund`);
+    return response.data;
+};
+
+/**
+ * Process a refund (admin)
+ */
+export const processRefund = async (id) => {
+    const response = await api.put(`/orders/${id}/process-refund`);
+    return response.data;
+};
+/**
  * Update order status (admin only)
  */
 export const updateOrderStatus = async (id, status) => {

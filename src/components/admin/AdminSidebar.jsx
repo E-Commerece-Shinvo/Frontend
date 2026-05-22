@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiGrid, FiPackage, FiUsers, FiShoppingCart, FiArchive, FiPieChart, FiTruck, FiLifeBuoy, FiMoreVertical, FiX, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiGrid, FiPackage, FiUsers, FiShoppingCart, FiArchive, FiPieChart, FiTruck, FiDollarSign, FiLifeBuoy, FiMoreVertical, FiX, FiUser, FiLogOut } from 'react-icons/fi';
 
 const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const location = useLocation();
@@ -75,6 +75,7 @@ const AdminSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                         <MenuItem icon={<FiArchive />} label="Inventory" to="/admin/inventory" active={location.pathname.startsWith('/admin/inventory')} setIsSidebarOpen={setIsSidebarOpen} />
                         <MenuItem icon={<FiPieChart />} label="Sales" to="/admin/sales" active={location.pathname.startsWith('/admin/sales')} setIsSidebarOpen={setIsSidebarOpen} />
                         <MenuItem icon={<FiTruck />} label="Shipping" to="/admin/shipping" active={location.pathname.startsWith('/admin/shipping')} setIsSidebarOpen={setIsSidebarOpen} />
+                        <MenuItem icon={<FiDollarSign />} label="Finance" to="/admin/finance" active={location.pathname.startsWith('/admin/finance')} setIsSidebarOpen={setIsSidebarOpen} />
                         <MenuItem icon={<FiLifeBuoy />} label="Support" to="/admin/support" active={location.pathname.startsWith('/admin/support')} setIsSidebarOpen={setIsSidebarOpen} />
                     </ul>
                 </nav>

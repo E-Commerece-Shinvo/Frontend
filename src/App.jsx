@@ -29,6 +29,7 @@ import AdminSupport from './pages/admin/AdminSupport';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminSales from './pages/admin/AdminSales';
 import AdminShipping from './pages/admin/AdminShipping';
+import AdminFinance from './pages/admin/AdminFinance';
 import AdminLayout from './components/admin/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -90,6 +91,7 @@ function App() {
                 <Route path="/admin/categories" element={<AdminCategories />} />
                 <Route path="/admin/sales" element={<AdminSales />} />
                 <Route path="/admin/shipping" element={<AdminShipping />} />
+                <Route path="/admin/finance" element={<AdminFinance />} />
                 <Route path="/admin/support" element={<AdminSupport />} />
                 <Route path="/admin/profile" element={<AdminProfile />} />
               </Route>
