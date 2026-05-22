@@ -10,6 +10,7 @@ import CategoryPage from './pages/user/CategoryPage';
 import ProductDetails from './pages/user/ProductDetails';
 import Checkout from './pages/user/Checkout';
 import MyOrders from './pages/user/MyOrders';
+import OrderDetails from './pages/user/OrderDetails';
 import MyReturns from './pages/user/MyReturns';
 import Profile from './pages/user/Profile';
 import CustomerSupport from './pages/user/CustomerSupport';
@@ -40,7 +41,7 @@ import { Toaster } from 'react-hot-toast';
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/my-orders' || location.pathname === '/my-returns' || location.pathname === '/profile' || location.pathname === '/support' || location.pathname === '/my-complaints' || location.pathname === '/search' || isAdminRoute;
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/my-orders') || location.pathname === '/my-returns' || location.pathname === '/profile' || location.pathname === '/support' || location.pathname === '/my-complaints' || location.pathname === '/search' || isAdminRoute;
 
   return (
     <AuthProvider>
@@ -68,6 +69,7 @@ function App() {
             <Route element={<UserRoute />}>
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/my-orders/:id" element={<OrderDetails />} />
               <Route path="/my-returns" element={<MyReturns />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/support" element={<CustomerSupport />} />
