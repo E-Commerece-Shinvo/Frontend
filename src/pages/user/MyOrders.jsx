@@ -167,16 +167,16 @@ function MyOrders() {
 
                     <div className="px-3 pt-6 flex flex-col gap-1">
                         <h4 className="px-3 text-[11px] font-bold text-[#53C1CC] uppercase tracking-widest mb-2">Shopping Activity</h4>
-                        <Link to="/my-orders" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#53C1CC] font-bold rounded-xl bg-[#53C1CC]/5 transition-all">
-                            <FiShoppingBag size={18} />
+                        <Link to="/my-orders" className={`flex items-center gap-3 px-3 py-2.5 text-[14px] rounded-xl transition-all ${activeTab !== 'Cancelled' ? 'text-[#53C1CC] font-bold bg-[#53C1CC]/5' : 'text-gray-600 font-medium hover:bg-gray-50 group'}`}>
+                            <FiShoppingBag className={activeTab !== 'Cancelled' ? '' : 'text-gray-400 group-hover:text-[#53C1CC]'} size={18} />
                             My Orders
                         </Link>
                         <Link to="/my-returns" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
                             <FiRotateCcw className="text-gray-400 group-hover:text-[#53C1CC]" size={18} />
                             My Returns
                         </Link>
-                        <Link to="/my-orders?tab=cancelled" className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all group">
-                            <FiClock className="text-gray-400 group-hover:text-amber-400" size={18} />
+                        <Link to="/my-orders?tab=cancelled" className={`flex items-center gap-3 px-3 py-2.5 text-[14px] rounded-xl transition-all ${activeTab === 'Cancelled' ? 'text-[#53C1CC] font-bold bg-[#53C1CC]/5' : 'text-gray-600 font-medium hover:bg-gray-50 group'}`}>
+                            <FiClock className={activeTab === 'Cancelled' ? '' : 'text-gray-400 group-hover:text-[#53C1CC]'} size={18} />
                             Cancellations
                         </Link>
                     </div>
@@ -346,7 +346,7 @@ function MyOrders() {
 
                                         {/* Footer / Total? (Optional) */}
                                         <div className="px-6 py-3 bg-gray-50/30 flex justify-end items-center border-t border-gray-50">
-                                            <Link to={`/my-orders`} className="text-[13px] font-bold text-[#53C1CC] hover:underline">
+                                            <Link to={`/my-orders/${order._id}`} className="text-[13px] font-bold text-[#53C1CC] hover:underline">
                                                 View Details
                                             </Link>
                                         </div>

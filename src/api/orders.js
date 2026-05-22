@@ -42,6 +42,22 @@ export const getOrderById = async (id) => {
 };
 
 /**
+ * Cancel order (user)
+ */
+export const cancelOrder = async (id) => {
+    const response = await api.put(`/orders/${id}/cancel`);
+    return response.data;
+};
+
+/**
+ * Update order shipping address (user)
+ */
+export const updateOrderAddress = async (id, shippingAddress) => {
+    const response = await api.put(`/orders/${id}/address`, { shippingAddress });
+    return response.data;
+};
+
+/**
  * Update order status (admin only)
  */
 export const updateOrderStatus = async (id, status) => {
