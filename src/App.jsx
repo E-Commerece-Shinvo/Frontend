@@ -83,6 +83,7 @@ function App() {
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/products" element={<AdminProducts />} />
                 <Route path="/admin/products/add" element={<AdminAddProduct />} />
+                <Route path="/admin/products/edit/:id" element={<AdminAddProduct />} />
                 <Route path="/admin/customers" element={<AdminCustomers />} />
                 <Route path="/admin/customers/:id" element={<AdminCustomerDetails />} />
                 <Route path="/admin/orders" element={<AdminOrders />} />
