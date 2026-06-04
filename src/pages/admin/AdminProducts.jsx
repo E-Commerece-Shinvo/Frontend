@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSearch, FiPlus, FiMoreVertical, FiChevronLeft, FiChevronRight, FiX, FiSave } from 'react-icons/fi';
-import { getProducts, createProduct } from '../../api/products';
+import { FiSearch, FiPlus, FiMoreVertical, FiChevronLeft, FiChevronRight, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { getProducts, deleteProduct } from '../../api/products';
 import { getCategories } from '../../api/categories';
+import toast from 'react-hot-toast';
 import AdminPagination from '../../components/admin/AdminPagination';
 
 const AdminProducts = () => {
@@ -14,18 +15,8 @@ const AdminProducts = () => {
     const [totalProducts, setTotalProducts] = useState(0);
     const limit = 5;
 
-    // Modal State
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [categories, setCategories] = useState([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formData, setFormData] = useState({
-        title: '',
-        brand: '',
-        price: '',
-        stock: 100,
-        category: '',
-        image: ''
-    });
+    // Action Dropdown State
+    const [openDropdownId, setOpenDropdownId] = useState(null);
 
     const fetchProducts = async (currentPage) => {
         setLoading(true);
@@ -41,52 +32,21 @@ const AdminProducts = () => {
         }
     };
 
-    const fetchCategories = async () => {
-        try {
-            const cats = await getCategories();
-            setCategories(cats);
-            if (cats.length > 0) {
-                setFormData(prev => ({ ...prev, category: cats[0]._id }));
-            }
-        } catch (error) {
-            console.error("Failed to load categories:", error);
-        }
-    };
-
     useEffect(() => {
         fetchProducts(page);
     }, [page]);
 
-    // Open Modal and load categories lazily
-    const handleOpenModal = () => {
-        setIsAddModalOpen(true);
-        if (categories.length === 0) {
-            fetchCategories();
-        }
-    };
-
-    const handleModalInput = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleAddProduct = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        try {
-            await createProduct({
-                ...formData,
-                price: Number(formData.price),
-                stock: Number(formData.stock)
-            });
-            setIsAddModalOpen(false);
-            setFormData({ title: '', brand: '', price: '', stock: 100, category: categories[0]?._id || '', image: '' });
-            fetchProducts(page); // refresh list
-        } catch (error) {
-            console.error("Failed to add product:", error);
-            alert("Error adding product");
-        } finally {
-            setIsSubmitting(false);
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this product?')) {
+            try {
+                await deleteProduct(id);
+                toast.success('Product deleted successfully');
+                fetchProducts(page);
+                setOpenDropdownId(null);
+            } catch (error) {
+                console.error("Failed to delete product:", error);
+                toast.error('Failed to delete product');
+            }
         }
     };
 
@@ -109,63 +69,6 @@ const AdminProducts = () => {
 
     return (
         <>
-            {/* Add Product Modal */}
-            {isAddModalOpen && (
-                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-all">
-                    <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                            <h2 className="text-2xl font-bold text-gray-900">Add New Product</h2>
-                            <button onClick={() => setIsAddModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors">
-                                <FiX className="text-xl" />
-                            </button>
-                        </div>
-
-                        <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-                            <form id="add-product-form" onSubmit={handleAddProduct} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="text-sm font-bold text-gray-700">Product Title</label>
-                                    <input required type="text" name="title" value={formData.title} onChange={handleModalInput} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-cyan-400 outline-none transition-all placeholder-gray-400" placeholder="Enter full product name" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700">Brand</label>
-                                    <input required type="text" name="brand" value={formData.brand} onChange={handleModalInput} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-cyan-400 outline-none transition-all placeholder-gray-400" placeholder="e.g. Samsung" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700">Price (Rs.)</label>
-                                    <input required type="number" min="0" name="price" value={formData.price} onChange={handleModalInput} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-cyan-400 outline-none transition-all placeholder-gray-400" placeholder="e.g. 5300" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700">Category</label>
-                                    <select required name="category" value={formData.category} onChange={handleModalInput} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-cyan-400 outline-none transition-all">
-                                        <option value="" disabled>Select category...</option>
-                                        {categories.map(cat => (
-                                            <option key={cat._id} value={cat._id}>{cat.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700">Initial Stock</label>
-                                    <input required type="number" min="0" name="stock" value={formData.stock} onChange={handleModalInput} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-cyan-400 outline-none transition-all placeholder-gray-400" placeholder="Available units" />
-                                </div>
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="text-sm font-bold text-gray-700">Image URL</label>
-                                    <input type="url" name="image" value={formData.image} onChange={handleModalInput} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-cyan-400 outline-none transition-all placeholder-gray-400" placeholder="https://example.com/image.jpg" />
-                                </div>
-                            </form>
-                        </div>
-
-                        <div className="bg-gray-50 p-6 border-t border-gray-100 flex justify-end gap-3 rounded-b-2xl">
-                            <button onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 rounded-xl font-bold text-sm text-gray-600 hover:bg-gray-200 transition-colors">
-                                Cancel
-                            </button>
-                            <button type="submit" form="add-product-form" disabled={isSubmitting} className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all text-sm shadow-lg shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95 disabled:opacity-50">
-                                {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white/30 border-t-white rounded-full"></span> : <FiSave />}
-                                {isSubmitting ? 'Saving...' : 'Save Product'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-50 flex flex-col p-6 h-[850px]">
                 {/* Header Area */}
@@ -189,7 +92,7 @@ const AdminProducts = () => {
                             />
                         </div>
                         <button
-                            onClick={handleOpenModal}
+                            onClick={() => navigate('/admin/products/add')}
                             className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white w-11 h-11 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-sm transition-all shadow-lg shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95 whitespace-nowrap shrink-0"
                             title="Add new Product"
                         >
@@ -250,10 +153,36 @@ const AdminProducts = () => {
                                             <div className="w-40 shrink-0 flex items-center">
                                                 {getStockBadge(product.stock)}
                                             </div>
-                                            <div className="w-20 shrink-0 flex justify-center">
-                                                <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-500">
+                                            <div className="w-20 shrink-0 flex justify-center relative">
+                                                <button 
+                                                    onClick={() => setOpenDropdownId(openDropdownId === product._id ? null : product._id)}
+                                                    className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-500"
+                                                >
                                                     <FiMoreVertical className="text-xl" />
                                                 </button>
+                                                
+                                                {/* Dropdown Menu */}
+                                                {openDropdownId === product._id && (
+                                                    <>
+                                                        <div className="fixed inset-0 z-10" onClick={() => setOpenDropdownId(null)}></div>
+                                                        <div className="absolute right-8 top-2 w-36 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                                                            <button 
+                                                                onClick={() => navigate(`/admin/products/edit/${product._id}`)}
+                                                                className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-cyan-600 flex items-center gap-2 transition-colors"
+                                                            >
+                                                                <FiEdit className="text-base" />
+                                                                Update
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleDelete(product._id)}
+                                                                className="w-full px-4 py-2.5 text-left text-sm font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                                                            >
+                                                                <FiTrash2 className="text-base" />
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
