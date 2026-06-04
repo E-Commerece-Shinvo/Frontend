@@ -120,25 +120,12 @@ const AdminOrders = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-5 gap-2 md:gap-4">
                 <StatCard label="Total Orders" value={stats.total} icon={<FiShoppingCart />} color="bg-gray-900" />
                 <StatCard label="Pending" value={stats.pending} icon={<FiClock />} color="bg-orange-500" />
                 <StatCard label="Processing" value={stats.processing} icon={<FiRefreshCw className="animate-spin-slow" />} color="bg-blue-500" />
                 <StatCard label="Shipped" value={stats.shipped} icon={<FiTruck />} color="bg-purple-500" />
                 <StatCard label="Delivered" value={stats.delivered} icon={<FiCheckCircle />} color="bg-teal-500" />
-            </div>
-
-            {/* Mobile Only Stats Display */}
-            <div className="md:hidden bg-white p-6 rounded-[32px] shadow-sm border border-gray-50">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gray-900 text-white flex items-center justify-center text-xl shadow-lg shadow-gray-900/20">
-                        <FiShoppingCart />
-                    </div>
-                    <div>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-0.5">Total Orders</p>
-                        <h4 className="text-2xl font-bold text-gray-900">{stats.total}</h4>
-                    </div>
-                </div>
             </div>
 
             {/* Filters & Table */}
@@ -298,13 +285,25 @@ const AdminOrders = () => {
 };
 
 const StatCard = ({ label, value, icon, color }) => (
-    <div className="bg-white rounded-3xl p-4 lg:p-6 shadow-sm border border-gray-50 flex items-center gap-3 lg:gap-4 group hover:shadow-xl hover:shadow-cyan-400/5 transition-all">
-        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl ${color} text-white flex items-center justify-center text-lg lg:text-xl shadow-lg shadow-${color.split('-')[1]}-400/20 shrink-0`}>
-            {icon}
+    <div 
+        tabIndex="0"
+        className="bg-white rounded-[20px] sm:rounded-3xl p-2 sm:p-4 lg:p-6 shadow-sm border border-gray-50 flex flex-col items-center sm:items-start group hover:shadow-xl hover:shadow-cyan-400/5 transition-all relative cursor-pointer outline-none focus:bg-gray-50 active:bg-gray-50"
+    >
+        <div className="flex items-center justify-between w-full">
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mx-auto sm:mx-0 rounded-xl sm:rounded-2xl ${color} text-white flex items-center justify-center text-sm sm:text-lg lg:text-xl shadow-lg transition-transform group-hover:scale-110 group-focus:scale-110 shrink-0`}>
+                {icon}
+            </div>
         </div>
-        <div className="min-w-0">
-            <p className="text-[9px] lg:text-[10px] text-gray-400 uppercase tracking-tight lg:tracking-widest font-bold mb-0.5 leading-tight">{label}</p>
-            <h4 className="text-base lg:text-xl font-bold text-gray-900">{value}</h4>
+        
+        <div className="text-center sm:text-left mt-1 sm:mt-4 w-full">
+            <p className="hidden sm:block text-[9px] lg:text-[10px] text-gray-400 uppercase tracking-tight lg:tracking-widest font-bold mb-0.5 leading-tight truncate">{label}</p>
+            <h4 className="text-xs sm:text-base lg:text-xl font-bold text-gray-900 truncate">{value}</h4>
+        </div>
+
+        {/* Tooltip on Mobile (Shows on Hover/Focus/Active) */}
+        <div className="sm:hidden absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
+            {label}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-gray-900"></div>
         </div>
     </div>
 );

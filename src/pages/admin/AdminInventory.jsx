@@ -132,7 +132,7 @@ const AdminInventory = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 <InventoryStatCard
                     label="Total Products"
                     value={stats.total}
@@ -191,80 +191,8 @@ const AdminInventory = () => {
                 </div>
 
                 <div className="overflow-auto flex-1 custom-scrollbar">
-                    {/* Mobile/Tablet View: Product Cards */}
-                    <div className="lg:hidden divide-y divide-gray-50">
-                        {loading ? (
-                            <div className="py-20 text-center">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-500 mx-auto"></div>
-                            </div>
-                        ) : paginatedProducts.length === 0 ? (
-                            <div className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest">
-                                No products match your criteria
-                            </div>
-                        ) : (
-                            paginatedProducts.map((p) => {
-                                const status = getStockStatus(p.stock);
-                                return (
-                                    <div key={p._id} className="p-6 space-y-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-16 h-16 bg-white border border-gray-100 rounded-2xl p-2 flex items-center justify-center shrink-0">
-                                                <img
-                                                    src={p.image || p.images?.[0] || 'https://via.placeholder.com/60'}
-                                                    alt={p.title}
-                                                    className="w-full h-full object-contain"
-                                                />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <h4 className="text-sm font-black text-gray-900 truncate uppercase tracking-tight">{p.title}</h4>
-                                                <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-widest">{p.brand}</p>
-                                            </div>
-                                            <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border shrink-0 ${status.color}`}>
-                                                {status.label}
-                                            </span>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-2xl">
-                                            <div className="flex flex-col">
-                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Price</span>
-                                                <span className="text-xs font-bold text-gray-900">Rs. {p.price.toLocaleString()}</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Category</span>
-                                                <span className="text-xs font-bold text-gray-700 truncate">
-                                                    {typeof p.category === 'object' ? p.category?.name : 'General'}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center justify-between gap-6 pt-2">
-                                            <div className="flex-1 space-y-2">
-                                                <div className="flex justify-between items-end">
-                                                    <span className={`text-base font-black ${p.stock <= 10 ? 'text-orange-500' : 'text-gray-900'}`}>
-                                                        {p.stock} Units
-                                                    </span>
-                                                </div>
-                                                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div
-                                                        className={`h-full rounded-full ${p.stock === 0 ? 'bg-red-500' : p.stock <= 10 ? 'bg-orange-500' : 'bg-cyan-500'}`}
-                                                        style={{ width: `${Math.min(p.stock, 100)}%` }}
-                                                    ></div>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => handleEditClick(p)}
-                                                className="p-4 bg-[#001B1B] text-white rounded-2xl shadow-xl shadow-black/10 transition-all active:scale-95"
-                                            >
-                                                <FiEdit3 className="text-lg" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        )}
-                    </div>
-
-                    {/* Desktop View: Full Table */}
-                    <div className="hidden lg:block overflow-x-auto">
+                    {/* Universal Table View with Horizontal Scroll */}
+                    <div className="overflow-x-auto custom-scrollbar w-full">
                         <table className="w-full min-w-[1000px]">
                             <thead>
                                 <tr className="bg-gray-50/50 text-[11px] text-gray-400 uppercase tracking-[0.2em] font-black">
@@ -455,18 +383,32 @@ const AdminInventory = () => {
 };
 
 const InventoryStatCard = ({ label, value, icon, color, desc, warning, danger }) => (
-    <div className={`bg-white rounded-[32px] p-8 shadow-sm border ${danger ? 'border-red-100 bg-red-50/20' : warning ? 'border-orange-100 bg-orange-50/20' : 'border-gray-50'} flex flex-col gap-6 group hover:shadow-xl hover:shadow-cyan-400/5 transition-all`}>
-        <div className="flex items-center justify-between">
-            <div className={`w-14 h-14 rounded-2xl ${color} text-white flex items-center justify-center text-2xl shadow-xl transition-transform group-hover:scale-110`}>
+    <div 
+        tabIndex="0"
+        className={`bg-white rounded-2xl sm:rounded-[32px] p-3 sm:p-8 shadow-sm border ${danger ? 'border-red-100 bg-red-50/20' : warning ? 'border-orange-100 bg-orange-50/20' : 'border-gray-50'} flex flex-col items-center sm:items-start group hover:shadow-xl hover:shadow-cyan-400/5 transition-all relative cursor-pointer outline-none focus:bg-gray-50 active:bg-gray-50`}
+    >
+        <div className="flex items-center justify-between w-full">
+            <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto sm:mx-0 rounded-xl sm:rounded-2xl ${color} text-white flex items-center justify-center text-lg sm:text-2xl shadow-xl transition-transform group-hover:scale-110 group-focus:scale-110`}>
                 {icon}
             </div>
-            {danger && <div className="px-3 py-1 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full animate-pulse">Critical</div>}
-            {warning && !danger && <div className="px-3 py-1 bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full animate-pulse">Attention</div>}
+            {danger && <div className="hidden sm:block px-3 py-1 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full animate-pulse">Critical</div>}
+            {warning && !danger && <div className="hidden sm:block px-3 py-1 bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full animate-pulse">Attention</div>}
+            
+            {/* Mobile indicators */}
+            {danger && <div className="sm:hidden absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>}
+            {warning && !danger && <div className="sm:hidden absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>}
         </div>
-        <div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{label}</p>
-            <h4 className="text-3xl font-black text-gray-900 tracking-tight">{value}</h4>
-            <p className="text-[10px] text-gray-400 mt-2 font-medium">{desc}</p>
+        
+        <div className="text-center sm:text-left mt-1 sm:mt-6 w-full">
+            <p className="hidden sm:block text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{label}</p>
+            <h4 className="text-[11px] sm:text-3xl font-black text-gray-900 tracking-tight leading-none pointer-events-none truncate px-1">{value}</h4>
+            <p className="hidden sm:block text-[10px] text-gray-400 mt-2 font-medium">{desc}</p>
+        </div>
+
+        {/* Tooltip on Mobile (Shows on Hover/Focus/Active) */}
+        <div className="sm:hidden absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
+            {label}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-900"></div>
         </div>
     </div>
 );

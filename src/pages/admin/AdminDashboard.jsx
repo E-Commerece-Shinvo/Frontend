@@ -261,9 +261,9 @@ const AdminDashboard = () => {
             </div>
 
             {/* Summary Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-12">
                 <SummaryCard
-                    icon={<FiTrendingUp className="text-orange-600 text-2xl" />}
+                    icon={<FiTrendingUp className="text-orange-600 text-xl sm:text-2xl" />}
                     bgColor="bg-orange-100"
                     label="TODAY'S SALES"
                     value={`Rs. ${stats.todaySales.toLocaleString()}`}
@@ -273,7 +273,7 @@ const AdminDashboard = () => {
                     link="View Sales Report"
                 />
                 <SummaryCard
-                    icon={<FiPackage className="text-orange-700 text-2xl" />}
+                    icon={<FiPackage className="text-orange-700 text-xl sm:text-2xl" />}
                     bgColor="bg-orange-200"
                     label="ORDERS TO FULFILL"
                     value={stats.pendingOrders}
@@ -283,7 +283,7 @@ const AdminDashboard = () => {
                     path="/admin/orders"
                 />
                 <SummaryCard
-                    icon={<FiUsers className="text-purple-600 text-2xl" />}
+                    icon={<FiUsers className="text-purple-600 text-xl sm:text-2xl" />}
                     bgColor="bg-purple-100"
                     label="TOTAL REVENUE"
                     value={`Rs. ${stats.totalRevenue.toLocaleString()}`}
@@ -293,10 +293,10 @@ const AdminDashboard = () => {
                     link="View Live Traffic"
                 />
                 <SummaryCard
-                    icon={<FiAlertTriangle className="text-yellow-400 text-2xl" />}
+                    icon={<FiAlertTriangle className="text-yellow-400 text-xl sm:text-2xl" />}
                     bgColor="bg-black"
                     label="LOW STOCK ALERTS"
-                    value={`${stats.lowStockItems} Items`}
+                    value={`${stats.lowStockItems}`}
                     status={stats.lowStockItems > 0 ? "Action Required" : "All Good"}
                     statusText={stats.lowStockItems > 0 ? "Restock Soon" : "Stock Levels Healthy"}
                     link="View Inventory"
@@ -307,8 +307,8 @@ const AdminDashboard = () => {
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12">
                 {/* Sales Overview Chart */}
-                <div className="xl:col-span-2 bg-white rounded-[32px] p-8 shadow-sm border border-gray-50 flex flex-col">
-                    <div className="flex items-center justify-between mb-10">
+                <div className="xl:col-span-2 bg-white rounded-[32px] p-5 md:p-8 shadow-sm border border-gray-50 flex flex-col">
+                    <div className="flex items-center justify-between mb-6 md:mb-10">
                         <h4 className="text-xl font-bold text-gray-900 font-sans">Sales Overview (7 Days)</h4>
                         <div className="flex items-center gap-6 text-xs font-medium text-gray-400">
                             <div className="flex items-center gap-2">
@@ -318,7 +318,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                     <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
-                        <div className="min-w-[500px] h-full flex items-end justify-between gap-2 relative pt-12">
+                        <div className="min-w-[400px] md:min-w-[500px] h-full flex items-end justify-between gap-2 relative pt-6 md:pt-12">
                             {/* Simple Bar Chart Implementation with Tooltips */}
                             {stats.salesChart.map((d, i) => {
                                 // Calculate height percentage relative to max sales in the week
@@ -326,8 +326,8 @@ const AdminDashboard = () => {
                                 const heightPercent = (d.sales / maxSales) * 100;
 
                                 return (
-                                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group relative">
-                                        <div className="w-full flex justify-center gap-1.5 items-end h-[250px]">
+                                    <div key={i} className="flex-1 flex flex-col items-center gap-2 md:gap-4 group relative">
+                                        <div className="w-full flex justify-center gap-1.5 items-end h-[150px] md:h-[250px]">
                                             <div
                                                 className="w-8 md:w-12 bg-gradient-to-t from-teal-500 to-cyan-400 rounded-md md:rounded-lg group-hover:from-teal-600 group-hover:to-cyan-500 transition-all cursor-pointer relative"
                                                 style={{ height: `${Math.max(heightPercent, 5)}%` }}
@@ -454,47 +454,59 @@ const AdminDashboard = () => {
 
 
 const SummaryCard = ({ icon, label, value, trend, trendText, status, statusText, link, chartType, path, bgColor = 'bg-gray-50' }) => (
-    <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50 flex flex-col group hover:shadow-xl hover:shadow-cyan-400/5 transition-all">
-        <div className="flex items-center justify-between mb-8">
-            <div className={`w-14 h-14 ${bgColor} rounded-2xl flex items-center justify-center transition-colors`}>
+    <div 
+        tabIndex="0"
+        className="bg-white rounded-2xl sm:rounded-[32px] p-3 sm:p-8 shadow-sm border border-gray-50 flex flex-col items-center sm:items-start group hover:shadow-xl hover:shadow-cyan-400/5 transition-all relative cursor-pointer outline-none focus:bg-gray-50 active:bg-gray-50"
+    >
+        <div className="flex items-center justify-between w-full">
+            <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto sm:mx-0 rounded-xl sm:rounded-2xl ${bgColor} flex items-center justify-center transition-transform shadow-xl group-hover:scale-110 group-focus:scale-110`}>
                 {icon}
             </div>
         </div>
-        <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-2">{label}</p>
+        
+        <div className="text-center sm:text-left mt-1 sm:mt-6 w-full">
+            <p className="hidden sm:block text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-2">{label}</p>
+            
+            <div className="flex items-center justify-center sm:justify-between mb-0 sm:mb-4">
+                <h4 className="text-[11px] sm:text-2xl font-bold text-gray-900 tracking-tight leading-none pointer-events-none truncate px-1">{value}</h4>
+                {chartType === 'up' && (
+                    <div className="hidden sm:flex w-16 h-8 overflow-hidden items-end">
+                        <svg viewBox="0 0 100 40" className="w-full h-full text-cyan-400 opacity-60">
+                            <path d="M0,35 Q20,30 40,32 T80,10 T100,5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                        </svg>
+                    </div>
+                )}
+            </div>
 
-        <div className="flex items-center justify-between mb-4">
-            <h4 className="text-2xl font-bold">{value}</h4>
-            {chartType === 'up' && (
-                <div className="w-16 h-8 overflow-hidden flex items-end">
-                    <svg viewBox="0 0 100 40" className="w-full h-full text-cyan-400 opacity-60">
-                        <path d="M0,35 Q20,30 40,32 T80,10 T100,5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                    </svg>
-                </div>
-            )}
+            <div className="hidden sm:flex flex-1 flex-col justify-end mt-4">
+                {trend && (
+                    <p className="text-[11px] mb-4">
+                        <span className="text-teal-500 font-bold mr-1">{trend}</span>
+                        <span className="text-gray-400">{trendText}</span>
+                    </p>
+                )}
+                {status && (
+                    <p className="text-[11px] mb-4">
+                        <span className="bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-bold text-[9px] uppercase mr-2">{status}</span>
+                        <span className="text-gray-400">{statusText}</span>
+                    </p>
+                )}
+                {path ? (
+                    <Link to={path} className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all">
+                        {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                    </Link>
+                ) : (
+                    <button className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all text-left">
+                        {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                    </button>
+                )}
+            </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-end">
-            {trend && (
-                <p className="text-[11px] mb-4">
-                    <span className="text-teal-500 font-bold mr-1">{trend}</span>
-                    <span className="text-gray-400">{trendText}</span>
-                </p>
-            )}
-            {status && (
-                <p className="text-[11px] mb-4">
-                    <span className="bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-bold text-[9px] uppercase mr-2">{status}</span>
-                    <span className="text-gray-400">{statusText}</span>
-                </p>
-            )}
-            {path ? (
-                <Link to={path} className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all">
-                    {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                </Link>
-            ) : (
-                <button className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all text-left">
-                    {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                </button>
-            )}
+        {/* Tooltip on Mobile (Shows on Hover/Focus/Active) */}
+        <div className="sm:hidden absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
+            {label}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-900"></div>
         </div>
     </div>
 );

@@ -165,7 +165,7 @@ const AdminCategories = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6">
                 <StatCard label="Total Categories" value={stats.total} icon={<FiGrid />} color="bg-cyan-500" />
                 <StatCard label="Niches (Level 0)" value={`${stats.niches}/5`} icon={<FiFolder />} color="bg-[#001B1B]" warning={stats.niches >= 5} />
                 <StatCard label="Subcategories" value={stats.subcats} icon={<FiArrowRight />} color="bg-teal-500" />
@@ -364,13 +364,25 @@ const AdminCategories = () => {
 };
 
 const StatCard = ({ label, value, icon, color, warning }) => (
-    <div className={`bg-white rounded-[32px] p-8 shadow-sm border ${warning ? 'border-orange-100 bg-orange-50/20' : 'border-gray-50'} flex flex-col gap-6 group hover:shadow-xl transition-all`}>
-        <div className={`w-14 h-14 rounded-2xl ${color} text-white flex items-center justify-center text-2xl shadow-xl transition-transform group-hover:scale-110`}>
-            {icon}
+    <div 
+        tabIndex="0"
+        className={`bg-white rounded-2xl sm:rounded-[32px] p-3 sm:p-8 shadow-sm border ${warning ? 'border-orange-100 bg-orange-50/20' : 'border-gray-50'} flex flex-col items-center sm:items-start group hover:shadow-xl hover:shadow-cyan-400/5 transition-all relative cursor-pointer outline-none focus:bg-gray-50 active:bg-gray-50`}
+    >
+        <div className="flex items-center justify-between w-full">
+            <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto sm:mx-0 rounded-xl sm:rounded-2xl ${color} text-white flex items-center justify-center text-lg sm:text-2xl shadow-xl transition-transform group-hover:scale-110 group-focus:scale-110`}>
+                {icon}
+            </div>
         </div>
-        <div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{label}</p>
-            <h4 className="text-3xl font-black text-gray-900 tracking-tight">{value}</h4>
+        
+        <div className="text-center sm:text-left mt-1 sm:mt-6 w-full">
+            <p className="hidden sm:block text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{label}</p>
+            <h4 className="text-sm sm:text-3xl font-black text-gray-900 tracking-tight leading-none pointer-events-none truncate">{value}</h4>
+        </div>
+
+        {/* Tooltip on Mobile (Shows on Hover/Focus/Active) */}
+        <div className="sm:hidden absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
+            {label}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-900"></div>
         </div>
     </div>
 );

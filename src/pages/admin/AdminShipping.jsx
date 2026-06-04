@@ -96,7 +96,7 @@ const AdminShipping = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6">
                 <ShippingStatCard
                     label="Pending Pickup"
                     value={stats.pending}
@@ -146,78 +146,8 @@ const AdminShipping = () => {
                 </div>
 
                 <div className="flex-1 overflow-auto custom-scrollbar">
-                    {/* Mobile View: Shipment Cards */}
-                    <div className="lg:hidden divide-y divide-gray-50">
-                        {loading ? (
-                            <div className="py-20 text-center">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-500 mx-auto"></div>
-                            </div>
-                        ) : paginatedOrders.length === 0 ? (
-                            <div className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest">
-                                No active shipments found
-                            </div>
-                        ) : (
-                            paginatedOrders.map((o) => (
-                                <div key={o._id} className="p-6 space-y-4">
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex flex-col">
-                                            <span className="text-xs font-black text-gray-900 uppercase tracking-widest">#{o._id.slice(-6).toUpperCase()}</span>
-                                            <span className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-tighter">
-                                                Rs. {o.totalAmount.toLocaleString()} • {o.items.length} Items
-                                            </span>
-                                        </div>
-                                        <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border flex items-center gap-1 ${o.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
-                                            o.status === 'shipped' ? 'bg-cyan-50 text-cyan-600 border-cyan-100' :
-                                                'bg-orange-50 text-orange-600 border-orange-100'
-                                            }`}>
-                                            {o.status}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-start gap-3 bg-gray-50/50 p-3 rounded-2xl">
-                                        <FiMapPin className="text-cyan-500 mt-0.5" />
-                                        <div className="flex flex-col">
-                                            <span className="text-xs font-bold text-gray-700">{o.shippingAddress.fullName}</span>
-                                            <span className="text-[10px] text-gray-400 uppercase tracking-tight">
-                                                {o.shippingAddress.city}, {o.shippingAddress.state}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between gap-3 pt-2">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Courier ID</span>
-                                            <span className="text-[10px] font-bold text-cyan-600">{o._id.slice(0, 8).toUpperCase()}</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            {o.status === 'processing' && (
-                                                <button
-                                                    onClick={() => handleStatusUpdate(o._id, 'shipped')}
-                                                    className="px-4 py-2 bg-[#001B1B] text-white text-[9px] font-black uppercase tracking-widest rounded-lg"
-                                                >
-                                                    Ship
-                                                </button>
-                                            )}
-                                            {o.status === 'shipped' && (
-                                                <button
-                                                    onClick={() => handleStatusUpdate(o._id, 'delivered')}
-                                                    className="px-4 py-2 bg-teal-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg"
-                                                >
-                                                    Deliver
-                                                </button>
-                                            )}
-                                            <button className="p-2 bg-white border border-gray-100 rounded-lg text-gray-400 hover:text-cyan-500 transition-all">
-                                                <FiExternalLink />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-
-                    {/* Desktop View: Full Table */}
-                    <div className="hidden lg:block overflow-x-auto">
+                    {/* Universal Table View with Horizontal Scroll */}
+                    <div className="overflow-x-auto custom-scrollbar w-full">
                         <table className="w-full min-w-[1000px]">
                             <thead>
                                 <tr className="bg-gray-50/50 text-[11px] text-gray-400 uppercase tracking-[0.2em] font-black">
@@ -327,17 +257,27 @@ const AdminShipping = () => {
 };
 
 const ShippingStatCard = ({ label, value, icon, color, desc }) => (
-    <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50 flex flex-col gap-6 group hover:shadow-xl transition-all">
-        <div className="flex justify-between items-start">
-            <div className={`w-14 h-14 rounded-2xl ${color} text-white flex items-center justify-center text-2xl shadow-xl transition-transform group-hover:scale-110`}>
+    <div 
+        tabIndex="0"
+        className="bg-white rounded-2xl sm:rounded-[32px] p-3 sm:p-8 shadow-sm border border-gray-50 flex flex-col items-center sm:items-start group hover:shadow-xl hover:shadow-cyan-400/5 transition-all relative cursor-pointer outline-none focus:bg-gray-50 active:bg-gray-50"
+    >
+        <div className="flex items-center justify-between w-full">
+            <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto sm:mx-0 rounded-xl sm:rounded-2xl ${color} text-white flex items-center justify-center text-lg sm:text-2xl shadow-xl transition-transform group-hover:scale-110 group-focus:scale-110`}>
                 {icon}
             </div>
-            <div className="w-2 h-2 bg-gray-100 rounded-full"></div>
+            <div className="hidden sm:block w-2 h-2 bg-gray-100 rounded-full"></div>
         </div>
-        <div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{label}</p>
-            <h4 className="text-3xl font-black text-gray-900 tracking-tight">{value}</h4>
-            <p className="text-[10px] text-gray-400 mt-2 font-medium">{desc}</p>
+        
+        <div className="text-center sm:text-left mt-1 sm:mt-6 w-full">
+            <p className="hidden sm:block text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{label}</p>
+            <h4 className="text-sm sm:text-3xl font-black text-gray-900 tracking-tight leading-none pointer-events-none truncate">{value}</h4>
+            <p className="hidden sm:block text-[10px] text-gray-400 mt-2 font-medium">{desc}</p>
+        </div>
+
+        {/* Tooltip on Mobile (Shows on Hover/Focus/Active) */}
+        <div className="sm:hidden absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
+            {label}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-900"></div>
         </div>
     </div>
 );

@@ -84,15 +84,15 @@ const AdminFinance = () => {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 px-2 sm:px-0">
             {/* Header */}
-            <div className="bg-white rounded-[32px] py-6 px-8 shadow-sm border border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-white rounded-3xl sm:rounded-[32px] py-5 sm:py-6 px-5 sm:px-8 shadow-sm border border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-gray-900">Finance & Refunds</h2>
-                    <p className="text-gray-400 text-sm mt-1">Manage refunded orders and payouts</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Finance & Refunds</h2>
+                    <p className="text-gray-400 text-xs sm:text-sm mt-1">Manage refunded orders and payouts</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="relative">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="relative w-full">
                         <input
                             type="text"
                             placeholder="Search Order ID or Customer..."
@@ -106,14 +106,14 @@ const AdminFinance = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3 md:gap-4">
                 <StatCard label="Total Refund Requests" value={stats.totalRequests} icon={<FiRefreshCw />} color="bg-orange-500" />
                 <StatCard label="Total Refund Value" value={`Rs. ${stats.totalValue.toLocaleString()}`} icon={<FiDollarSign />} color="bg-gray-900" />
                 <StatCard label="Processed Refunds" value={stats.processed} icon={<FiCheckCircle />} color="bg-teal-500" />
             </div>
 
             {/* Filters & Table */}
-            <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50 h-[850px] flex flex-col">
+            <div className="bg-white rounded-3xl sm:rounded-[32px] p-4 sm:p-8 shadow-sm border border-gray-50 min-h-[500px] lg:h-[850px] flex flex-col">
                 <div className="overflow-auto flex-1 custom-scrollbar">
                     <table className="w-full min-w-[1000px]">
                         <thead>
@@ -227,13 +227,24 @@ const AdminFinance = () => {
 };
 
 const StatCard = ({ label, value, icon, color }) => (
-    <div className="bg-white rounded-3xl p-4 lg:p-6 shadow-sm border border-gray-50 flex items-center gap-3 lg:gap-4 group hover:shadow-xl hover:shadow-cyan-400/5 transition-all">
-        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl ${color} text-white flex items-center justify-center text-lg lg:text-xl shadow-lg shadow-${color.split('-')[1]}-400/20 shrink-0`}>
-            {icon}
+    <div 
+        tabIndex="0"
+        className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-50 flex flex-col items-center sm:items-start group hover:shadow-xl hover:shadow-cyan-400/5 transition-all relative cursor-pointer outline-none focus:bg-gray-50 active:bg-gray-50"
+    >
+        <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-2 sm:gap-0">
+            <div className={`w-10 h-10 lg:w-12 lg:h-12 mx-auto sm:mx-0 rounded-xl sm:rounded-2xl ${color} text-white flex items-center justify-center text-lg lg:text-xl shadow-lg shadow-${color.split('-')[1]}-400/20 shrink-0 transition-transform group-hover:scale-110 group-focus:scale-110`}>
+                {icon}
+            </div>
         </div>
-        <div className="min-w-0">
-            <p className="text-[9px] lg:text-[10px] text-gray-400 uppercase tracking-tight lg:tracking-widest font-bold mb-0.5 leading-tight">{label}</p>
-            <h4 className="text-base lg:text-xl font-bold text-gray-900">{value}</h4>
+        <div className="text-center sm:text-left mt-1 sm:mt-4 w-full">
+            <p className="hidden sm:block text-[9px] lg:text-[10px] text-gray-400 uppercase tracking-tight lg:tracking-widest font-bold mb-0.5 leading-tight">{label}</p>
+            <h4 className="text-[11px] sm:text-base lg:text-xl font-bold text-gray-900 pointer-events-none truncate">{value}</h4>
+        </div>
+
+        {/* Tooltip on Mobile (Shows on Hover/Focus/Active) */}
+        <div className="sm:hidden absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
+            {label}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-900"></div>
         </div>
     </div>
 );
