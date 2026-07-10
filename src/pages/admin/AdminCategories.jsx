@@ -69,7 +69,7 @@ const AdminCategories = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         if (name === 'parentCategory') {
-            const parent = categories.find(c => c._id === value);
+            const parent = categories.find(c => c.name === value);
             setFormData(prev => ({
                 ...prev,
                 parentCategory: value,
@@ -167,7 +167,7 @@ const AdminCategories = () => {
             {/* Stats Overview */}
             <div className="grid grid-cols-3 gap-3 sm:gap-6">
                 <StatCard label="Total Categories" value={stats.total} icon={<FiGrid />} color="bg-cyan-500" />
-                <StatCard label="Niches (Level 0)" value={`${stats.niches}/5`} icon={<FiFolder />} color="bg-[#001B1B]" warning={stats.niches >= 5} />
+                <StatCard label="Niches (Level 0)" value={stats.niches} icon={<FiFolder />} color="bg-[#001B1B]" />
                 <StatCard label="Subcategories" value={stats.subcats} icon={<FiArrowRight />} color="bg-teal-500" />
             </div>
 
@@ -234,7 +234,7 @@ const AdminCategories = () => {
                                                 <div className="flex items-center gap-2">
                                                     <FiFolder className="text-gray-300" />
                                                     <span className="text-sm font-bold text-gray-600">
-                                                        {categories.find(cat => cat._id === (typeof c.parentCategory === 'object' ? c.parentCategory._id : c.parentCategory))?.name || 'Unknown'}
+                                                        {c.parentCategory}
                                                     </span>
                                                 </div>
                                             ) : (
@@ -313,7 +313,7 @@ const AdminCategories = () => {
                                 >
                                     <option value="">None (Top Level Niche)</option>
                                     {categories.filter(c => c.level === 0 && (!isEditing || c._id !== selectedCategory?._id)).map(cat => (
-                                        <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                        <option key={cat._id} value={cat.name}>{cat.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -330,15 +330,6 @@ const AdminCategories = () => {
                                 />
                             </div>
 
-                            {!formData.parentCategory && stats.niches >= 5 && !isEditing && (
-                                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
-                                    <FiInfo className="text-red-500 mt-0.5 shrink-0" />
-                                    <p className="text-[10px] text-red-600 font-bold uppercase leading-relaxed">
-                                        Limit Reached: A maximum of 5 top-level categories is allowed. Please select a parent to create a subcategory.
-                                    </p>
-                                </div>
-                            )}
-
                             <div className="pt-4 flex gap-4">
                                 <button
                                     type="button"
@@ -349,7 +340,6 @@ const AdminCategories = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={!formData.parentCategory && stats.niches >= 5 && !isEditing}
                                     className="flex-1 px-8 py-4 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95 disabled:opacity-50 disabled:shadow-none"
                                 >
                                     {isEditing ? 'Update Category' : 'Create Category'}
