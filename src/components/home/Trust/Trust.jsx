@@ -3,9 +3,9 @@ import { FaQuoteLeft, FaQuoteRight } from 'react-icons/fa';
 
 const Trust = () => {
     return (
-        <div className="w-full py-15 bg-white flex flex-col items-center justify-center px-4">
+        <div className="w-full pt-6 pb-16 md:py-16 bg-white flex flex-col items-center justify-center px-4">
             {/* Heading */}
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-16 leading-tight max-w-[1920px]">
+            <h2 className="text-2xl md:text-5xl font-bold text-gray-900 text-center mb-16 leading-tight max-w-[1920px]">
                 Premium Mobile Accessories <br className='hidden md:block' /> You Can <span className="text-cyan-400">Trust</span>
             </h2>
 

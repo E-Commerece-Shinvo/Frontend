@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-    FiArrowLeft, FiMail, FiPhone, FiMapPin, FiCalendar, 
+import {
+    FiArrowLeft, FiMail, FiPhone, FiMapPin, FiCalendar,
     FiShoppingBag, FiDollarSign, FiClock, FiShield, FiUser,
     FiEdit, FiTrash2, FiSlash, FiCheckCircle, FiAlertTriangle, FiX, FiSave,
-    FiExternalLink, FiPackage, FiTruck, FiInfo, FiCamera
+    FiExternalLink, FiPackage, FiTruck, FiInfo, FiCamera, FiMoreVertical
 } from 'react-icons/fi';
 import { toggleUserBlock, getUserById, updateUser } from '../../api/users';
 import { getOrdersByUserId } from '../../api/orders';
@@ -14,13 +14,13 @@ import toast from 'react-hot-toast';
 const AdminCustomerDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    
+
     const [customer, setCustomer] = useState(null);
     const [orders, setOrders] = useState([]);
     const [isBlocked, setIsBlocked] = useState(false);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
-    
+
     // Address Management State
     const [activeAddressSlot, setActiveAddressSlot] = useState(1);
     const [savedAddresses, setSavedAddresses] = useState(
@@ -41,6 +41,7 @@ const AdminCustomerDetails = () => {
     // Modals
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     // Edit Form State (Main Profile)
     const [formData, setFormData] = useState({
@@ -76,7 +77,7 @@ const AdminCustomerDetails = () => {
 
             setOrders(userOrders);
             setIsBlocked(userData.isBlocked);
-            
+
             setFormData({
                 username: userData.username,
                 email: userData.email,
@@ -117,7 +118,7 @@ const AdminCustomerDetails = () => {
     };
 
     const handleAddressFieldChange = (field, value) => {
-        setSavedAddresses(prev => prev.map(addr => 
+        setSavedAddresses(prev => prev.map(addr =>
             addr.id === activeAddressSlot ? { ...addr, [field]: value } : addr
         ));
     };
@@ -247,21 +248,21 @@ const AdminCustomerDetails = () => {
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
-                                        <input type="text" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" required />
+                                        <input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" required />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email</label>
-                                        <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" required />
+                                        <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" required />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone</label>
-                                        <input type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
+                                        <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Role</label>
-                                        <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold appearance-none">
+                                        <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:border-cyan-500 font-bold appearance-none">
                                             <option value="user">User</option>
                                             <option value="admin">Admin</option>
                                         </select>
@@ -299,18 +300,54 @@ const AdminCustomerDetails = () => {
             )}
 
             {/* Top Navigation */}
-            <div className="flex items-center justify-between">
-                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-500 hover:text-cyan-600 font-black transition-colors group uppercase tracking-widest text-xs">
-                    <div className="p-2.5 rounded-xl bg-white border border-gray-100 shadow-sm group-hover:border-cyan-200"><FiArrowLeft /></div>
-                    Back to Customers
+            <div className="flex items-center justify-between relative">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-3 px-4 py-2.5 bg-white border border-gray-200 hover:border-cyan-400 text-gray-600 hover:text-cyan-600 rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-sm hover:shadow-md transition-all active:scale-95">
+                    <FiArrowLeft className="text-sm sm:text-base" />
+                    <span>Back to Customers</span>
                 </button>
-                <div className="flex items-center gap-3">
-                    <button onClick={() => setShowEditModal(true)} className="flex items-center gap-2 bg-[#004d4d] text-white px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all hover:bg-[#003333]">
-                        <FiEdit /> Edit Profile
+
+                {/* Desktop Buttons */}
+                <div className="hidden sm:flex items-center gap-3">
+                    <button onClick={() => setShowEditModal(true)} className="flex items-center justify-center gap-2 bg-[#004d4d] text-white px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all hover:bg-[#003333]">
+                        <FiEdit className="text-sm" /> <span>Edit Profile</span>
                     </button>
-                    <button onClick={() => setShowConfirmModal(true)} className={`flex items-center gap-2 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all border ${isBlocked ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
-                        {isBlocked ? <><FiCheckCircle /> Unblock</> : <><FiSlash /> Block</>}
+                    <button onClick={() => setShowConfirmModal(true)} className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all border ${isBlocked ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                        {isBlocked ? <><FiCheckCircle className="text-sm" /> <span>Unblock</span></> : <><FiSlash className="text-sm" /> <span>Block</span></>}
                     </button>
+                </div>
+
+                {/* Mobile Dropdown */}
+                <div className="sm:hidden relative">
+                    <button
+                        onClick={() => setShowMobileMenu(!showMobileMenu)}
+                        className="p-3 bg-white border border-gray-100 rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
+                    >
+                        <FiMoreVertical className="text-gray-600 text-lg" />
+                    </button>
+
+                    {showMobileMenu && (
+                        <>
+                            <div className="fixed inset-0 z-40" onClick={() => setShowMobileMenu(false)}></div>
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <button
+                                    onClick={() => { setShowEditModal(true); setShowMobileMenu(false); }}
+                                    className="w-full flex items-center gap-3 px-4 py-4 text-left text-xs font-black text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-widest border-b border-gray-50"
+                                >
+                                    <FiEdit className="text-cyan-600 text-sm" /> Edit Profile
+                                </button>
+                                <button
+                                    onClick={() => { setShowConfirmModal(true); setShowMobileMenu(false); }}
+                                    className="w-full flex items-center gap-3 px-4 py-4 text-left text-xs font-black transition-colors uppercase tracking-widest hover:bg-gray-50"
+                                >
+                                    {isBlocked ? (
+                                        <><FiCheckCircle className="text-green-500 text-sm" /> <span className="text-green-600">Unblock User</span></>
+                                    ) : (
+                                        <><FiSlash className="text-red-500 text-sm" /> <span className="text-red-600">Block User</span></>
+                                    )}
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -328,7 +365,7 @@ const AdminCustomerDetails = () => {
                             </div>
                             <h2 className="text-2xl font-black text-gray-900 tracking-tight">{customer.username}</h2>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">ID: #{id.slice(-6)}</p>
-                            
+
                             <div className="space-y-4">
                                 <div className="p-4 rounded-3xl bg-gray-50 border border-gray-100 flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-cyan-600"><FiMail /></div>
@@ -398,10 +435,9 @@ const AdminCustomerDetails = () => {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-sm font-black text-gray-900">Rs. {order.totalAmount}</p>
-                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                                                order.status === 'delivered' ? 'bg-green-50 text-green-600' : 
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${order.status === 'delivered' ? 'bg-green-50 text-green-600' :
                                                 order.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
-                                            }`}>
+                                                }`}>
                                                 {order.status}
                                             </span>
                                         </div>
@@ -418,13 +454,13 @@ const AdminCustomerDetails = () => {
 
                     {/* Address Management */}
                     <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><FiMapPin /></div>
-                                Multi-Address Management
+                        <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 mb-6 sm:mb-8">
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 uppercase tracking-tight flex items-center gap-2 sm:gap-3 min-w-0">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><FiMapPin className="text-xs sm:text-base" /></div>
+                                <span className="truncate">Multi-Address Management</span>
                             </h3>
-                            <button onClick={handleSaveAddresses} disabled={actionLoading} className="px-8 py-3.5 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:shadow-cyan-900/20 transition-all flex items-center gap-2 active:scale-95">
-                                <FiSave /> {actionLoading ? 'Saving...' : 'Save Changes'}
+                            <button onClick={handleSaveAddresses} disabled={actionLoading} className="px-3 py-2 sm:px-8 sm:py-3.5 bg-gradient-to-r from-[#001B1B] to-[#006060] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:shadow-cyan-900/20 transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 shrink-0 whitespace-nowrap">
+                                <FiSave className="text-sm sm:text-base shrink-0" /> <span className="hidden sm:inline">{actionLoading ? 'Saving...' : 'Save Changes'}</span><span className="sm:hidden">{actionLoading ? 'Saving...' : 'Save'}</span>
                             </button>
                         </div>
 
@@ -434,11 +470,10 @@ const AdminCustomerDetails = () => {
                                 <button
                                     key={addr.id}
                                     onClick={() => handleSwitchAddress(addr.id)}
-                                    className={`p-4 rounded-[24px] border transition-all flex flex-col items-center gap-2 group ${
-                                        activeAddressSlot === addr.id 
-                                        ? 'bg-cyan-50 border-cyan-400 shadow-lg shadow-cyan-100' 
+                                    className={`p-4 rounded-[24px] border transition-all flex flex-col items-center gap-2 group ${activeAddressSlot === addr.id
+                                        ? 'bg-cyan-50 border-cyan-400 shadow-lg shadow-cyan-100'
                                         : 'bg-white border-gray-100 hover:border-gray-200'
-                                    }`}
+                                        }`}
                                 >
                                     <div className={`p-2 rounded-xl ${activeAddressSlot === addr.id ? 'bg-cyan-500 text-white' : 'bg-gray-50 text-gray-400 group-hover:text-cyan-500'}`}>
                                         <FiMapPin size={16} />
@@ -486,14 +521,13 @@ const AdminCustomerDetails = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Set Default</label>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => handleAddressFieldChange('isDefault', !currentAddr.isDefault)}
-                                        className={`w-full py-4 rounded-2xl border font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 ${
-                                            currentAddr.isDefault 
-                                            ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white border-transparent shadow-cyan-900/20' 
+                                        className={`w-full py-4 rounded-2xl border font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 ${currentAddr.isDefault
+                                            ? 'bg-gradient-to-r from-[#001B1B] to-[#006060] text-white border-transparent shadow-cyan-900/20'
                                             : 'bg-white text-gray-400 border-gray-100 hover:border-cyan-200'
-                                        }`}
+                                            }`}
                                     >
                                         {currentAddr.isDefault ? 'Default Address' : 'Set as Default'}
                                     </button>

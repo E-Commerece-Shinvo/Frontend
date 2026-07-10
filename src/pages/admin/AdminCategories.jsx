@@ -137,15 +137,15 @@ const AdminCategories = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header Section */}
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <h1 className="text-3xl font-black tracking-tight text-gray-900">Category Management</h1>
-                    <p className="text-gray-400 text-sm font-medium mt-1 uppercase tracking-widest flex items-center gap-2">
-                        Organization System <span className="w-1 h-1 bg-gray-300 rounded-full"></span> {categories.length} Total
+            <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[32px] shadow-sm border border-gray-50 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                <div className="w-full xl:w-auto">
+                    <h1 className="text-2xl md:text-3xl font-black tracking-tight text-gray-900">Category Management</h1>
+                    <p className="text-gray-400 text-xs md:text-sm font-medium mt-1 uppercase tracking-[0.1em] md:tracking-widest flex items-center flex-wrap gap-2">
+                        Organization System <span className="w-1 h-1 bg-gray-300 rounded-full shrink-0"></span> {categories.length} Total
                     </p>
                 </div>
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-64 group">
+                <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 w-full xl:w-auto">
+                    <div className="relative w-full sm:flex-1 xl:w-64 group">
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-cyan-500 transition-colors" />
                         <input
                             type="text"
@@ -157,9 +157,9 @@ const AdminCategories = () => {
                     </div>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-6 py-3.5 rounded-2xl font-bold text-sm flex items-center gap-3 transition-all shadow-xl shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95"
+                        className="w-full sm:w-auto justify-center bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-6 py-3 md:py-3.5 rounded-2xl font-bold text-sm flex items-center gap-3 transition-all shadow-xl shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] active:scale-95 whitespace-nowrap"
                     >
-                        <FiPlus /> Add Category
+                        <FiPlus className="shrink-0" /> Add Category
                     </button>
                 </div>
             </div>

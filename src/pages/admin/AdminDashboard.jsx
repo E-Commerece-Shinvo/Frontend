@@ -157,16 +157,16 @@ const AdminDashboard = () => {
             {/* Welcome Back Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div>
-                    <h3 className="text-3xl font-bold mb-1 text-gray-900 capitalize">Welcome back, {user?.username || 'Admin'}</h3>
+                    <h3 className="text-xl md:text-3xl font-bold mb-1 text-gray-900 capitalize">Welcome back, {user?.username || 'Admin'}</h3>
                     <p className="text-gray-400 text-sm">Here's what is going on in your store today</p>
                 </div>
                 <div ref={datePickerRef} className="flex items-center gap-3 relative">
                     {/* Date Picker Button */}
                     <div
                         onClick={() => setIsDateDropdownOpen(!isDateDropdownOpen)}
-                        className="bg-white border-2 border-cyan-400 px-4 py-2.5 rounded-xl flex items-center gap-3 shadow-sm text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-all select-none"
+                        className="bg-white border-2 border-cyan-400 px-3 py-2 xl:px-4 xl:py-2.5 rounded-xl flex items-center gap-2 xl:gap-3 shadow-sm text-xs xl:text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-all select-none"
                     >
-                        <FiCalendar className="text-gray-700 text-lg" />
+                        <FiCalendar className="text-gray-700 text-base xl:text-lg" />
                         <span className="font-bold">{dateRange}</span>
                         <div className={`w-4 h-4 text-gray-800 flex items-center justify-center pt-1 transition-transform ${isDateDropdownOpen ? 'rotate-180' : ''}`}>
                             <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -251,9 +251,9 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
-                    <button className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-6 py-2.5 rounded-xl flex items-center gap-3 font-bold text-sm shadow-lg shadow-black/20 transition-all hover:from-[#002B2B] hover:to-[#008080] active:scale-95">
+                    <button className="bg-gradient-to-r from-[#001B1B] to-[#006060] text-white px-4 py-2 xl:px-6 xl:py-2.5 rounded-xl flex items-center gap-2 xl:gap-3 font-bold text-xs xl:text-sm shadow-lg shadow-black/20 transition-all hover:from-[#002B2B] hover:to-[#008080] active:scale-95">
                         <span>Download Report</span>
-                        <div className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+                        <div className="w-5 h-5 xl:w-6 xl:h-6 rounded-full border-2 border-white flex items-center justify-center">
                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="rotate-0"><path d="M5 1V9M5 9L1 5M5 9L9 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                         </div>
                     </button>
@@ -347,16 +347,16 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Top Selling Products */}
-                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-50">
-                    <div className="flex items-center justify-between mb-8">
-                        <h4 className="text-xl font-bold text-gray-900">Low Stock Products</h4>
-                        <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+                <div className="bg-white rounded-[32px] p-5 md:p-8 shadow-sm border border-gray-50">
+                    <div className="flex items-center justify-between mb-6 md:mb-8 gap-2">
+                        <h4 className="text-lg xl:text-base 2xl:text-xl font-bold text-gray-900 truncate">Low Stock Products</h4>
+                        <div className="flex items-center gap-1 2xl:gap-2 text-[9px] 2xl:text-[10px] text-gray-400 font-bold tracking-widest uppercase flex-shrink-0">
                             <span>Alerts</span>
                             <svg width="8" height="5" viewBox="0 0 8 5" fill="none"><path d="M1 1L4 4L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                         </div>
                     </div>
                     <div className="overflow-x-auto custom-scrollbar">
-                        <div className="space-y-6 min-w-[280px]">
+                        <div className="space-y-6 min-w-[220px] 2xl:min-w-[280px]">
                             {activity.lowStockProducts.length === 0 ? (
                                 <p className="text-center py-10 text-gray-400 font-bold uppercase tracking-widest text-[10px]">All products well stocked</p>
                             ) : (
@@ -467,10 +467,10 @@ const SummaryCard = ({ icon, label, value, trend, trendText, status, statusText,
         <div className="text-center sm:text-left mt-1 sm:mt-6 w-full">
             <p className="hidden sm:block text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-2">{label}</p>
             
-            <div className="flex items-center justify-center sm:justify-between mb-0 sm:mb-4">
-                <h4 className="text-[11px] sm:text-2xl font-bold text-gray-900 tracking-tight leading-none pointer-events-none truncate px-1">{value}</h4>
+            <div className="flex items-center justify-center sm:justify-between mb-0 sm:mb-4 gap-1 2xl:gap-2">
+                <h4 className="text-[11px] sm:text-xl xl:text-lg 2xl:text-2xl font-bold text-gray-900 tracking-tight leading-none pointer-events-none truncate">{value}</h4>
                 {chartType === 'up' && (
-                    <div className="hidden sm:flex w-16 h-8 overflow-hidden items-end">
+                    <div className="hidden sm:flex w-12 2xl:w-16 h-6 2xl:h-8 overflow-hidden items-end shrink-0">
                         <svg viewBox="0 0 100 40" className="w-full h-full text-cyan-400 opacity-60">
                             <path d="M0,35 Q20,30 40,32 T80,10 T100,5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                         </svg>
@@ -480,23 +480,23 @@ const SummaryCard = ({ icon, label, value, trend, trendText, status, statusText,
 
             <div className="hidden sm:flex flex-1 flex-col justify-end mt-4">
                 {trend && (
-                    <p className="text-[11px] mb-4">
-                        <span className="text-teal-500 font-bold mr-1">{trend}</span>
+                    <p className="text-[10px] 2xl:text-[11px] mb-4 leading-tight flex flex-wrap gap-1">
+                        <span className="text-teal-500 font-bold whitespace-nowrap">{trend}</span>
                         <span className="text-gray-400">{trendText}</span>
                     </p>
                 )}
                 {status && (
-                    <p className="text-[11px] mb-4">
-                        <span className="bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-bold text-[9px] uppercase mr-2">{status}</span>
-                        <span className="text-gray-400">{statusText}</span>
-                    </p>
+                    <div className="mb-4 flex flex-col items-start gap-1.5 xl:flex-row xl:items-center xl:gap-2 leading-tight">
+                        <span className="bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full font-bold text-[8px] 2xl:text-[9px] uppercase whitespace-nowrap">{status}</span>
+                        <span className="text-gray-400 text-[10px] 2xl:text-[11px] leading-snug">{statusText}</span>
+                    </div>
                 )}
                 {path ? (
-                    <Link to={path} className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all">
+                    <Link to={path} className="text-[9px] 2xl:text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all whitespace-nowrap">
                         {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                     </Link>
                 ) : (
-                    <button className="text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all text-left">
+                    <button className="text-[9px] 2xl:text-[10px] font-bold text-teal-600 uppercase tracking-widest flex items-center gap-1 group/link transition-all text-left whitespace-nowrap">
                         {link} <FiArrowUpRight className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                     </button>
                 )}
@@ -512,21 +512,21 @@ const SummaryCard = ({ icon, label, value, trend, trendText, status, statusText,
 );
 
 const ProductItem = ({ name, price, sold, image }) => (
-    <div className="flex items-center gap-4 group cursor-pointer">
-        <div className="w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 p-2 flex items-center justify-center">
+    <div className="flex items-center gap-3 2xl:gap-4 group cursor-pointer">
+        <div className="w-10 h-10 2xl:w-16 2xl:h-16 bg-gray-50 rounded-lg 2xl:rounded-2xl overflow-hidden border border-gray-100 p-1 2xl:p-2 flex items-center justify-center flex-shrink-0">
             <img
                 src={image || "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=100"}
                 alt={name}
                 className="w-full h-full object-contain group-hover:scale-110 transition-transform"
             />
         </div>
-        <div className="flex-1 min-w-0">
-            <h5 className="text-sm font-bold truncate group-hover:text-teal-600 transition-colors uppercase tracking-tight">{name}</h5>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Best Seller</p>
+        <div className="flex-1 min-w-0 pr-1 2xl:pr-2">
+            <h5 className="text-[11px] 2xl:text-sm font-bold truncate group-hover:text-teal-600 transition-colors uppercase tracking-tight">{name}</h5>
+            <p className="text-[8px] 2xl:text-[10px] text-gray-400 font-bold uppercase tracking-widest">Best Seller</p>
         </div>
-        <div className="text-right">
-            <p className="text-sm font-bold">{price}</p>
-            <p className="text-[9px] text-teal-500 font-bold uppercase tracking-widest">{sold}</p>
+        <div className="text-right flex-shrink-0 whitespace-nowrap">
+            <p className="text-[11px] 2xl:text-sm font-bold">{price}</p>
+            <p className="text-[8px] 2xl:text-[9px] text-teal-500 font-bold uppercase tracking-widest">{sold}</p>
         </div>
     </div>
 );

@@ -38,14 +38,14 @@ const CoreValues = () => {
     ];
 
     return (
-        <div className="w-full bg-white py-20">
+        <div className="w-full bg-white pt-20 pb-8 md:pb-20">
             <div className="max-w-7xl mx-auto px-6 text-center">
                 <h2 className="text-4xl font-bold mb-4">Our Core Values</h2>
                 <p className="text-gray-500 mb-16">Built on trust, curated for quality, and delivered with care.</p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="flex overflow-x-auto pb-8 -mx-6 px-6 md:mx-0 md:px-0 md:overflow-visible md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {values.map((value) => (
-                        <div key={value.id} className={`${value.bg} rounded-3xl p-8 shadow-lg hover:bg-cyan-400 transition-all duration-400 group flex flex-col items-center hover:shadow-2xl transition-shadow duration-300`}>
+                        <div key={value.id} className={`min-w-[85vw] sm:min-w-[320px] md:min-w-0 w-full flex-shrink-0 snap-center ${value.bg} rounded-3xl p-8 shadow-lg hover:bg-cyan-400 transition-all duration-400 group flex flex-col items-center hover:shadow-2xl transition-shadow duration-300`}>
                             <div className="bg-white p-4 rounded-full shadow-md mb-6 relative">
                                 {value.icon}
                             </div>
