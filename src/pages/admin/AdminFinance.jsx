@@ -86,22 +86,24 @@ const AdminFinance = () => {
     return (
         <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 px-2 sm:px-0">
             {/* Header */}
-            <div className="bg-white rounded-3xl sm:rounded-[32px] py-5 sm:py-6 px-5 sm:px-8 shadow-sm border border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Finance & Refunds</h2>
-                    <p className="text-gray-400 text-xs sm:text-sm mt-1">Manage refunded orders and payouts</p>
-                </div>
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="relative w-full">
-                        <input
-                            type="text"
-                            placeholder="Search Order ID or Customer..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/20 w-full md:w-64 transition-all"
-                        />
-                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="flex justify-between items-center gap-2 sm:gap-6 bg-white p-4 sm:p-8 rounded-[32px] shadow-sm border border-gray-50">
+                <div className="flex items-center gap-3 sm:gap-4">
+                    <div>
+                        <h2 className="text-base sm:text-3xl font-black tracking-tight text-gray-900">Finance & Refunds</h2>
+                        <p className="hidden sm:flex text-gray-400 text-sm font-medium mt-1 uppercase tracking-widest items-center gap-2">
+                            Manage refunded orders and payouts
+                        </p>
                     </div>
+                </div>
+                <div className="relative group z-10 shrink-0">
+                    <FiSearch className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 group-focus-within:text-cyan-500 transition-colors pointer-events-none" />
+                    <input
+                        type="text"
+                        placeholder="Search Order ID or Customer..."
+                        className="w-10 h-10 sm:h-auto sm:w-96 pl-10 sm:pl-12 pr-4 sm:py-4 bg-gray-50 border-transparent focus:bg-white focus:border-cyan-200 rounded-full sm:rounded-[20px] text-sm font-medium transition-all duration-300 outline-none focus:w-48 sm:focus:w-96 focus:shadow-xl sm:focus:shadow-none placeholder:opacity-0 focus:placeholder:opacity-100 sm:placeholder:opacity-100 cursor-pointer focus:cursor-text shadow-sm sm:shadow-none"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
             </div>
 

@@ -166,13 +166,13 @@ const AdminAddProduct = () => {
                             <span className="text-gray-400 mt-1 sm:mt-0">{isEditMode ? 'Edit Product' : 'Add New Products'}</span>
                         </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full md:w-auto">
-                        <button type="button" onClick={() => navigate('/admin/products')} className="w-full sm:w-auto justify-center px-6 md:px-8 py-2.5 rounded-xl border border-cyan-400 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-colors bg-white">
+                    <div className="flex flex-row items-center gap-2 sm:gap-4 w-full md:w-auto">
+                        <button type="button" onClick={() => navigate('/admin/products')} className="flex-1 sm:flex-none flex justify-center px-3 sm:px-6 md:px-8 py-2 sm:py-2.5 rounded-xl border border-cyan-400 text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 transition-colors bg-white whitespace-nowrap">
                             Cancel
                         </button>
-                        <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto justify-center px-4 md:px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#001B1B] to-[#006060] text-white font-bold text-sm shadow-lg shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
-                            {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white/30 border-t-white rounded-full"></span> : (isEditMode ? 'Update Product' : 'Publish Product')}
-                            {!isSubmitting && !isEditMode && <span className="font-black text-lg leading-none">+</span>}
+                        <button type="submit" disabled={isSubmitting} className="flex-[1.2] sm:flex-none justify-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#001B1B] to-[#006060] text-white font-bold text-xs sm:text-sm shadow-lg shadow-black/20 hover:from-[#002B2B] hover:to-[#008080] transition-all flex items-center justify-center gap-1 sm:gap-2 active:scale-95 disabled:opacity-50 whitespace-nowrap">
+                            {isSubmitting ? <span className="animate-spin h-3 w-3 sm:h-4 sm:w-4 border-2 border-white/30 border-t-white rounded-full"></span> : (isEditMode ? 'Update Product' : 'Publish Product')}
+                            {!isSubmitting && !isEditMode && <span className="font-black text-base sm:text-lg leading-none">+</span>}
                         </button>
                     </div>
                 </div>

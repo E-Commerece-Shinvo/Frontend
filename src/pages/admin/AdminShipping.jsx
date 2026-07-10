@@ -76,19 +76,21 @@ const AdminShipping = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header Section */}
-            <div className="bg-white p-6 md:p-8 rounded-[32px] shadow-sm border border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <h1 className="text-3xl font-black tracking-tight text-gray-900">Logistics & Shipping</h1>
-                    <p className="text-gray-400 text-sm font-medium mt-1 uppercase tracking-widest flex items-center gap-2">
-                        Delivery Management <span className="w-1 h-1 bg-gray-300 rounded-full"></span> {filteredOrders.length} Active Shipments
-                    </p>
+            <div className="flex justify-between items-center gap-2 sm:gap-6 bg-white p-4 sm:p-8 rounded-[32px] shadow-sm border border-gray-50">
+                <div className="flex items-center gap-3 sm:gap-4">
+                    <div>
+                        <h1 className="text-base sm:text-3xl font-black tracking-tight text-gray-900">Logistics & Shipping</h1>
+                        <p className="hidden sm:flex text-gray-400 text-sm font-medium mt-1 uppercase tracking-widest items-center gap-2">
+                            Delivery Management <span className="w-1 h-1 bg-gray-300 rounded-full"></span> {filteredOrders.length} Active Shipments
+                        </p>
+                    </div>
                 </div>
-                <div className="relative w-full md:w-96 group">
-                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-cyan-500 transition-colors" />
+                <div className="relative group z-10 shrink-0">
+                    <FiSearch className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 group-focus-within:text-cyan-500 transition-colors pointer-events-none" />
                     <input
                         type="text"
                         placeholder="Search by Order ID or Customer..."
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-cyan-200 rounded-[20px] text-sm font-medium transition-all outline-none"
+                        className="w-10 h-10 sm:h-auto sm:w-96 pl-10 sm:pl-12 pr-4 sm:py-4 bg-gray-50 border-transparent focus:bg-white focus:border-cyan-200 rounded-full sm:rounded-[20px] text-sm font-medium transition-all duration-300 outline-none focus:w-48 sm:focus:w-96 focus:shadow-xl sm:focus:shadow-none placeholder:opacity-0 focus:placeholder:opacity-100 sm:placeholder:opacity-100 cursor-pointer focus:cursor-text shadow-sm sm:shadow-none"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />

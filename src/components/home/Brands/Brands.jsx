@@ -1,17 +1,31 @@
 import React from 'react';
-import { SiSamsung, SiApple, SiGoogle } from "react-icons/si";
+import { 
+    SiSamsung, 
+    SiApple, 
+    SiVivo, 
+    SiOppo, 
+    SiXiaomi, 
+    SiSony, 
+    SiHuawei, 
+    SiLenovo, 
+    SiAsus, 
+    SiLg 
+} from "react-icons/si";
 
 const Brands = () => {
+    const iconClass = "text-5xl md:text-7xl text-gray-500 hover:text-gray-900 transition-colors duration-300";
+    
     const brands = [
-        { id: 1, icon: <SiSamsung className="text-3xl md:text-4xl text-blue-700" size={100} />, name: "SAMSUNG" },
-        { id: 2, icon: <SiGoogle className="text-3xl md:text-4xl text-red-500" />, name: "Pixel" },
-        { id: 3, icon: <SiApple className="text-3xl md:text-4xl text-black" />, name: "Apple" },
-        { id: 4, icon: <span className="text-2xl md:text-3xl font-bold text-green-600">UGREEN</span>, name: "UGREEN" },
-        { id: 5, icon: <span className="text-2xl md:text-3xl font-bold text-black">soundcore</span>, name: "soundcore" },
-        { id: 6, icon: <span className="text-2xl md:text-3xl font-bold text-black">JOYROOM</span>, name: "JOYROOM" },
-        { id: 7, icon: <span className="text-2xl md:text-3xl font-bold text-black">baseus</span>, name: "baseus" },
-        { id: 8, icon: <span className="text-3xl md:text-4xl font-bold text-blue-500">ANKER</span>, name: "ANKER" },
-        { id: 9, icon: <span className="text-2xl md:text-3xl font-bold text-blue-400">SOUNDPEATS</span>, name: "SOUNDPEATS" },
+        { id: 1, icon: <SiApple className={`${iconClass} hover:text-black`} />, name: "Apple" },
+        { id: 2, icon: <SiSamsung className={`${iconClass} hover:text-[#1428A0]`} />, name: "Samsung" },
+        { id: 3, icon: <SiVivo className={`${iconClass} hover:text-[#415FFF]`} />, name: "Vivo" },
+        { id: 4, icon: <SiOppo className={`${iconClass} hover:text-[#006835]`} />, name: "Oppo" },
+        { id: 5, icon: <SiXiaomi className={`${iconClass} hover:text-[#FF6900]`} />, name: "Xiaomi" },
+        { id: 6, icon: <SiSony className={`${iconClass} hover:text-black`} />, name: "Sony" },
+        { id: 7, icon: <SiHuawei className={`${iconClass} hover:text-[#FF0000]`} />, name: "Huawei" },
+        { id: 8, icon: <SiLenovo className={`${iconClass} hover:text-[#E2231A]`} />, name: "Lenovo" },
+        { id: 9, icon: <SiAsus className={`${iconClass} hover:text-[#00539B]`} />, name: "Asus" },
+        { id: 10, icon: <SiLg className={`${iconClass} hover:text-[#A50034]`} />, name: "LG" },
     ];
 
     return (

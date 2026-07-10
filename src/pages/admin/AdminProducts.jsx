@@ -36,18 +36,41 @@ const AdminProducts = () => {
         fetchProducts(page);
     }, [page]);
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await deleteProduct(id);
-                toast.success('Product deleted successfully');
-                fetchProducts(page);
-                setOpenDropdownId(null);
-            } catch (error) {
-                console.error("Failed to delete product:", error);
-                toast.error('Failed to delete product');
-            }
-        }
+    const handleDelete = (id) => {
+        toast.custom((t) => (
+            <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-sm w-full bg-white shadow-2xl rounded-2xl pointer-events-auto flex flex-col ring-1 ring-black/5 overflow-hidden`}>
+                <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Product?</h3>
+                    <p className="text-sm text-gray-500 font-medium">Are you sure you want to delete this product? This action cannot be undone.</p>
+                </div>
+                <div className="flex border-t border-gray-100 bg-gray-50">
+                    <button 
+                        onClick={() => toast.dismiss(t.id)} 
+                        className="w-full px-4 py-3 text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors border-r border-gray-100"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await deleteProduct(id);
+                                toast.success('Product deleted successfully');
+                                fetchProducts(page);
+                            } catch (error) {
+                                console.error("Failed to delete product:", error);
+                                toast.error('Failed to delete product');
+                            }
+                        }} 
+                        className="w-full px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), { duration: Infinity });
+        
+        setOpenDropdownId(null);
     };
 
     const getStockBadge = (stock) => {

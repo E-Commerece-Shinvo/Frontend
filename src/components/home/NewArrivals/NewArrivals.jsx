@@ -31,16 +31,16 @@ const NewArrivals = () => {
 
     return (
         <div className="w-full py-10 flex flex-col items-center gap-12 bg-white">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900">New Arrivals</h2>
+            <h2 className="text-2xl md:text-5xl font-bold text-gray-900">New Arrivals</h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-4 max-w-[1920px] mx-auto">
+            <div className="flex w-full overflow-x-auto pb-8 px-4 md:overflow-visible md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] max-w-[1920px] mx-auto">
                 {products.length === 0 && !loading && <p className="col-span-1 sm:col-span-2 lg:col-span-4 text-center">No new arrivals found.</p>}
                 {products.length === 0 && loading && <p className="col-span-1 sm:col-span-2 lg:col-span-4 text-center">Loading...</p>}
                 {products.map((product) => (
                     <Link
                         to={`/product/${product.id}`}
                         key={product.id}
-                        className="group relative bg-gray-50 rounded-3xl p-3 shadow-sm hover:shadow-xl transition-shadow duration-300 flex flex-col border border-gray-100"
+                        className="group relative bg-gray-50 rounded-3xl p-3 shadow-sm hover:shadow-xl transition-shadow duration-300 flex flex-col border border-gray-100 w-[260px] min-w-[260px] max-w-[260px] sm:w-[300px] sm:min-w-[300px] sm:max-w-[300px] md:w-auto md:min-w-0 md:max-w-none flex-shrink-0 snap-center"
                     >
                         {/* New Badge */}
                         {product.isNew && (
@@ -50,7 +50,7 @@ const NewArrivals = () => {
                         )}
 
                         {/* Image Container */}
-                        <div className="w-full aspect-square flex items-center justify-center mb-6 bg-[#C6C7C8] rounded-2xl overflow-hidden relative">
+                        <div className="w-full h-[220px] md:h-auto md:aspect-square flex items-center justify-center mb-6 bg-[#C6C7C8] rounded-2xl overflow-hidden relative">
                             <img
                                 src={product.image}
                                 alt={product.name}

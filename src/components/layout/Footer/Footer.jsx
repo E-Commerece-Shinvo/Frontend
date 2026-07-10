@@ -12,12 +12,12 @@ const Footer = () => {
                 </div>
 
                 {/* Grid Layout */}
-                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 lg:gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-8 md:gap-y-12 lg:gap-8">
 
                     {/* Shop Column */}
-                    <div className="flex flex-col gap-4">
-                        <h3 className="text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-2">Shop</h3>
-                        <ul className="flex flex-col gap-2 text-gray-400">
+                    <div className="flex flex-col gap-3 md:gap-4">
+                        <h3 className="text-lg md:text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-1 md:mb-2">Shop</h3>
+                        <ul className="flex flex-col gap-2 text-sm md:text-base text-gray-400">
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">Power</a></li>
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">Audio</a></li>
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">Protection</a></li>
@@ -27,9 +27,9 @@ const Footer = () => {
                     </div>
 
                     {/* Help Column */}
-                    <div className="flex flex-col gap-4">
-                        <h3 className="text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-2">Help</h3>
-                        <ul className="flex flex-col gap-2 text-gray-400">
+                    <div className="flex flex-col gap-3 md:gap-4">
+                        <h3 className="text-lg md:text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-1 md:mb-2">Help</h3>
+                        <ul className="flex flex-col gap-2 text-sm md:text-base text-gray-400">
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">Contact Us</a></li>
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">FAQs</a></li>
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">Track Your Order</a></li>
@@ -39,9 +39,9 @@ const Footer = () => {
                     </div>
 
                     {/* Company Column */}
-                    <div className="flex flex-col gap-4">
-                        <h3 className="text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-2">Company</h3>
-                        <ul className="flex flex-col gap-2 text-gray-400">
+                    <div className="flex flex-col gap-3 md:gap-4">
+                        <h3 className="text-lg md:text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-1 md:mb-2">Company</h3>
+                        <ul className="flex flex-col gap-2 text-sm md:text-base text-gray-400">
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">About Us</a></li>
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">Blog</a></li>
                             <li><a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a></li>
@@ -50,23 +50,23 @@ const Footer = () => {
                     </div>
 
                     {/* Newsletter Column */}
-                    <div className="flex flex-col gap-6 col-span-2 md:col-span-1 lg:col-span-1">
-                        <h3 className="text-xl font-bold border-b-2 border-cyan-400 w-fit pb-1 mb-2">
+                    <div className="flex flex-col gap-3 md:gap-6">
+                        <h3 className="text-lg md:text-xl font-bold border-b-2 border-cyan-400 w-fit whitespace-nowrap pb-1 mb-1 md:mb-2">
                             Newsletter SignUp
                         </h3>
-                        <p className="text-gray-400 text-sm leading-relaxed">
+                        <p className="text-gray-400 text-xs md:text-sm leading-relaxed pr-2 md:pr-0">
                             Be the first to know about new arrivals and exclusive deals
                         </p>
 
                         {/* Input Form */}
-                        <div className="flex bg-gray-300 h-12 w-full max-w-xs">
+                        <div className="flex bg-gray-300 h-10 md:h-12 w-full max-w-[14rem] md:max-w-xs mt-2 md:mt-0">
                             <input
                                 type="email"
                                 placeholder="Email Address"
-                                className="bg-transparent px-4 text-gray-800 placeholder-gray-600 outline-none w-full h-full"
+                                className="bg-transparent px-3 md:px-4 text-xs md:text-base text-gray-800 placeholder-gray-600 outline-none w-full h-full"
                             />
-                            <button className="bg-cyan-400 h-full w-14 flex items-center justify-center text-black hover:bg-[#046E73] transition-colors group">
-                                <FaPaperPlane className="transform -rotate-12 group-hover:text-white" />
+                            <button className="bg-cyan-400 h-full w-12 md:w-14 flex items-center justify-center text-black hover:bg-[#046E73] transition-colors group shrink-0">
+                                <FaPaperPlane className="transform -rotate-12 group-hover:text-white text-sm md:text-base" />
                             </button>
                         </div>
                     </div>

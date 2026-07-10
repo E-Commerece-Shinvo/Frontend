@@ -3,7 +3,7 @@ import { FaArrowRight } from 'react-icons/fa';
 
 const BrandPromise = () => {
     return (
-        <div className="w-full bg-gray-50 py-24 text-center">
+        <div className="w-full bg-gray-50 pt-10 pb-24 md:py-24 text-center">
             <div className="max-w-4xl mx-auto px-6">
                 <h2 className="text-4xl md:text-5xl font-bold mb-12">The Brand Promise</h2>
 

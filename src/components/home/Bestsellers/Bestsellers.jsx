@@ -51,8 +51,8 @@ const Bestsellers = () => {
     };
 
     return (
-        <div className="w-full max-w-[1920px] mx-auto pb-10 flex flex-col items-center bg-white overflow-hidden">
-            <h2 className="text-4xl font-bold text-gray-900 mb-12">Our Bestsellers</h2>
+        <div className="w-full max-w-[1920px] mx-auto pb-24 flex flex-col items-center bg-white overflow-hidden">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-12">Our Bestsellers</h2>
 
             <div className="relative w-full max-w-[1920px] h-[500px] min-[1300px]:h-[700px] flex items-center justify-center">
 
@@ -124,7 +124,7 @@ const Bestsellers = () => {
                                         <FaChevronLeft size={20} />
                                     </button>
 
-                                    <Link to={`/product/${product.id}`} className="bg-black hover:bg-white relative bottom-[-40px] left-1/2 -translate-x-1/2 text-white hover:text-cyan-500 px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-transform flex items-center gap-2 text-sm sm:text-base whitespace-nowrap">
+                                    <Link to={`/product/${product.id}`} className="bg-black hover:bg-white relative bottom-[-55px] md:bottom-[-90px] left-1/2 -translate-x-1/2 text-white hover:text-cyan-500 px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-transform flex items-center gap-2 text-sm sm:text-base whitespace-nowrap">
                                         View details
                                     </Link>
 
