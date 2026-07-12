@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
     // baseURL: "https://shinvo.duckdns.org/api",
-    baseURL: 'http://localhost:5000/api',
+    baseURL: 'https://3bf1-2400-adc7-2918-d000-2094-2fdd-d2bd-ff60.ngrok-free.app/api',
     headers: {
         'Content-Type': 'application/json'
     }
